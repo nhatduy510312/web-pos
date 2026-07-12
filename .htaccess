@@ -1,0 +1,12 @@
+RewriteEngine On
+
+AddDefaultCharset UTF-8
+AddCharset UTF-8 .html .htm .php .css .js .json .xml .txt
+
+# Ép HTTPS
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Chặn truy cập trực tiếp bằng IP
+RewriteCond %{HTTP_HOST} ^\d+\.\d+\.\d+\.\d+$ [NC]
+RewriteRule ^ - [F,L]
