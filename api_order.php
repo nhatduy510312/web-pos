@@ -9,6 +9,11 @@ header('Content-Type: application/json');
 
 $action = $_GET['action'] ?? '';
 
+$readActions = ['get_or_create', 'load'];
+if (in_array($action, $readActions, true)) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'GET') { http_response_code(405); header('Allow: GET'); exit; }
+} elseif ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); header('Allow: POST'); exit; }
+
 // Đọc body 1 lần duy nhất, dùng chung cho mọi action (tránh đọc php://input
 // nhiều lần và tránh việc mỗi action tự decode JSON riêng).
 $rawInput = file_get_contents('php://input');
@@ -378,14 +383,17 @@ if ($action == 'update_note') {
     $item_id = (int)($_POST['item_id'] ?? 0);
     $note = trim($_POST['note'] ?? '');
 
+    if (mb_strlen($note) > 500) apiResponse(false, 'Ghi chu qua dai');
+
     $stmt = $conn->prepare("
-        UPDATE order_items
-        SET note=?
-        WHERE id=?
+        UPDATE order_items oi JOIN orders o ON o.id=oi.order_id
+        SET oi.note=?
+        WHERE oi.id=? AND o.status='open'
     ");
 
     $stmt->bind_param("si", $note, $item_id);
     $stmt->execute();
+    if ($stmt->affected_rows === 0) apiResponse(false, 'Mon khong ton tai hoac hoa don da thanh toan');
 
     apiResponse(true);
 }

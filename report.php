@@ -1,6 +1,7 @@
 <?php
 include 'auth.php';
 include 'config.php';
+requireRole(['admin', 'staff', 'user']);
 
 /* ── Validate date / time inputs ── */
 $period = $_GET['period'] ?? 'today';

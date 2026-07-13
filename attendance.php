@@ -2,6 +2,8 @@
 date_default_timezone_set('Asia/Ho_Chi_Minh'); // luôn dùng giờ GMT+7, không phụ thuộc timezone máy chủ
 include 'auth.php';
 include 'config.php';
+requireRole(['admin', 'staff', 'user']);
+requireCsrfForFormPost();
 
 if (isset($_POST['delete'])) {
     $id   = (int)$_POST['delete'];

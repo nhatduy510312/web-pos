@@ -3,6 +3,7 @@ include 'auth.php';
 include 'config.php';
 require 'vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\IOFactory;
+requireRole(['admin', 'staff', 'user']);
 
 /* ── Import Excel ── */
 if (isset($_POST['import_excel'])) {

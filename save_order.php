@@ -6,6 +6,7 @@ include 'auth.php';
 include 'config.php';
 
 header('Content-Type: application/json');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); header('Allow: POST'); exit; }
 
 function jsonResponse($success, $message = '', $extra = [])
 {
@@ -21,9 +22,11 @@ $data = json_decode(
     true
 );
 
-if(!$data){
+if(!is_array($data)){
     jsonResponse(false, 'Du lieu khong hop le');
 }
+
+csrf_require($data['csrf_token'] ?? '');
 
 $items = $data['items'] ?? [];
 
@@ -40,7 +43,7 @@ if(!in_array($payment_method, ['cash', 'bank', 'mixed'], true)){
     jsonResponse(false, 'Phuong thuc thanh toan khong hop le');
 }
 
-if(count($items) == 0){
+if(!is_array($items) || count($items) === 0 || count($items) > 100){
     jsonResponse(false, 'Gio hang trong');
 }
 
@@ -55,7 +58,7 @@ foreach($items as $item){
     $qty =
         (int)($item['qty'] ?? 0);
 
-    if($product_id <= 0 || $qty <= 0){
+    if($product_id <= 0 || $qty <= 0 || $qty > 1000){
         jsonResponse(false, 'San pham hoac so luong khong hop le');
     }
 

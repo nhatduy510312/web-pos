@@ -1,7 +1,17 @@
 RewriteEngine On
+Options -Indexes
 
 AddDefaultCharset UTF-8
 AddCharset UTF-8 .html .htm .php .css .js .json .xml .txt
+
+<FilesMatch "^(config\.php|composer\.(json|lock)|.*\.sql)$">
+    Require all denied
+</FilesMatch>
+<IfModule mod_headers.c>
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+</IfModule>
 
 # Ép HTTPS
 RewriteCond %{HTTPS} !=on

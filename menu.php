@@ -422,6 +422,19 @@ h1,h2,h3,h4 { font-weight: 700; line-height: 1.2; }
 }
 </style>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('form[method="post"]').forEach(function (form) {
+    if (!form.querySelector('input[name="csrf_token"]')) {
+      const token = document.createElement('input');
+      token.type = 'hidden'; token.name = 'csrf_token';
+      token.value = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES) ?>';
+      form.appendChild(token);
+    }
+  });
+});
+</script>
+
 <nav class="nav">
   <span class="nav-brand">☕ GHÉ</span>
   <div class="nav-sep"></div>

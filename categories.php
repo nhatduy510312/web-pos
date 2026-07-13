@@ -1,6 +1,8 @@
 <?php
 include 'auth.php';
 include 'config.php';
+requireRole(['admin', 'staff', 'user']);
+requireCsrfForFormPost();
 
 if (isset($_POST['add'])) {
     $name = trim($_POST['name']);

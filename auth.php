@@ -1,8 +1,14 @@
 <?php
 
 if(session_status() === PHP_SESSION_NONE){
+    session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>true,'httponly'=>true,'samesite'=>'Lax']);
     session_start();
 }
+
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header("Content-Security-Policy: default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'");
 
 require_once __DIR__ . '/csrf.php';
 
@@ -34,6 +40,11 @@ function requireRole($allowedRoles)
     exit;
 }
 
+function requireCsrfForFormPost()
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') csrf_require($_POST['csrf_token'] ?? '');
+}
+
 if(
 !isset(
 $_SESSION['logged_in']
@@ -58,4 +69,3 @@ $_SESSION['logged_in']
 
     exit;
 }
-

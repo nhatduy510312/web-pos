@@ -6,6 +6,7 @@ include 'auth.php';
 include 'config.php';
 
 header('Content-Type: application/json');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); header('Allow: POST'); exit; }
 
 function checkoutResponse($success, $message = '', $extra = [])
 {

@@ -2,6 +2,7 @@
 include 'auth.php';
 require 'vendor/autoload.php';
 include 'config.php';
+requireRole(['admin', 'staff', 'user']);
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;

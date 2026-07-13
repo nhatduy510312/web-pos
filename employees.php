@@ -2,6 +2,7 @@
 include 'auth.php';
 include 'config.php';
 requireRole('admin');
+requireCsrfForFormPost();
 
 if (isset($_POST['delete'])) {
     $id   = (int)$_POST['id'];
