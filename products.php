@@ -3,7 +3,7 @@ include 'auth.php';
 include 'config.php';
 require 'vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\IOFactory;
-requireRole(['admin', 'staff', 'user']);
+requireRole('admin');
 
 /* ── Import Excel ── */
 if (isset($_POST['import_excel'])) {
@@ -87,6 +87,7 @@ $imported = (int)($_GET['imported'] ?? 0);
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Thực đơn — GHÉ Coffee</title>

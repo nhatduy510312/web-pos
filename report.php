@@ -1,7 +1,7 @@
 <?php
 include 'auth.php';
 include 'config.php';
-requireRole(['admin', 'staff', 'user']);
+requireRole('admin');
 
 /* ── Validate date / time inputs ── */
 $period = $_GET['period'] ?? 'today';
@@ -91,6 +91,7 @@ function pmLabel($m) {
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Báo cáo — GHÉ Coffee</title>

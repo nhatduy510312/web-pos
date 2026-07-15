@@ -2,7 +2,7 @@
 date_default_timezone_set('Asia/Ho_Chi_Minh'); // luôn dùng giờ GMT+7, không phụ thuộc timezone máy chủ
 include 'auth.php';
 include 'config.php';
-requireRole(['admin', 'staff', 'user']);
+requireRole('admin');
 requireCsrfForFormPost();
 
 if (isset($_POST['delete'])) {
@@ -47,6 +47,7 @@ $list      = $conn->query("
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chấm công — GHÉ Coffee</title>

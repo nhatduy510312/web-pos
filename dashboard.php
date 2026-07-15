@@ -46,6 +46,7 @@ $avg_today = $today['total_orders'] > 0 ? $today['revenue'] / $today['total_orde
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dashboard — GHÉ Coffee</title>

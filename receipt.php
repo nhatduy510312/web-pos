@@ -25,6 +25,7 @@ $subtotal = $order['total_amount'] + $discount;
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta charset="utf-8">
 <title>Hóa đơn #<?= $id ?></title>
 <style>
