@@ -1,7 +1,7 @@
 <?php
 include 'auth.php';
 include 'config.php';
-requireRole('admin');
+requireRole(['admin', 'staff', 'user']);
 requireCsrfForFormPost();
 
 if (isset($_POST['add'])) {
@@ -42,7 +42,6 @@ $categories = $conn->query("
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Danh mục — GHÉ Coffee</title>

@@ -1,7 +1,7 @@
 <?php
 include 'auth.php';
 include 'config.php';
-requireRole('admin');
+requireRole(['admin', 'staff', 'user']);
 requireCsrfForFormPost();
 
 $today = $_GET['date'] ?? date('Y-m-d');
@@ -108,7 +108,6 @@ $isToday = $today === date('Y-m-d');
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chốt ca — GHÉ Coffee</title>
