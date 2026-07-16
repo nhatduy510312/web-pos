@@ -40,6 +40,7 @@ if (isset($_POST['save'])) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <title>Sửa hóa đơn #<?= $id ?> — GHÉ Coffee</title>
 <style>
 .pay-radio-group { display:flex; flex-direction:column; gap:10px; margin-top:8px; }

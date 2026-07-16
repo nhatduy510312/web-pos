@@ -93,6 +93,7 @@ function pmLabel($m) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <title>Báo cáo — GHÉ Coffee</title>
 <style>
 .filter-pills { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
