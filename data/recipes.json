@@ -1,0 +1,1904 @@
+{
+    "version": 1,
+    "source": {
+        "file": "CÔNG THỨC GHÉ.xlsx",
+        "sheets": [
+            "ĐỒ UỐNG",
+            "MÓN ĂN"
+        ]
+    },
+    "recipes": {
+        "den": {
+            "name": "ĐEN",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "Nóng chỉ có pha máy\nỦ ly bằng nước nóng",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 3
+            },
+            "ingredients": [
+                {
+                    "name": "Cafe",
+                    "amount": "36",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Nước đường",
+                    "amount": "10",
+                    "unit": "ml",
+                    "sort_order": 2
+                }
+            ]
+        },
+        "nau": {
+            "name": "NÂU",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "Nóng chỉ có pha máy\nỦ ly bằng nước nóng",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 6
+            },
+            "ingredients": [
+                {
+                    "name": "Cafe",
+                    "amount": "36",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Sữa đặc",
+                    "amount": "15",
+                    "unit": "gr",
+                    "sort_order": 2
+                }
+            ]
+        },
+        "bac-xiu": {
+            "name": "BẠC XỈU",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "Đá: Hỗn hợp (sữa đặc, rich lùn, sữa tươi) * vào ly khuấy đều. Cho đá, rót cafe lên trên\nNóng: Cho cafe vào ly thủy tinh nhỏ sau đó cho hỗn hợp * vào nồi làm nóng và rót vào ly có cafe sẵn",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 9
+            },
+            "ingredients": [
+                {
+                    "name": "Cafe phin",
+                    "amount": "30",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Sữa đặc",
+                    "amount": "20",
+                    "unit": "gr",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Rich lùn",
+                    "amount": "10",
+                    "unit": "gr",
+                    "sort_order": 3
+                },
+                {
+                    "name": "sữa tươi",
+                    "amount": "50",
+                    "unit": "ml",
+                    "sort_order": 4
+                }
+            ]
+        },
+        "ba-chi": {
+            "name": "BA CHỈ",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "- Lấy 1 ly đánh kem- cho vào 30ml rich cao, 10ml nc đường, 30ml cafe phin- đánh bông lên\n- sau đó cho vào ly thủy tinh 20gr sữa đặc --> đá --> 20ml ca phê phin- ống hút + muỗng + kem cafe vừa đánh ở trên",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 14
+            },
+            "ingredients": [
+                {
+                    "name": "Hạt cafe  ủ phin",
+                    "amount": "50",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "SỮA ĐẶC",
+                    "amount": "20",
+                    "unit": "gr",
+                    "sort_order": 2
+                },
+                {
+                    "name": "RICH CAO",
+                    "amount": "30",
+                    "unit": "gr",
+                    "sort_order": 3
+                },
+                {
+                    "name": "SIRUP ĐƯỜNG",
+                    "amount": "10",
+                    "unit": "",
+                    "sort_order": 4
+                }
+            ]
+        },
+        "cafe-cot-dua": {
+            "name": "CAFE CỐT DỪA",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "Dùng ly cafe lùn lớn- cho vào ly 30ml cốt dừa+ 20ml sữa đặc, khuấy đều lên, cắm ống hút đã cắt ngắn + muỗng vào ly, cho đá vào - đong 36ml cafe phin",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 18
+            },
+            "ingredients": [
+                {
+                    "name": "Cafe máy",
+                    "amount": "36",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Cốt dừa",
+                    "amount": "30",
+                    "unit": "ml",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Sữa đặc",
+                    "amount": "20",
+                    "unit": "gr",
+                    "sort_order": 3
+                }
+            ]
+        },
+        "cafe-muoi": {
+            "name": "CAFE MUỐI",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "- Cho vào ly đong nhựa nhỏ: rich lùn + muối --> đánh bông kem muối bằng máy nhỏ từ 30-->60 ml\n- Dùng ly cafe lùn to: sữa đặc + cafe khuấy đều --> cắm ống hút + muỗng --> đổ kem muối vừa đánh ở trên --> rắc bột cacao decor",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 21
+            },
+            "ingredients": [
+                {
+                    "name": "Rich lùn",
+                    "amount": "30",
+                    "unit": "gr",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Muối hồng",
+                    "amount": "1",
+                    "unit": "hạt",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Cafe phin",
+                    "amount": "36",
+                    "unit": "ml",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Sữa đặc",
+                    "amount": "20",
+                    "unit": "gr",
+                    "sort_order": 4
+                }
+            ]
+        },
+        "espresso": {
+            "name": "ESPRESSO",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "Cho vào ly sứ nhỏ có quai màu trắng",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 25
+            },
+            "ingredients": [
+                {
+                    "name": "Pha máy",
+                    "amount": "36",
+                    "unit": "gr",
+                    "sort_order": 1
+                }
+            ]
+        },
+        "espresso-cam": {
+            "name": "ESPRESSO CAM",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "- Cafe pha máy\n- Dùng ly thủy tinh sọc lớn --> đá full ly --> 150ml nước cam --> đổ cafe lên trên\n- Cam chua thì thêm 10-15ml đường",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 26
+            },
+            "ingredients": [
+                {
+                    "name": "Cafe phin",
+                    "amount": "20",
+                    "unit": "gr",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Nước cam",
+                    "amount": "150",
+                    "unit": "ml",
+                    "sort_order": 2
+                }
+            ]
+        },
+        "americano": {
+            "name": "AMERICANO",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "- Cafe pha máy\n- Dùng ly thủy tinh sọc lớn --> đá full ly --> 150ml nước lọc nóng/lạnh --> đổ cafe lên trên",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 28
+            },
+            "ingredients": [
+                {
+                    "name": "Pha máy",
+                    "amount": "36",
+                    "unit": "gr",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Nước nóng / lạnh",
+                    "amount": "150",
+                    "unit": "ml",
+                    "sort_order": 2
+                }
+            ]
+        },
+        "coldbrew-truyen-thong": {
+            "name": "COLDBREW TRUYỀN THỐNG",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "Cho vào ly thủy tinh cao họa tiết -> đánh bằng máy đen, nếm lại + rắc ít muối --> deccor lát chanh + lá hương thảo / húng lũi",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 30
+            },
+            "ingredients": [
+                {
+                    "name": "Coldbrew",
+                    "amount": "120",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Nước đường",
+                    "amount": "10",
+                    "unit": "ml",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Mật ong",
+                    "amount": "10",
+                    "unit": "ml",
+                    "sort_order": 3
+                }
+            ]
+        },
+        "cold-brew-milk-cream": {
+            "name": "COLD BREW MILK CREAM",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "Cho 10g bột whipping, 20g rich lùn và 10ml nước lạnh vào ca inox, đánh bằng máy lớn.\nCho 120ml cold brew vào ly thủy tinh sọc dọc lớn, thêm đá, muỗng và ống hút.\nĐổ milk cream lên trên và trang trí lá.",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 33
+            },
+            "ingredients": [
+                {
+                    "name": "Cold brew",
+                    "amount": "120",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Bột whipping",
+                    "amount": "10",
+                    "unit": "g",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Rich lùn",
+                    "amount": "20",
+                    "unit": "g",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Nước lạnh",
+                    "amount": "10",
+                    "unit": "ml",
+                    "sort_order": 4
+                },
+                {
+                    "name": "Đá",
+                    "amount": "Vừa đủ",
+                    "unit": "",
+                    "sort_order": 5
+                }
+            ]
+        },
+        "cold-brew-chanh-sa": {
+            "name": "COLD BREW CHANH SẢ",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 38
+            },
+            "ingredients": [
+                {
+                    "name": "Coldbrew",
+                    "amount": "120",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Syrup sả",
+                    "amount": "40",
+                    "unit": "ml",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Cốt chanh",
+                    "amount": "10",
+                    "unit": "ml",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Nước đường",
+                    "amount": "10",
+                    "unit": "gr",
+                    "sort_order": 4
+                }
+            ]
+        },
+        "cafe-caramel": {
+            "name": "CAFE CARAMEL",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "1. Khuấy tan syrup + sốt caramel + cà phê, cho đá vào 2/3 ly\n2. Rich lùn đánh sệt, cho sau lớp cà phê\"",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 42
+            },
+            "ingredients": [
+                {
+                    "name": "Syrup caramel",
+                    "amount": "10",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Sốt caramel",
+                    "amount": "10",
+                    "unit": "g",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Cà phê phin",
+                    "amount": "36",
+                    "unit": "ml",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Rich lùn",
+                    "amount": "20",
+                    "unit": "ml",
+                    "sort_order": 4
+                }
+            ]
+        },
+        "cafe-latte": {
+            "name": "CAFE LATTE",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "Nóng: Cho cafe vào ly sứ trắng, nấu sữa cho lên trên",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 46
+            },
+            "ingredients": [
+                {
+                    "name": "Cafe phin",
+                    "amount": "25",
+                    "unit": "gr",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Sữa tươi",
+                    "amount": "Đá: 120, Nóng 120",
+                    "unit": "ml",
+                    "sort_order": 2
+                }
+            ]
+        },
+        "cafe-mocha": {
+            "name": "CAFE MOCHA",
+            "type": "drink",
+            "category": "CÀ PHÊ",
+            "instructions": "Tầng đầu: 1, 2, 3, 6 khuấy tan đều, cho đá\nTầng trên: đánh bằng máy nhỏ tan đều 4, 5 cho vào ly",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 48
+            },
+            "ingredients": [
+                {
+                    "name": "1. sữa tươi",
+                    "amount": "80",
+                    "unit": "gr",
+                    "sort_order": 1
+                },
+                {
+                    "name": "2. rich lùn",
+                    "amount": "10",
+                    "unit": "gr",
+                    "sort_order": 2
+                },
+                {
+                    "name": "3. sữa đặc",
+                    "amount": "10",
+                    "unit": "gr",
+                    "sort_order": 3
+                },
+                {
+                    "name": "4. cà phê phin",
+                    "amount": "25",
+                    "unit": "ml",
+                    "sort_order": 4
+                },
+                {
+                    "name": "5. bột cacao",
+                    "amount": "5",
+                    "unit": "gr",
+                    "sort_order": 5
+                },
+                {
+                    "name": "6. nước đường",
+                    "amount": "15",
+                    "unit": "gr",
+                    "sort_order": 6
+                }
+            ]
+        },
+        "matcha-sua-dua": {
+            "name": "MATCHA SỮA DỪA",
+            "type": "drink",
+            "category": "MATCHA",
+            "instructions": "Tầng dưới: sữa tươi + sữa đặc + nước đường + cốt dừa -> khuấy đều, cho đá\n\nTầng trên: dùng chổi chasen đánh 2g matcha + 40ml nước sôi 70 - 80 độ",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 55
+            },
+            "ingredients": [
+                {
+                    "name": "Cốt dừa",
+                    "amount": "30",
+                    "unit": "gr",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Sữa tươi",
+                    "amount": "60",
+                    "unit": "ml",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Nước đường",
+                    "amount": "15",
+                    "unit": "gr",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Sữa đặc",
+                    "amount": "10",
+                    "unit": "gr",
+                    "sort_order": 4
+                },
+                {
+                    "name": "Matcha",
+                    "amount": "2",
+                    "unit": "gr",
+                    "sort_order": 5
+                }
+            ]
+        },
+        "matcha-latte": {
+            "name": "MATCHA LATTE",
+            "type": "drink",
+            "category": "MATCHA",
+            "instructions": "Tầng dưới: sữa tươi + sữa đặc + nước đường -> khuấy đều, cho đá\n\nTầng trên: dùng chổi chasen đánh 2g matcha + 40ml nước sôi 70 - 80 độ",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 60
+            },
+            "ingredients": [
+                {
+                    "name": "Sữa đặc",
+                    "amount": "10",
+                    "unit": "gr",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Nước đường",
+                    "amount": "10",
+                    "unit": "ml",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Sữa tươi",
+                    "amount": "80",
+                    "unit": "ml",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Matcha",
+                    "amount": "2",
+                    "unit": "gr",
+                    "sort_order": 4
+                }
+            ]
+        },
+        "matcha-sua-kem": {
+            "name": "MATCHA SỮA KEM",
+            "type": "drink",
+            "category": "MATCHA",
+            "instructions": "Tầng đầu: Sữa tươi + sữa đặc + đường > khuấy đều\nTầng trên: rich cao + rich lùn + bột matcha dùng máy lớn đánh đều bằng ly inox thành lớp kem có độ sệt",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 65
+            },
+            "ingredients": [
+                {
+                    "name": "Đường",
+                    "amount": "15",
+                    "unit": "gr",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Sữa đặc",
+                    "amount": "10",
+                    "unit": "gr",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Sữa tươi",
+                    "amount": "80",
+                    "unit": "gr",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Lớp kem",
+                    "amount": "10",
+                    "unit": "rich cao",
+                    "sort_order": 4
+                }
+            ]
+        },
+        "kombucha-nhan": {
+            "name": "KOMBUCHA NHÃN",
+            "type": "drink",
+            "category": "KOMBUCHA",
+            "instructions": "Cho kombucha, syrup vào ly thủy tinh lùn 2 tầng, 1 đá viên tròn lớn, ống hút, trang trí 1 miếng cam khô\n\nĐiều chỉnh mật ong và chanh tùy vào độ chua của kombucha cho kombucha có vị chua chua",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 72
+            },
+            "ingredients": [
+                {
+                    "name": "Trà kombucha",
+                    "amount": "150",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Syrup nhãn",
+                    "amount": "30",
+                    "unit": "ml",
+                    "sort_order": 2
+                }
+            ]
+        },
+        "kombucha-atiso-do": {
+            "name": "KOMBUCHA ATISO ĐỎ",
+            "type": "drink",
+            "category": "KOMBUCHA",
+            "instructions": "",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 74
+            },
+            "ingredients": [
+                {
+                    "name": "Trà kombucha",
+                    "amount": "150",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Syrup hibicus",
+                    "amount": "30",
+                    "unit": "ml",
+                    "sort_order": 2
+                }
+            ]
+        },
+        "choco-da-nong": {
+            "name": "CHOCO ĐÁ/NÓNG",
+            "type": "drink",
+            "category": "CHOCO",
+            "instructions": "(1) Bỏ bột cacao, sốt choco và nước sôi vào ca đong 100ml, đánh bằng máy đánh nhỏ\n\n- Nóng: Bỏ hỗn hợp rich lùn + sữa đặc + sữa tươi và nồi nấu sôi. Cho hỗn hợp (1) vào ly sứ rồi đổ hỗn hợp sữa mới nấu lên trên\n\n- Đá: Bỏ hỗn hợp rich lùn + sữa đặc + sữa tươi + nước đường khuấy lên --> cho đá vào --> cho hỗn hợp (1) vào ly sau cùng",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 77
+            },
+            "ingredients": [
+                {
+                    "name": "Bột cacao",
+                    "amount": "Nóng: 5 · Đá: 5",
+                    "unit": "",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Sốt choco",
+                    "amount": "Nóng: 5 · Đá: 5",
+                    "unit": "",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Nước sôi",
+                    "amount": "Nóng: 40 · Đá: 40",
+                    "unit": "",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Rich lùn",
+                    "amount": "Nóng: 10 · Đá: 10",
+                    "unit": "",
+                    "sort_order": 4
+                },
+                {
+                    "name": "Sữa đặc",
+                    "amount": "Nóng: 10 · Đá: 10",
+                    "unit": "",
+                    "sort_order": 5
+                },
+                {
+                    "name": "Sữa tươi",
+                    "amount": "Nóng: 120 · Đá: 80",
+                    "unit": "",
+                    "sort_order": 6
+                },
+                {
+                    "name": "Nước đường",
+                    "amount": "Đá: 10",
+                    "unit": "",
+                    "sort_order": 7
+                }
+            ]
+        },
+        "choco-muoi": {
+            "name": "CHOCO MUỐI",
+            "type": "drink",
+            "category": "CHOCO",
+            "instructions": "Tầng 1: sữa tươi + sữa đặc + nước đường -> khuấy tan -> cho đá vào\nTầng 2: 5g cacao + sốt choco + nước sôi --> đánh bằng máy nhỏ\nTầng 3: Kem muối: Rich lùn + muối (muối nhiều hơn cafe kem muối 1 xíu) --> đánh bằng máy lớn cho lên 70ml\nDecor: bột choco, kèm ống hút và muỗng",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 85
+            },
+            "ingredients": [
+                {
+                    "name": "Bột cacao",
+                    "amount": "Nóng: 5 · Đá: 5",
+                    "unit": "",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Sốt choco",
+                    "amount": "Nóng: 5 · Đá: 7",
+                    "unit": "",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Nước sôi",
+                    "amount": "Nóng: 40 · Đá: 40",
+                    "unit": "",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Sữa tươi",
+                    "amount": "Nóng: 120 · Đá: 60",
+                    "unit": "",
+                    "sort_order": 4
+                },
+                {
+                    "name": "Rich lùn",
+                    "amount": "Nóng: 10 · Đá: 30",
+                    "unit": "",
+                    "sort_order": 5
+                },
+                {
+                    "name": "Muối",
+                    "amount": "Nóng: 1 hạt · Đá: 2 hạt",
+                    "unit": "",
+                    "sort_order": 6
+                },
+                {
+                    "name": "Nước đường",
+                    "amount": "Đá: 15",
+                    "unit": "",
+                    "sort_order": 7
+                },
+                {
+                    "name": "Sữa đặc",
+                    "amount": "Nóng: 10 · Đá: 10",
+                    "unit": "",
+                    "sort_order": 8
+                }
+            ]
+        },
+        "choco-sua-dua": {
+            "name": "CHOCO SỮA DỪA",
+            "type": "drink",
+            "category": "CHOCO",
+            "instructions": "Tầng 1: sữa tươi + sữa đặc + sữa dừa -> khuấy tan -> cho đá vào\nTầng 2: cacao + sốt choco + nước sôi --> đánh bằng máy nhỏ\nDecor: kèm ống hút và muỗng",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 94
+            },
+            "ingredients": [
+                {
+                    "name": "Sữa tươi",
+                    "amount": "60",
+                    "unit": "gr",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Sữa dừa",
+                    "amount": "30",
+                    "unit": "gr",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Sữa đặc",
+                    "amount": "10",
+                    "unit": "gr",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Đường",
+                    "amount": "15",
+                    "unit": "gr",
+                    "sort_order": 4
+                },
+                {
+                    "name": "Sốt choco",
+                    "amount": "5",
+                    "unit": "gr",
+                    "sort_order": 5
+                },
+                {
+                    "name": "Bột cacao",
+                    "amount": "5g",
+                    "unit": "gr",
+                    "sort_order": 6
+                },
+                {
+                    "name": "Nước sôi",
+                    "amount": "40",
+                    "unit": "ml",
+                    "sort_order": 7
+                }
+            ]
+        },
+        "nuoc-cam": {
+            "name": "NƯỚC CAM",
+            "type": "drink",
+            "category": "NƯỚC ÉP",
+            "instructions": "cho mật ong hoặc đường tùy vào độ chua của cam và yêu cầu của khách",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 102
+            },
+            "ingredients": [
+                {
+                    "name": "Cam tươi",
+                    "amount": "180",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Mật ong",
+                    "amount": "15-20",
+                    "unit": "gr",
+                    "sort_order": 2
+                }
+            ]
+        },
+        "chanh-day": {
+            "name": "CHANH DÂY",
+            "type": "drink",
+            "category": "NƯỚC ÉP",
+            "instructions": "",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 104
+            },
+            "ingredients": [
+                {
+                    "name": "Chanh dây tươi",
+                    "amount": "1",
+                    "unit": "trái",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Cốt chanh dây",
+                    "amount": "30",
+                    "unit": "gr",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Nước lọc",
+                    "amount": "120",
+                    "unit": "ml",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Đường",
+                    "amount": "15-20",
+                    "unit": "gr",
+                    "sort_order": 4
+                }
+            ]
+        },
+        "sua-olong-rang": {
+            "name": "SỮA OLONG RANG",
+            "type": "drink",
+            "category": "TRÀ",
+            "instructions": "Nóng: \n80ml trà sữa\n100ml sữa tươi\n\nĐá:\n120ml trà sữa\nTrân châu: 40gr",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 109
+            },
+            "ingredients": []
+        },
+        "am-ap": {
+            "name": "ẤM ÁP",
+            "type": "drink",
+            "category": "TRÀ",
+            "instructions": "7g gừng tươi cắt sợi, nấu trong nồi khoảng 1-2 phút với khoảng 100ml nước\n1 lát cam khô\n3-4cm vỏ quế\n10g mật ong\n2,3 lá bạc hà + cỏ ngọt",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 110
+            },
+            "ingredients": []
+        },
+        "an-than": {
+            "name": "AN THẦN",
+            "type": "drink",
+            "category": "TRÀ",
+            "instructions": "4 trái  táo đỏ, cắt làm đôi, nấu trong nồi khoảng 1-2 phút với khoảng 100ml nước\n7g kỷ tử\n3 trái nhãn nhục\n10g mật ong\n2,3 lá bạc hà + cỏ ngọt",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 111
+            },
+            "ingredients": []
+        },
+        "thu-gian": {
+            "name": "THƯ GIÃN",
+            "type": "drink",
+            "category": "TRÀ",
+            "instructions": "3g hoa hồng\n1g hoa cúc\n0,5g hoa mộc\n1g hoa nhài\n2,3 lá bạc hà + cỏ ngọt",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 112
+            },
+            "ingredients": []
+        },
+        "tra-oi-chanh-day": {
+            "name": "TRÀ ỔI CHANH DÂY",
+            "type": "drink",
+            "category": "TRÀ",
+            "instructions": "Cho hỗn hợp nước vào trước + đá, sau đó quả ở trên cùng",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 113
+            },
+            "ingredients": [
+                {
+                    "name": "Hồng trà",
+                    "amount": "100",
+                    "unit": "gr",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Cốt chanh",
+                    "amount": "10",
+                    "unit": "gr",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Đường",
+                    "amount": "20",
+                    "unit": "gr",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Nước quả ngâm",
+                    "amount": "50",
+                    "unit": "gr",
+                    "sort_order": 4
+                },
+                {
+                    "name": "Quả",
+                    "amount": "50",
+                    "unit": "gr",
+                    "sort_order": 5
+                }
+            ]
+        },
+        "tra-dao-quan-cam": {
+            "name": "TRÀ ĐÀO QUẬN CAM",
+            "type": "drink",
+            "category": "TRÀ",
+            "instructions": "- Ép cam\n->Cho toàn bộ nguyên liệu + đường (tùy độ chua của cam)  ly to sọc dọc, dùng máy đánh đều tạo bọt -> nếm lại\n-> đá, decor:1 lát cam mỏng + lá húng lũi",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 118
+            },
+            "ingredients": [
+                {
+                    "name": "Trà đào",
+                    "amount": "100",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Cam tươi",
+                    "amount": "50",
+                    "unit": "ml",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Syrup đào",
+                    "amount": "10",
+                    "unit": "ml",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Mứt đào",
+                    "amount": "20",
+                    "unit": "gr",
+                    "sort_order": 4
+                },
+                {
+                    "name": "Bột đào",
+                    "amount": "6",
+                    "unit": "gr",
+                    "sort_order": 5
+                },
+                {
+                    "name": "Chanh + muối",
+                    "amount": "Một xíu",
+                    "unit": "",
+                    "sort_order": 6
+                }
+            ]
+        },
+        "tra-olong-kem-trung": {
+            "name": "TRÀ OLONG KEM TRỨNG",
+            "type": "drink",
+            "category": "TRÀ",
+            "instructions": "Đánh kem trứng: cho vào ca inox 10ml rich cao, 20ml rich lùn, 7gr bột kem trứng - đánh bông bằng máy đánh trứng xám\n\nTrà + Caramel khuấy đều\nCho đá + kem trứng lên trên cùng",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 124
+            },
+            "ingredients": [
+                {
+                    "name": "Trà Olong",
+                    "amount": "150",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Caramel",
+                    "amount": "20",
+                    "unit": "gr",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Đường",
+                    "amount": "10",
+                    "unit": "gr",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Kem trứng",
+                    "amount": "10 rich cao + 20 rich lùn + 7gr bột kem trứng",
+                    "unit": "",
+                    "sort_order": 4
+                }
+            ]
+        },
+        "sua-chua-hat-khong-da": {
+            "name": "SỮA CHUA HẠT (KHÔNG ĐÁ)",
+            "type": "drink",
+            "category": "SỮA CHUA - nếm thử độ chua trước khi cho chanh và sữa đặc",
+            "instructions": "Cho 2 hộp sữa chua khuấy đều vào ly lùn có đế --> rắc hạt lên",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 129
+            },
+            "ingredients": [
+                {
+                    "name": "Sữa chua",
+                    "amount": "2",
+                    "unit": "hộp",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Hạt điều",
+                    "amount": "5",
+                    "unit": "gr",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Óc chó",
+                    "amount": "5",
+                    "unit": "gr",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Ngũ cốc",
+                    "amount": "10",
+                    "unit": "gr",
+                    "sort_order": 4
+                }
+            ]
+        },
+        "sua-chua-chanh-day-viet-quat-dau-tam-co-da": {
+            "name": "SỮA CHUA CHANH DÂY / VIỆT QUẤT / DÂU TẰM (CÓ ĐÁ)",
+            "type": "drink",
+            "category": "SỮA CHUA - nếm thử độ chua trước khi cho chanh và sữa đặc",
+            "instructions": "1. Cho 10gr Syrup vào ly + tráng thành ly \n2. Cho 10gr syrup vào 1 hủ sữa chua, trộn đều\n3. Trộn đều hủ sữa chua ko có syrup vào ly --> cho đá vào đến gần miệng ly --> cho hủ sữa chua có syrup lên trên cùng\n4. Decor bằng 1 nhánh hương thảo cắm ở giữa",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 133
+            },
+            "ingredients": [
+                {
+                    "name": "Sữa đặc",
+                    "amount": "Không cần khi sữa chua ngọt",
+                    "unit": "gr",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Chanh",
+                    "amount": "5ml/hủ nếu thiếu chua",
+                    "unit": "ml",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Sữa chua",
+                    "amount": "2",
+                    "unit": "hủ",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Syrup chanh dây / việt quất / dâu tằm",
+                    "amount": "20",
+                    "unit": "gr",
+                    "sort_order": 4
+                }
+            ]
+        },
+        "nuoc-duong": {
+            "name": "NƯỚC ĐƯỜNG",
+            "type": "base",
+            "category": "NGUYÊN LIỆU",
+            "instructions": "250gr đường vàng + 200 ml nước sôi, khuấy đều tan đường, đợi nước sôi --> tắt bếp",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 138
+            },
+            "ingredients": []
+        },
+        "syrup-sa": {
+            "name": "SYRUP SẢ",
+            "type": "base",
+            "category": "NGUYÊN LIỆU",
+            "instructions": "100g sả rửa sạch, đập dập, cắt 3cm bỏ vào túi lọc trắng + nấu cùng 500gr nước ở mức nhiệt 200 trong 15p, đậy nắp. Vớt túi lọc ra, cho 200gr đường vào nồi,  khuấy tan",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 139
+            },
+            "ingredients": []
+        },
+        "u-cafe-coldbrew": {
+            "name": "Ủ CAFE COLDBREW",
+            "type": "base",
+            "category": "NGUYÊN LIỆU",
+            "instructions": "1. 90g đá bỏ đáy bình \n2. 90g cafe xay ở mức lớn trên máy với 1 gói trà dâu vào lõi lọc --> pour 90ml nước sôi ở nhiệt độ 88-92 vào lõi cafe. Ủ trong 2 phút\n3. Đổ nước lọc nguội đến dưới tay cầm phía trên\n4. Để trong tủ lạnh 18-24 tiếng",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 140
+            },
+            "ingredients": []
+        },
+        "cot-oi-chanh-day": {
+            "name": "CỐT ỔI CHANH DÂY",
+            "type": "base",
+            "category": "NGUYÊN LIỆU",
+            "instructions": "- 500gr ổi hồng + 700gr chanh dây trái\n- Ổi rửa sạch, bỏ hạt, cắt hạt lựu, cân lại toàn bộ định lượng của ổi và chanh dây--> cho vào hủ thủy tinh --> cho đường vàng bằng 1/3 khối lượng quả, để ngoài cho tan hết đường rồi bỏ vào tủ mát",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 141
+            },
+            "ingredients": []
+        },
+        "tra-sua-olong-rang": {
+            "name": "TRÀ SỮA OLONG RANG",
+            "type": "base",
+            "category": "NGUYÊN LIỆU",
+            "instructions": "Cho trà vào nồi -> TRÁNG TRÀ, bỏ nước tráng trà -> đậy nắp ủ trà 5 phút\n700ml nước sôi bắt lên bếp đun 2 phút, ủ 25 phút\ntrong khi đợi trà, chuẩn bi 1 ca bột sữa, sữa đặc, đường đen+ rich lùn \nsau khi ủ, lọc trà cho nc trà vào ca bột đã chuẩn bị, khuấy đều tan hoàn toàn HỖN HỢP rồi cho vào thùng đựng đá để ủ lạnh",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 142
+            },
+            "ingredients": [
+                {
+                    "name": "Trà olong rang",
+                    "amount": "40",
+                    "unit": "gr",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Bột sữa",
+                    "amount": "50",
+                    "unit": "gr",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Sữa đặc",
+                    "amount": "50",
+                    "unit": "gr",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Đường đen",
+                    "amount": "70",
+                    "unit": "gr",
+                    "sort_order": 4
+                },
+                {
+                    "name": "Rich lùn",
+                    "amount": "50",
+                    "unit": "gr",
+                    "sort_order": 5
+                }
+            ]
+        },
+        "cafe-u-phin": {
+            "name": "CAFE Ủ PHIN",
+            "type": "base",
+            "category": "NGUYÊN LIỆU",
+            "instructions": "1. Xay cafe, nấu nước sôi, đổ vào chén đáy sâu 80gr\n2. Ủ cafe bằng 100gr nước sôi 88-92 độ, 3 phút\n3. Đổ 320gr nước sôi",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 147
+            },
+            "ingredients": [
+                {
+                    "name": "Cafe",
+                    "amount": "120",
+                    "unit": "gr",
+                    "sort_order": 1
+                }
+            ]
+        },
+        "cot-tra-olong-cozy": {
+            "name": "CỐT TRÀ OLONG COZY",
+            "type": "base",
+            "category": "NGUYÊN LIỆU",
+            "instructions": "",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 148
+            },
+            "ingredients": [
+                {
+                    "name": "2 gói trà vào ca inox+ 550ml nước sôi",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ]
+        },
+        "cot-tra-dao": {
+            "name": "CỐT TRÀ ĐÀO",
+            "type": "base",
+            "category": "NGUYÊN LIỆU",
+            "instructions": "",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 149
+            },
+            "ingredients": [
+                {
+                    "name": "4 gói trà vào ấm trà thủy tinh + 1 lít nước sôi",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ]
+        },
+        "cot-hong-tra": {
+            "name": "CỐT HỒNG TRÀ",
+            "type": "base",
+            "category": "NGUYÊN LIỆU",
+            "instructions": "",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 150
+            },
+            "ingredients": [
+                {
+                    "name": "4 gói trà vào ấm trà thủy tinh + 1 lít nước sôi",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ]
+        },
+        "mut-dao": {
+            "name": "MỨT ĐÀO",
+            "type": "base",
+            "category": "NGUYÊN LIỆU",
+            "instructions": "Một hộp đào cắt hạt lựu --> bỏ vào nồi cùng nước đường ngâm đào + 200gr đường vàng, nấu lửa nhỏ khuấy đều cho đến khi cô đặc lại",
+            "source": {
+                "sheet": "ĐỒ UỐNG",
+                "row": 151
+            },
+            "ingredients": []
+        },
+        "vien-chien": {
+            "name": "VIÊN CHIÊN",
+            "type": "food",
+            "category": "MÓN ĂN",
+            "instructions": "1. Bật lò chiên lên 200 độ\n2. Cho toàn bộ nguyên liệu vào dầu đã sôi \n3. Phục vụ đĩa gốm dài nhỏ có lót giấy nến, để lên khay ăn kèm tương ớt, majo, nĩa",
+            "source": {
+                "sheet": "MÓN ĂN",
+                "row": 4
+            },
+            "ingredients": [
+                {
+                    "name": "Cá viên",
+                    "amount": "3 viên",
+                    "unit": "",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Bò viên",
+                    "amount": "2 viên",
+                    "unit": "",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Khoai tây",
+                    "amount": "100gr",
+                    "unit": "",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Xúc xích",
+                    "amount": "1 cây",
+                    "unit": "",
+                    "sort_order": 4
+                },
+                {
+                    "name": "viên thả lẩu thập cẩm kitcool",
+                    "amount": "2 viên",
+                    "unit": "",
+                    "sort_order": 5
+                },
+                {
+                    "name": "dưa leo (1 quả)",
+                    "amount": "1 trái",
+                    "unit": "",
+                    "sort_order": 6
+                },
+                {
+                    "name": "Đậu bắp (3-4 quả)",
+                    "amount": "3-4 trái",
+                    "unit": "",
+                    "sort_order": 7
+                },
+                {
+                    "name": "Tương ớt",
+                    "amount": "1/2 chén",
+                    "unit": "",
+                    "sort_order": 8
+                },
+                {
+                    "name": "Mayonnaise",
+                    "amount": "1/2 chén",
+                    "unit": "",
+                    "sort_order": 9
+                }
+            ]
+        },
+        "mi-tom": {
+            "name": "MÌ TÔM",
+            "type": "food",
+            "category": "MÓN ĂN",
+            "instructions": "1. Nấu nước sôi \n2. Chiên trứng\n3. Cho mì và gói gia vị vào tô \n4. Chuẩn bị 1 chén củ cải ngâm\n5. Luộc cải thìa\n6. Đổ nước sôi vào tô mì, cho trứng, rau, rau nêm, ...rắc hành phi lên trên cùng",
+            "source": {
+                "sheet": "MÓN ĂN",
+                "row": 14
+            },
+            "ingredients": [
+                {
+                    "name": "Mì tôm",
+                    "amount": "1 gói",
+                    "unit": "",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Cải thìa",
+                    "amount": "3-4 lá",
+                    "unit": "",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Trứng",
+                    "amount": "1 quả",
+                    "unit": "",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Rau nêm",
+                    "amount": "trang trí",
+                    "unit": "",
+                    "sort_order": 4
+                },
+                {
+                    "name": "Củ cải ngâm",
+                    "amount": "1 chén nhỏ",
+                    "unit": "",
+                    "sort_order": 5
+                }
+            ]
+        },
+        "khoai-tay-chien": {
+            "name": "KHOAI TÂY CHIÊN",
+            "type": "food",
+            "category": "MÓN ĂN",
+            "instructions": "1. Bật lò chiên lên 200 độ\n2. Cân 200gr khoai tây, cho vào nồi chiên đến khi vàng mặt khoai\n3. Phục vụ đĩa gốm dài nhỏ có lót giáy và giấy nến, để lên khay ăn kèm tương ớt, majo, nĩa",
+            "source": {
+                "sheet": "MÓN ĂN",
+                "row": 19
+            },
+            "ingredients": [
+                {
+                    "name": "Khoai tây",
+                    "amount": "200 gr",
+                    "unit": "",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Tương ớt",
+                    "amount": "1/2 chén",
+                    "unit": "",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Mayonnaise",
+                    "amount": "1/2 chén",
+                    "unit": "",
+                    "sort_order": 3
+                }
+            ]
+        },
+        "sandwich-trung": {
+            "name": "SANDWICH TRỨNG",
+            "type": "food",
+            "category": "MÓN ĂN",
+            "instructions": "1. Lấy trứng bỏ vào chén đánh lên --> bỏ lên bếp chiên\n2. Lấy 1 lát bánh mì để vào trong máy kẹp\n3. Sốt Majoonair + tương ớt --> quét lên phần bánh mì ở trong máy kẹp\n4. Đặt xà lách + cà chua lên lát bánh mì trong máy kẹp\n5. Đặt trứng chiên lên trên --> đặt lát bánh mì còn lại lên trên --> đóng máy kẹp lại đợi khoảng 1 phút --> ra món trên dĩa kèm dao và nĩa",
+            "source": {
+                "sheet": "MÓN ĂN",
+                "row": 22
+            },
+            "ingredients": [
+                {
+                    "name": "Bánh sandwich",
+                    "amount": "2 lát",
+                    "unit": "",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Trứng",
+                    "amount": "1",
+                    "unit": "",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Xà lách",
+                    "amount": "1-2 lá",
+                    "unit": "",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Cà chua",
+                    "amount": "2 lát",
+                    "unit": "",
+                    "sort_order": 4
+                },
+                {
+                    "name": "sốt Mayonnaise + tương ớt",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 5
+                }
+            ]
+        },
+        "cu-cai-ngam": {
+            "name": "CỦ CẢI NGÂM",
+            "type": "base",
+            "category": "MÓN ĂN",
+            "instructions": "1. Bào vỏ củ cải, cắt thành hình mong muốn, trộn củ cải đã cắt vs muối hột để tầm 30p \n2. Củ cải sau khi ngâm rửa sạch vs nước, để ráo nước\n3. Nước giấm: Lấy 1 cái nồi, cho muối, đường, nước lọc, giấm, bột nghệ, nấu trên lửa vửa, nước sôi thì để nguội\n4. Sau khi giấm nguội, bỏ củ cải vào hủ thủy tinh rồi đổ nước giấm vào",
+            "source": {
+                "sheet": "MÓN ĂN",
+                "row": 27
+            },
+            "ingredients": [
+                {
+                    "name": "Củ cải",
+                    "amount": "400gr",
+                    "unit": "",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Muối",
+                    "amount": "18gr",
+                    "unit": "",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Đường trắng",
+                    "amount": "150gr",
+                    "unit": "",
+                    "sort_order": 3
+                },
+                {
+                    "name": "Nước lọc",
+                    "amount": "150ml",
+                    "unit": "",
+                    "sort_order": 4
+                },
+                {
+                    "name": "Giấm táo",
+                    "amount": "100ml",
+                    "unit": "",
+                    "sort_order": 5
+                },
+                {
+                    "name": "Bột nghệ",
+                    "amount": "10gr",
+                    "unit": "",
+                    "sort_order": 6
+                }
+            ]
+        },
+        "product-66": {
+            "name": "Kombucha dâu tây",
+            "type": "drink",
+            "category": "Kombucha",
+            "instructions": "Rót 150ml kombucha và thêm đá - Decor",
+            "ingredients": [],
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "updated_at": "2026-07-25T17:41:35+02:00"
+        },
+        "product-65": {
+            "name": "Kombucha gừng",
+            "type": "drink",
+            "category": "Kombucha",
+            "instructions": "Rót 150ml kombucha và thêm đá - Decor",
+            "ingredients": [],
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "updated_at": "2026-07-25T17:41:44+02:00"
+        },
+        "product-64": {
+            "name": "Kombucha xoài",
+            "type": "drink",
+            "category": "Kombucha",
+            "instructions": "Rót 150ml kombucha và thêm đá - Decor",
+            "ingredients": [],
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "updated_at": "2026-07-25T17:41:51+02:00"
+        }
+    },
+    "product_map": [
+        {
+            "product_names": [
+                "Cafe đen đá"
+            ],
+            "recipe_code": "den",
+            "variant": "Đá"
+        },
+        {
+            "product_names": [
+                "Cafe đen nóng"
+            ],
+            "recipe_code": "den",
+            "variant": "Nóng"
+        },
+        {
+            "product_names": [
+                "Nâu đá"
+            ],
+            "recipe_code": "nau",
+            "variant": "Đá"
+        },
+        {
+            "product_names": [
+                "Nâu nóng"
+            ],
+            "recipe_code": "nau",
+            "variant": "Nóng"
+        },
+        {
+            "product_names": [
+                "Bạc xỉu đá"
+            ],
+            "recipe_code": "bac-xiu",
+            "variant": "Đá"
+        },
+        {
+            "product_names": [
+                "Bạc xỉu nóng"
+            ],
+            "recipe_code": "bac-xiu",
+            "variant": "Nóng"
+        },
+        {
+            "product_names": [
+                "Ba Chỉ"
+            ],
+            "recipe_code": "ba-chi",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Cafe cốt dừa",
+                "Sữa dừa"
+            ],
+            "recipe_code": "cafe-cot-dua",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Cafe muối",
+                "Muối"
+            ],
+            "recipe_code": "cafe-muoi",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Espresso đá"
+            ],
+            "recipe_code": "espresso",
+            "variant": "Đá"
+        },
+        {
+            "product_names": [
+                "Espresso nóng"
+            ],
+            "recipe_code": "espresso",
+            "variant": "Nóng"
+        },
+        {
+            "product_names": [
+                "Espresso Cam"
+            ],
+            "recipe_code": "espresso-cam",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Americano đá"
+            ],
+            "recipe_code": "americano",
+            "variant": "Đá"
+        },
+        {
+            "product_names": [
+                "Americano nóng"
+            ],
+            "recipe_code": "americano",
+            "variant": "Nóng"
+        },
+        {
+            "product_names": [
+                "ColdBrew Truyền Thống",
+                "Cold Brew Truyền Thống"
+            ],
+            "recipe_code": "coldbrew-truyen-thong",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Coldbrew Chanh Sả",
+                "Cold Brew Chanh Sả"
+            ],
+            "recipe_code": "cold-brew-chanh-sa",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Caramel",
+                "Cafe Caramel"
+            ],
+            "recipe_code": "cafe-caramel",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Latte",
+                "Cafe Latte"
+            ],
+            "recipe_code": "cafe-latte",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Mocha",
+                "Cafe Mocha"
+            ],
+            "recipe_code": "cafe-mocha",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Matcha Sữa Dừa"
+            ],
+            "recipe_code": "matcha-sua-dua",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Matcha latte"
+            ],
+            "recipe_code": "matcha-latte",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Matcha sữa kem"
+            ],
+            "recipe_code": "matcha-sua-kem",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Kombucha Nhãn"
+            ],
+            "recipe_code": "kombucha-nhan",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Kombucha atiso đỏ"
+            ],
+            "recipe_code": "kombucha-atiso-do",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Choco",
+                "Cacao đá"
+            ],
+            "recipe_code": "choco-da-nong",
+            "variant": "Đá"
+        },
+        {
+            "product_names": [
+                "Cacao nóng"
+            ],
+            "recipe_code": "choco-da-nong",
+            "variant": "Nóng"
+        },
+        {
+            "product_names": [
+                "Choco muối"
+            ],
+            "recipe_code": "choco-muoi",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Choco sữa dừa"
+            ],
+            "recipe_code": "choco-sua-dua",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Cam",
+                "Nước cam"
+            ],
+            "recipe_code": "nuoc-cam",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Chanh dây"
+            ],
+            "recipe_code": "chanh-day",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Sữa ô-long rang - Nóng"
+            ],
+            "recipe_code": "sua-olong-rang",
+            "variant": "Nóng"
+        },
+        {
+            "product_names": [
+                "Sữa ô-long rang - Đá"
+            ],
+            "recipe_code": "sua-olong-rang",
+            "variant": "Đá"
+        },
+        {
+            "product_names": [
+                "Ấm áp"
+            ],
+            "recipe_code": "am-ap",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "An thần"
+            ],
+            "recipe_code": "an-than",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Thư giãn"
+            ],
+            "recipe_code": "thu-gian",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Trà ổi chanh dây"
+            ],
+            "recipe_code": "tra-oi-chanh-day",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Đào Quận Cam",
+                "Trà Đào Quận Cam"
+            ],
+            "recipe_code": "tra-dao-quan-cam",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Ô-long Kem Trứng",
+                "Trà Olong Kem Trứng"
+            ],
+            "recipe_code": "tra-olong-kem-trung",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Sữa chua hạt"
+            ],
+            "recipe_code": "sua-chua-hat-khong-da",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Sữa Chua Chanh Dây"
+            ],
+            "recipe_code": "sua-chua-chanh-day-viet-quat-dau-tam-co-da",
+            "variant": "Chanh dây"
+        },
+        {
+            "product_names": [
+                "Sữa chua Việt Quất"
+            ],
+            "recipe_code": "sua-chua-chanh-day-viet-quat-dau-tam-co-da",
+            "variant": "Việt quất"
+        },
+        {
+            "product_names": [
+                "Sữa chua dâu tằm"
+            ],
+            "recipe_code": "sua-chua-chanh-day-viet-quat-dau-tam-co-da",
+            "variant": "Dâu tằm"
+        },
+        {
+            "product_names": [
+                "COMBO viên chiên",
+                "Viên chiên"
+            ],
+            "recipe_code": "vien-chien",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Mì tôm trứng nước",
+                "Mì tôm"
+            ],
+            "recipe_code": "mi-tom",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Khoai tây chiên"
+            ],
+            "recipe_code": "khoai-tay-chien",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Sandwich trứng"
+            ],
+            "recipe_code": "sandwich-trung",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Kombucha dâu tây"
+            ],
+            "recipe_code": "product-66",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Kombucha gừng"
+            ],
+            "recipe_code": "product-65",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "Kombucha xoài"
+            ],
+            "recipe_code": "product-64",
+            "variant": ""
+        }
+    ],
+    "updated_at": "2026-07-25T17:41:51+02:00"
+}

@@ -444,7 +444,8 @@ document.addEventListener('DOMContentLoaded', function () {
   <a href="report.php"           class="<?= $_NAV_PAGE === 'report.php'           ? 'active' : '' ?>">📈 Báo cáo</a>
   <a href="cashbook.php"         class="<?= $_NAV_PAGE === 'cashbook.php'         ? 'active' : '' ?>">📒 Chốt ca</a>
   <a href="cashbook_history.php" class="<?= $_NAV_PAGE === 'cashbook_history.php' ? 'active' : '' ?>">📚 Lịch sử</a>
-  <a href="products.php"         class="<?= $_NAV_PAGE === 'products.php'         ? 'active' : '' ?>">🍹 Thực đơn</a>
+  <a href="products.php"         class="<?= in_array($_NAV_PAGE, ['products.php', 'recipes.php'], true) ? 'active' : '' ?>">🍹 Thực đơn</a>
+  <a href="ingredients.php"      class="<?= $_NAV_PAGE === 'ingredients.php'      ? 'active' : '' ?>">🧪 Nguyên liệu</a>
   <a href="categories.php"       class="<?= $_NAV_PAGE === 'categories.php'       ? 'active' : '' ?>">📂 Danh mục</a>
   <a href="attendance.php"       class="<?= $_NAV_PAGE === 'attendance.php'       ? 'active' : '' ?>">🕒 Chấm công</a>
   <?php if ($_NAV_ROLE === 'admin'): ?>
