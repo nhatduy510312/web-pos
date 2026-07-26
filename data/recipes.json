@@ -870,12 +870,32 @@
             "name": "SỮA OLONG RANG",
             "type": "drink",
             "category": "TRÀ",
-            "instructions": "Nóng: \n80ml trà sữa\n100ml sữa tươi\n\nĐá:\n120ml trà sữa\nTrân châu: 40gr",
+            "instructions": "",
+            "ingredients": [
+                {
+                    "name": "Trà sữa",
+                    "amount": "Nóng: 80 · Đá: 120",
+                    "unit": "ml",
+                    "sort_order": 1
+                },
+                {
+                    "name": "Sữa tươi",
+                    "amount": "Nóng: 100",
+                    "unit": "ml",
+                    "sort_order": 2
+                },
+                {
+                    "name": "Trân châu",
+                    "amount": "Nóng: 40 · Đá: 40",
+                    "unit": "gr",
+                    "sort_order": 3
+                }
+            ],
             "source": {
                 "sheet": "ĐỒ UỐNG",
                 "row": 109
             },
-            "ingredients": []
+            "updated_at": "2026-07-25T17:50:47+02:00"
         },
         "am-ap": {
             "name": "ẤM ÁP",
@@ -1900,5 +1920,5 @@
             "variant": ""
         }
     ],
-    "updated_at": "2026-07-25T17:41:51+02:00"
+    "updated_at": "2026-07-25T17:50:47+02:00"
 }
