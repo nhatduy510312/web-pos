@@ -117,6 +117,24 @@ input::placeholder{color:#94a3b8;}
   font-size:12px;
   color:#94a3b8;
 }
+.public-menu-link{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  margin-top:12px;
+  padding:10px 14px;
+  border:1px solid #dbe5d2;
+  border-radius:9px;
+  background:#f6f8f2;
+  color:#587044;
+  font-size:13px;
+  font-weight:700;
+  text-decoration:none;
+  transition:.15s ease;
+}
+.public-menu-link:hover{background:#edf3e7;border-color:#b9c9aa;color:#3f5a2e;}
+.public-menu-link:focus-visible{outline:3px solid rgba(88,112,68,.22);outline-offset:2px;}
 </style>
 </head>
 <body>
@@ -147,6 +165,8 @@ input::placeholder{color:#94a3b8;}
       <button class="submit" type="submit" name="login">Đăng nhập</button>
     </form>
   </div>
+
+  <a class="public-menu-link" href="menu-khach.php">☕ Xem menu tại quán →</a>
 
   <p class="footer-note">GHÉ Coffee and Tea · POS v2</p>
 </div>
