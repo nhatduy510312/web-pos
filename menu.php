@@ -444,9 +444,14 @@ document.addEventListener('DOMContentLoaded', function () {
   <a href="report.php"           class="<?= $_NAV_PAGE === 'report.php'           ? 'active' : '' ?>">📈 Báo cáo</a>
   <a href="cashbook.php"         class="<?= $_NAV_PAGE === 'cashbook.php'         ? 'active' : '' ?>">📒 Chốt ca</a>
   <a href="cashbook_history.php" class="<?= $_NAV_PAGE === 'cashbook_history.php' ? 'active' : '' ?>">📚 Lịch sử</a>
-  <a href="products.php"         class="<?= in_array($_NAV_PAGE, ['products.php', 'recipes.php'], true) ? 'active' : '' ?>">🍹 Thực đơn</a>
+  <?php if ($_NAV_ROLE === 'admin'): ?>
+  <a href="products.php"         class="<?= $_NAV_PAGE === 'products.php'         ? 'active' : '' ?>">🍹 Thực đơn</a>
+  <?php endif; ?>
+  <a href="recipes.php"          class="<?= $_NAV_PAGE === 'recipes.php'          ? 'active' : '' ?>">📋 Công thức</a>
   <a href="ingredients.php"      class="<?= $_NAV_PAGE === 'ingredients.php'      ? 'active' : '' ?>">🧪 Nguyên liệu</a>
+  <?php if ($_NAV_ROLE === 'admin'): ?>
   <a href="categories.php"       class="<?= $_NAV_PAGE === 'categories.php'       ? 'active' : '' ?>">📂 Danh mục</a>
+  <?php endif; ?>
   <a href="attendance.php"       class="<?= $_NAV_PAGE === 'attendance.php'       ? 'active' : '' ?>">🕒 Chấm công</a>
   <?php if ($_NAV_ROLE === 'admin'): ?>
   <a href="employees.php"        class="<?= $_NAV_PAGE === 'employees.php'        ? 'active' : '' ?>">👥 Nhân viên</a>
@@ -454,6 +459,7 @@ document.addEventListener('DOMContentLoaded', function () {
   <?php endif; ?>
 
   <div class="nav-spacer"></div>
+  <a href="change_password.php" class="<?= $_NAV_PAGE === 'change_password.php' ? 'active' : '' ?>">🔑 Đổi mật khẩu</a>
   <span class="nav-time" id="navClock"></span>
   <div class="nav-sep"></div>
   <div class="nav-logout">

@@ -8,7 +8,9 @@ $error = '';
 $successMessages = [
     'added' => 'Đã thêm nhân viên và tạo tài khoản đăng nhập.',
     'updated' => 'Đã cập nhật thông tin nhân viên.',
-    'deleted' => 'Đã xóa nhân viên và tài khoản đăng nhập liên kết.',
+    'disabled' => 'Đã ngừng hoạt động nhân viên và thu hồi các phiên đăng nhập.',
+    'enabled' => 'Đã kích hoạt lại nhân viên.',
+    'shared_disabled' => 'Đã khóa tài khoản user dùng chung.',
 ];
 $success = $successMessages[$_GET['success'] ?? ''] ?? '';
 
@@ -27,24 +29,40 @@ function employeeFormError(Throwable $e): string
     return 'Không thể lưu thông tin nhân viên. Vui lòng thử lại.';
 }
 
-if (isset($_POST['delete'])) {
+if (isset($_POST['set_active'])) {
     $id = (int)($_POST['id'] ?? 0);
+    $isActive = (int)($_POST['set_active'] ?? 0) === 1 ? 1 : 0;
 
     try {
         $conn->begin_transaction();
-        $stmt = $conn->prepare("DELETE FROM users WHERE employee_id = ?");
-        $stmt->bind_param('i', $id);
+        $stmt = $conn->prepare("UPDATE employees SET is_active = ? WHERE id = ?");
+        $stmt->bind_param('ii', $isActive, $id);
         $stmt->execute();
-        $stmt = $conn->prepare("DELETE FROM employees WHERE id = ?");
-        $stmt->bind_param('i', $id);
+        $stmt = $conn->prepare(
+            "UPDATE users
+             SET is_active = ?, session_version = session_version + 1
+             WHERE employee_id = ?"
+        );
+        $stmt->bind_param('ii', $isActive, $id);
         $stmt->execute();
         $conn->commit();
-        header('Location: employees.php?success=deleted');
+        header('Location: employees.php?success=' . ($isActive ? 'enabled' : 'disabled'));
         exit;
     } catch (Throwable $e) {
         $conn->rollback();
         $error = employeeFormError($e);
     }
+}
+
+if (isset($_POST['disable_shared_user'])) {
+    $stmt = $conn->prepare(
+        "UPDATE users
+         SET is_active = 0, session_version = session_version + 1
+         WHERE LOWER(username) = 'user' AND employee_id IS NULL"
+    );
+    $stmt->execute();
+    header('Location: employees.php?success=shared_disabled');
+    exit;
 }
 
 if (isset($_POST['add'])) {
@@ -71,7 +89,9 @@ if (isset($_POST['add'])) {
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
             $role = 'staff';
             $stmt = $conn->prepare(
-                "INSERT INTO users(username, password, role, employee_id) VALUES(?, ?, ?, ?)"
+                "INSERT INTO users
+                    (username, password, role, employee_id, is_active, must_change_password, session_version)
+                 VALUES(?, ?, ?, ?, 1, 1, 1)"
             );
             $stmt->bind_param('sssi', $username, $passwordHash, $role, $employeeId);
             $stmt->execute();
@@ -95,7 +115,7 @@ if (isset($_POST['update_employee'])) {
         : 'probation';
 
     $stmt = $conn->prepare(
-        "SELECT e.id, u.id AS user_id
+        "SELECT e.id, e.is_active, u.id AS user_id
          FROM employees e
          LEFT JOIN users u ON u.employee_id = e.id
          WHERE e.id = ? LIMIT 1"
@@ -125,7 +145,12 @@ if (isset($_POST['update_employee'])) {
                 $userId = (int)$current['user_id'];
                 if ($password !== '') {
                     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-                    $stmt = $conn->prepare("UPDATE users SET username = ?, password = ?, role = 'staff' WHERE id = ?");
+                    $stmt = $conn->prepare(
+                        "UPDATE users
+                         SET username = ?, password = ?, role = 'staff', must_change_password = 1,
+                             session_version = session_version + 1
+                         WHERE id = ?"
+                    );
                     $stmt->bind_param('ssi', $username, $passwordHash, $userId);
                 } else {
                     $stmt = $conn->prepare("UPDATE users SET username = ?, role = 'staff' WHERE id = ?");
@@ -136,9 +161,12 @@ if (isset($_POST['update_employee'])) {
                 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
                 $role = 'staff';
                 $stmt = $conn->prepare(
-                    "INSERT INTO users(username, password, role, employee_id) VALUES(?, ?, ?, ?)"
+                    "INSERT INTO users
+                        (username, password, role, employee_id, is_active, must_change_password, session_version)
+                     VALUES(?, ?, ?, ?, ?, 1, 1)"
                 );
-                $stmt->bind_param('sssi', $username, $passwordHash, $role, $id);
+                $employeeActive = (int)$current['is_active'];
+                $stmt->bind_param('sssii', $username, $passwordHash, $role, $id, $employeeActive);
                 $stmt->execute();
             }
 
@@ -153,10 +181,24 @@ if (isset($_POST['update_employee'])) {
 }
 
 $employees = $conn->query(
-    "SELECT e.*, u.id AS user_id, u.username
+    "SELECT e.*, u.id AS user_id, u.username, u.is_active AS account_active,
+            u.must_change_password, u.last_login_at
      FROM employees e
      LEFT JOIN users u ON u.employee_id = e.id
-     ORDER BY e.name"
+     ORDER BY e.is_active DESC, e.name"
+);
+$sharedUser = $conn->query(
+    "SELECT id, username, is_active, last_login_at
+     FROM users
+     WHERE LOWER(username) = 'user' AND employee_id IS NULL
+     LIMIT 1"
+)->fetch_assoc();
+$loginHistory = $conn->query(
+    "SELECT h.*, COALESCE(e.name, h.username) AS display_name
+     FROM login_history h
+     LEFT JOIN users u ON u.id = h.user_id
+     LEFT JOIN employees e ON e.id = u.employee_id
+     ORDER BY h.id DESC LIMIT 100"
 );
 ?>
 <!DOCTYPE html>
@@ -167,7 +209,7 @@ $employees = $conn->query(
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <title>Nhân viên — GHÉ Coffee</title>
 <style>
-.employee-table { min-width:1050px; }
+.employee-table { min-width:1250px; }
 .employee-table .form-input, .employee-table .form-select { font-size:12px;padding:6px 9px; }
 .employee-actions { display:flex;gap:6px;align-items:center;white-space:nowrap; }
 </style>
@@ -188,6 +230,27 @@ $employees = $conn->query(
   <?php endif; ?>
   <?php if ($success): ?>
   <div class="alert alert-ok" style="margin-bottom:14px;">✅ <?= htmlspecialchars($success) ?></div>
+  <?php endif; ?>
+
+  <?php if ($sharedUser): ?>
+  <div class="card" style="margin-bottom:14px;border-color:var(--warn-bd);">
+    <div class="flex-b" style="gap:12px;">
+      <div>
+        <div class="section-title" style="margin-bottom:4px;">⚠️ Tài khoản dùng chung: <?= htmlspecialchars($sharedUser['username']) ?></div>
+        <p class="text-muted text-sm">
+          Trạng thái: <?= (int)$sharedUser['is_active'] === 1 ? 'đang hoạt động' : 'đã khóa' ?>.
+          Chỉ khóa sau khi đã cấp tài khoản riêng cho toàn bộ nhân viên.
+        </p>
+      </div>
+      <?php if ((int)$sharedUser['is_active'] === 1): ?>
+      <form method="post" onsubmit="return confirm('Khóa tài khoản user dùng chung và đăng xuất mọi thiết bị đang dùng tài khoản này?')">
+        <button type="submit" name="disable_shared_user" class="btn btn-danger">🔒 Khóa tài khoản dùng chung</button>
+      </form>
+      <?php else: ?>
+      <span class="badge badge-gray">🔒 Đã khóa</span>
+      <?php endif; ?>
+    </div>
+  </div>
   <?php endif; ?>
 
   <div class="grid g2" style="gap:14px;margin-bottom:20px;">
@@ -246,13 +309,15 @@ $employees = $conn->query(
           <th>Loại</th>
           <th>Lương/giờ</th>
           <th>Tên đăng nhập</th>
+          <th>Trạng thái</th>
+          <th>Đăng nhập cuối</th>
           <th>Mật khẩu mới</th>
           <th>Thao tác</th>
         </tr>
       </thead>
       <tbody>
         <?php if ($employees->num_rows === 0): ?>
-        <tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">👥</div>Chưa có nhân viên nào</div></td></tr>
+        <tr><td colspan="9"><div class="empty-state"><div class="empty-state-icon">👥</div>Chưa có nhân viên nào</div></td></tr>
         <?php else: while ($row = $employees->fetch_assoc()): $formId = 'employee-' . (int)$row['id']; ?>
         <tr>
           <td class="text-muted"><?= (int)$row['id'] ?></td>
@@ -268,6 +333,18 @@ $employees = $conn->query(
             <input form="<?= $formId ?>" type="text" name="username" class="form-input" value="<?= htmlspecialchars($row['username'] ?? '') ?>" placeholder="Chưa liên kết" minlength="3" maxlength="50" required>
             <?php if (!$row['user_id']): ?><span class="badge badge-yellow" style="margin-top:4px;">Chưa có tài khoản</span><?php endif; ?>
           </td>
+          <td>
+            <?php if (!(int)$row['is_active']): ?>
+            <span class="badge badge-gray">Ngừng hoạt động</span>
+            <?php elseif (!$row['user_id']): ?>
+            <span class="badge badge-yellow">Chưa có tài khoản</span>
+            <?php elseif ((int)$row['must_change_password']): ?>
+            <span class="badge badge-yellow">Chờ đổi mật khẩu</span>
+            <?php else: ?>
+            <span class="badge badge-green">Đang hoạt động</span>
+            <?php endif; ?>
+          </td>
+          <td class="text-sm text-muted"><?= $row['last_login_at'] ? date('d/m/Y H:i', strtotime($row['last_login_at'])) : '—' ?></td>
           <td><input form="<?= $formId ?>" type="password" name="password" class="form-input" placeholder="Để trống nếu giữ nguyên" minlength="8" autocomplete="new-password"></td>
           <td>
             <div class="employee-actions">
@@ -275,12 +352,34 @@ $employees = $conn->query(
                 <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
                 <button type="submit" name="update_employee" class="btn btn-sm btn-primary">💾 Lưu</button>
               </form>
-              <form method="post" onsubmit="return confirm('Xóa nhân viên <?= htmlspecialchars($row['name'], ENT_QUOTES) ?> và tài khoản đăng nhập?')">
+              <form method="post" onsubmit="return confirm('<?= (int)$row['is_active'] ? 'Ngừng hoạt động' : 'Kích hoạt lại' ?> nhân viên <?= htmlspecialchars($row['name'], ENT_QUOTES) ?>?')">
                 <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
-                <button type="submit" name="delete" class="btn btn-sm btn-danger">🗑 Xóa</button>
+                <button type="submit" name="set_active" value="<?= (int)$row['is_active'] ? 0 : 1 ?>" class="btn btn-sm <?= (int)$row['is_active'] ? 'btn-danger' : 'btn-success' ?>">
+                  <?= (int)$row['is_active'] ? '⏸ Ngừng hoạt động' : '▶ Kích hoạt' ?>
+                </button>
               </form>
             </div>
           </td>
+        </tr>
+        <?php endwhile; endif; ?>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title" style="margin-top:20px;">🔐 100 lần đăng nhập gần nhất</div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Thời gian</th><th>Tài khoản/Nhân viên</th><th>Kết quả</th><th>IP</th><th>Thiết bị</th></tr></thead>
+      <tbody>
+        <?php if ($loginHistory->num_rows === 0): ?>
+        <tr><td colspan="5"><div class="empty-state">Chưa có lịch sử đăng nhập</div></td></tr>
+        <?php else: while ($history = $loginHistory->fetch_assoc()): ?>
+        <tr>
+          <td class="text-sm"><?= date('d/m/Y H:i:s', strtotime($history['created_at'])) ?></td>
+          <td class="fw-600"><?= htmlspecialchars($history['display_name']) ?> <span class="text-muted">(<?= htmlspecialchars($history['username']) ?>)</span></td>
+          <td><span class="badge <?= $history['result'] === 'success' ? 'badge-green' : ($history['result'] === 'password_changed' ? 'badge-blue' : 'badge-red') ?>"><?= htmlspecialchars($history['result']) ?></span></td>
+          <td><?= htmlspecialchars($history['ip_address'] ?: '—') ?></td>
+          <td class="text-sm text-muted" style="max-width:360px;white-space:normal;"><?= htmlspecialchars($history['user_agent'] ?: '—') ?></td>
         </tr>
         <?php endwhile; endif; ?>
       </tbody>

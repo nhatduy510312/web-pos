@@ -4,7 +4,7 @@ include 'config.php';
 require 'vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\IOFactory;
 require_once __DIR__ . '/recipe_helpers.php';
-requireRole(['admin', 'staff', 'user']);
+requireRole('admin');
 
 $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
 $addError = '';

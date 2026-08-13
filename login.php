@@ -1,31 +1,73 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'secure' => true,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+    session_start();
+}
 require 'config.php';
+require_once __DIR__ . '/csrf.php';
+require_once __DIR__ . '/login_rate_limit.php';
 
-$error = '';
+$error = isset($_GET['reason']) ? 'Phiên đăng nhập đã hết hiệu lực. Vui lòng đăng nhập lại.' : '';
 
 if (isset($_POST['login'])) {
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
+    csrf_require($_POST['csrf_token'] ?? '');
+    $username = substr(trim((string)($_POST['username'] ?? '')), 0, 50);
+    $password = (string)($_POST['password'] ?? '');
+
+    if (loginIsRateLimited($username)) {
+        recordLoginHistory($conn, null, $username, 'rate_limited');
+        $error = 'Đăng nhập sai quá nhiều lần. Vui lòng thử lại sau 15 phút.';
+    } else {
 
     $stmt = $conn->prepare(
-        "SELECT id, username, password, role, employee_id FROM users WHERE LOWER(username)=LOWER(?)"
+        "SELECT u.id, u.username, u.password, u.role, u.employee_id, u.is_active,
+                u.must_change_password, u.session_version,
+                e.is_active AS employee_active
+         FROM users u
+         LEFT JOIN employees e ON e.id = u.employee_id
+         WHERE LOWER(u.username)=LOWER(?) LIMIT 1"
     );
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();
 
-    if ($row && password_verify($password, $row['password'])) {
+    $employeeIsActive = $row
+        && ($row['employee_id'] === null || (int)$row['employee_active'] === 1);
+    if ($row && (int)$row['is_active'] === 1 && $employeeIsActive
+        && password_verify($password, $row['password'])) {
+        clearLoginFailures($username);
         session_regenerate_id(true);
         $_SESSION['logged_in'] = true;
         $_SESSION['user_id']   = $row['id'];
         $_SESSION['username']  = $row['username'];
         $_SESSION['role']      = $row['role'] ?? 'staff';
         $_SESSION['employee_id'] = $row['employee_id'] !== null ? (int)$row['employee_id'] : null;
-        header('Location: index.php');
+        $_SESSION['must_change_password'] = (int)$row['must_change_password'];
+        $_SESSION['session_version'] = (int)$row['session_version'];
+
+        $userId = (int)$row['id'];
+        $stmt = $conn->prepare("UPDATE users SET last_login_at = NOW() WHERE id = ?");
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        recordLoginHistory($conn, $userId, $row['username'], 'success');
+
+        header('Location: ' . ((int)$row['must_change_password'] === 1
+            ? 'change_password.php?required=1'
+            : 'index.php'));
         exit;
     }
+    recordLoginFailure($username);
+    $historyUserId = $row ? (int)$row['id'] : null;
+    $inactive = $row && (!(int)$row['is_active'] || !$employeeIsActive);
+    recordLoginHistory($conn, $historyUserId, $username, $inactive ? 'inactive' : 'failed');
     $error = 'Sai tài khoản hoặc mật khẩu.';
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -152,6 +194,7 @@ input::placeholder{color:#94a3b8;}
     <?php endif; ?>
 
     <form method="post" autocomplete="on">
+      <?= csrf_field() ?>
       <div class="field">
         <label for="username">Tài khoản</label>
         <input type="text" id="username" name="username"

@@ -14,6 +14,9 @@ catch (mysqli_sql_exception $e) { error_log('POS database connection failed: ' .
 
 $conn->set_charset("utf8mb4");
 
+require_once __DIR__ . '/account_security.php';
+enforceAccountSession($conn);
+
 require_once __DIR__ . '/shift_guard.php';
 $autoClosedShifts = autoCloseDueShifts($conn);
 enforceClosedShiftForApi($conn);

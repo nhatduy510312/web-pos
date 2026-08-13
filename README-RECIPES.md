@@ -41,9 +41,12 @@ thẻ trên điện thoại và in bảng; dữ liệu `MÓN ĂN` không đượ
 
 ## Cập nhật công thức
 
-- Tài khoản có quyền `admin` quản lý sản phẩm và công thức chung trong menu
-  **Thực đơn**. Biểu mẫu thêm món cho phép nhập công thức ngay trong một lần lưu; nút
-  công thức ở từng dòng sản phẩm mở màn hình chỉnh sửa chi tiết.
+- Menu **Công thức** hiển thị cho cả admin và nhân viên. Nhân viên chỉ
+  xem, tìm kiếm các món đã có công thức; không thể gửi yêu cầu sửa dữ liệu.
+- Tài khoản có quyền `admin` quản lý sản phẩm trong menu **Thực đơn**
+  và chỉnh sửa nội dung tại menu **Công thức**. Biểu mẫu thêm món cho phép
+  nhập công thức ngay trong một lần lưu; nút công thức ở từng dòng sản phẩm
+  mở màn hình chỉnh sửa chi tiết.
 - Khi lưu, hệ thống cập nhật `data/recipes.json` và tạo `data/recipes.json.bak` từ dữ
   liệu trước khi sửa.
 - Nội dung công thức nằm trong khóa `recipes`.

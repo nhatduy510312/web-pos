@@ -1,9 +1,14 @@
 <?php
 include 'auth.php';
-requireRole('admin');
-requireCsrfForFormPost();
 include 'config.php';
+requireRole(['admin', 'staff', 'user']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireRole('admin');
+}
+requireCsrfForFormPost();
 require_once __DIR__ . '/recipe_helpers.php';
+
+$isAdmin = ($_SESSION['role'] ?? '') === 'admin';
 
 function recipeAdminFindProductMapping($data, $productName)
 {
@@ -21,12 +26,12 @@ function recipeAdminPostedArray($key)
 }
 
 $error = '';
-$saved = isset($_GET['saved']);
+$saved = $isAdmin && isset($_GET['saved']);
 
 try {
     $recipeData = recipeReadDataFile();
     $recipePath = recipeDataPath();
-    if (!is_writable($recipePath)) {
+    if ($isAdmin && !is_writable($recipePath)) {
         $error = 'Máy chủ chưa cấp quyền ghi cho file công thức. Vui lòng kiểm tra quyền trước khi sửa.';
     }
 } catch (Throwable $e) {
@@ -50,11 +55,57 @@ $productResult = $conn->query("
 ");
 while ($product = $productResult->fetch_assoc()) {
     $product['id'] = (int)$product['id'];
+    $product['category_id'] = (int)($product['category_id'] ?? 0);
     $products[] = $product;
     $productsById[$product['id']] = $product;
 }
 
-$selectedProductId = (int)($_POST['product_id'] ?? $_GET['product_id'] ?? ($products[0]['id'] ?? 0));
+$visibleProducts = [];
+$visibleProductsById = [];
+$recipeCategories = [];
+foreach ($products as $product) {
+    $mapping = recipeAdminFindProductMapping($recipeData, $product['name']);
+    $recipeCode = $mapping['recipe_code'] ?? '';
+    $isMapped = $recipeCode !== '' && isset($recipeData['recipes'][$recipeCode]);
+    if (!$isAdmin && !$isMapped) {
+        continue;
+    }
+
+    $visibleProducts[] = $product;
+    $visibleProductsById[$product['id']] = $product;
+    $categoryId = $product['category_id'];
+    if (!isset($recipeCategories[$categoryId])) {
+        $recipeCategories[$categoryId] = [
+            'id' => $categoryId,
+            'name' => trim((string)($product['category_name'] ?? '')) ?: 'Chưa phân loại',
+            'count' => 0,
+        ];
+    }
+    $recipeCategories[$categoryId]['count']++;
+}
+
+$requestedProductId = (int)($_POST['product_id'] ?? $_GET['product_id'] ?? 0);
+$requestedCategoryId = isset($_GET['category_id']) ? (int)$_GET['category_id'] : null;
+
+if ($requestedProductId > 0 && isset($visibleProductsById[$requestedProductId])) {
+    $selectedCategoryId = $visibleProductsById[$requestedProductId]['category_id'];
+} elseif ($requestedCategoryId !== null && isset($recipeCategories[$requestedCategoryId])) {
+    $selectedCategoryId = $requestedCategoryId;
+} else {
+    $selectedCategoryId = (int)($visibleProducts[0]['category_id'] ?? 0);
+}
+
+$categoryProducts = [];
+foreach ($visibleProducts as $product) {
+    if ($product['category_id'] === $selectedCategoryId) {
+        $categoryProducts[] = $product;
+    }
+}
+
+$defaultProductId = (int)($categoryProducts[0]['id'] ?? 0);
+$selectedProductId = $requestedProductId > 0 && isset($visibleProductsById[$requestedProductId])
+    ? $requestedProductId
+    : $defaultProductId;
 $postedRecipe = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $error === '') {
@@ -164,7 +215,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $error === '') {
 
             try {
                 recipeWriteDataFile($recipeData);
-                header('Location: recipes.php?product_id=' . $selectedProductId . '&saved=1');
+                header(
+                    'Location: recipes.php?category_id=' . (int)$selectedProduct['category_id']
+                    . '&product_id=' . $selectedProductId
+                    . '&saved=1'
+                );
                 exit;
             } catch (Throwable $e) {
                 $error = $e->getMessage();
@@ -186,7 +241,7 @@ if ($postedRecipe !== null && $error !== '') {
     $selectedRecipe = $postedRecipe;
 }
 
-if ($selectedProduct && !$selectedRecipe) {
+if ($isAdmin && $selectedProduct && !$selectedRecipe) {
     $defaultType = in_array((int)$selectedProduct['category_id'], [6, 8], true)
         ? 'food'
         : 'drink';
@@ -244,17 +299,55 @@ foreach ($products as $product) {
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <title>Công thức — GHÉ Coffee</title>
 <style>
-.page-content { width:100%; max-width:1320px; margin:0 auto; }
+.page-content { width:100%; max-width:1600px; margin:0 auto; }
 .recipe-layout {
   display: grid;
-  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  grid-template-columns: minmax(180px, 220px) minmax(250px, 300px) minmax(0, 1fr);
   gap: 14px;
   align-items: start;
 }
-.recipe-sidebar {
+.recipe-sidebar,
+.recipe-category-sidebar {
   position: sticky;
   top: 76px;
   padding: 14px;
+}
+.recipe-categories {
+  overflow: hidden;
+  border: 1px solid var(--s200);
+  border-radius: var(--r-md);
+}
+.recipe-category {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--s100);
+  color: var(--s700);
+  font-size: 12.5px;
+  font-weight: 650;
+  transition: var(--tr);
+}
+.recipe-category:last-child { border-bottom: 0; }
+.recipe-category:hover { background: var(--s50); }
+.recipe-category.active {
+  background: var(--p-lt);
+  color: var(--p);
+  box-shadow: inset 3px 0 0 var(--p);
+}
+.recipe-category-count {
+  min-width: 24px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--s100);
+  color: var(--s500);
+  font-size: 10px;
+  text-align: center;
+}
+.recipe-category.active .recipe-category-count {
+  background: #fff;
+  color: var(--p);
 }
 .recipe-search { margin-bottom: 10px; }
 .recipe-products {
@@ -355,9 +448,41 @@ foreach ($products as $product) {
   font-size: 11.5px;
   line-height: 1.5;
 }
+.recipe-view-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.recipe-view-table { min-width: 520px; }
+.recipe-view-table td { padding: 10px 8px; }
+.recipe-view-table .amount-col { width: 210px; }
+.recipe-instructions {
+  min-height: 100px;
+  padding: 14px;
+  border: 1px solid var(--s200);
+  border-radius: var(--r-md);
+  background: var(--s50);
+  color: var(--s800);
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: normal;
+}
 @media (max-width: 900px) {
   .recipe-layout { grid-template-columns: 1fr; }
-  .recipe-sidebar { position: static; }
+  .recipe-sidebar, .recipe-category-sidebar { position: static; }
+  .recipe-categories {
+    display: flex;
+    gap: 6px;
+    padding: 6px;
+    overflow-x: auto;
+  }
+  .recipe-category {
+    flex: 0 0 auto;
+    border: 0;
+    border-radius: var(--r-sm);
+    box-shadow: none;
+  }
   .recipe-products { max-height: 280px; }
 }
 @media (max-width: 640px) {
@@ -374,11 +499,13 @@ foreach ($products as $product) {
     <div class="page-hdr-left">
       <h1>📋 Công thức món</h1>
       <p>
-        Sửa định lượng và cách thực hiện ·
+        <?= $isAdmin ? 'Sửa định lượng và cách thực hiện' : 'Tra cứu định lượng và cách thực hiện' ?> ·
         <?= $mappedProductCount ?>/<?= count($products) ?> món đã có công thức
       </p>
     </div>
+    <?php if ($isAdmin): ?>
     <a href="products.php" class="btn btn-secondary">← Về Thực đơn</a>
+    <?php endif; ?>
   </div>
 
   <?php if ($saved): ?>
@@ -394,22 +521,43 @@ foreach ($products as $product) {
   <?php endif; ?>
 
   <div class="recipe-layout">
+    <aside class="card recipe-category-sidebar">
+      <div class="section-title">Danh mục</div>
+      <?php if ($recipeCategories): ?>
+      <div class="recipe-categories">
+        <?php foreach ($recipeCategories as $category): ?>
+        <a
+          href="recipes.php?category_id=<?= $category['id'] ?>"
+          class="recipe-category <?= $category['id'] === $selectedCategoryId ? 'active' : '' ?>"
+        >
+          <span><?= htmlspecialchars($category['name']) ?></span>
+          <span class="recipe-category-count"><?= $category['count'] ?></span>
+        </a>
+        <?php endforeach; ?>
+      </div>
+      <?php else: ?>
+      <div class="empty-state" style="padding:18px 8px;">Chưa có danh mục.</div>
+      <?php endif; ?>
+    </aside>
+
     <aside class="card recipe-sidebar">
-      <div class="section-title">Chọn món</div>
+      <div class="section-title">
+        Món trong <?= htmlspecialchars($recipeCategories[$selectedCategoryId]['name'] ?? 'danh mục') ?>
+      </div>
       <input
         type="search"
         id="recipeSearch"
         class="form-input recipe-search"
         placeholder="🔍 Tìm tên món..."
-        oninput="filterRecipeProducts()"
       >
       <div class="recipe-products" id="recipeProducts">
-        <?php foreach ($products as $product):
+        <?php foreach ($categoryProducts as $product):
           $mapping = recipeAdminFindProductMapping($recipeData, $product['name']);
-          $isMapped = $mapping && isset($recipeData['recipes'][$mapping['recipe_code']]);
+          $mappedRecipeCode = $mapping['recipe_code'] ?? '';
+          $isMapped = $mappedRecipeCode !== '' && isset($recipeData['recipes'][$mappedRecipeCode]);
         ?>
         <a
-          href="recipes.php?product_id=<?= $product['id'] ?>"
+          href="recipes.php?category_id=<?= $selectedCategoryId ?>&amp;product_id=<?= $product['id'] ?>"
           class="recipe-product <?= $product['id'] === $selectedProductId ? 'active' : '' ?>"
           data-search="<?= htmlspecialchars(recipeNormalizeProductName($product['name'] . ' ' . ($product['category_name'] ?? '')), ENT_QUOTES) ?>"
         >
@@ -423,6 +571,9 @@ foreach ($products as $product) {
         </a>
         <?php endforeach; ?>
       </div>
+      <div id="recipeNoResults" class="empty-state" style="display:none;padding:18px 8px;">
+        Không tìm thấy món phù hợp.
+      </div>
     </aside>
 
     <main class="card recipe-editor">
@@ -431,10 +582,15 @@ foreach ($products as $product) {
         <div class="empty-state-icon">📋</div>
         <div>Chưa có món nào để tạo công thức.</div>
       </div>
+      <?php elseif (!$selectedRecipe): ?>
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div>Món <b><?= htmlspecialchars($selectedProduct['name']) ?></b> chưa có công thức.</div>
+      </div>
       <?php else: ?>
       <div class="recipe-editor-head">
         <div>
-          <div class="text-muted text-sm">Đang chỉnh công thức cho món</div>
+          <div class="text-muted text-sm"><?= $isAdmin ? 'Đang chỉnh công thức cho món' : 'Đang xem công thức cho món' ?></div>
           <h2 class="recipe-editor-title"><?= htmlspecialchars($selectedProduct['name']) ?></h2>
         </div>
         <?php if ($selectedRecipeCode !== ''): ?>
@@ -448,10 +604,13 @@ foreach ($products as $product) {
       <div class="recipe-shared">
         <b>Công thức dùng chung:</b>
         <?= htmlspecialchars(implode(' · ', $appliedProductNames)) ?>.
-        Khi lưu, tất cả các món này sẽ cùng nhận nội dung mới.
+        <?= $isAdmin
+          ? 'Khi lưu, tất cả các món này sẽ cùng nhận nội dung mới.'
+          : 'Các món này đang sử dụng cùng một công thức.' ?>
       </div>
       <?php endif; ?>
 
+      <?php if ($isAdmin): ?>
       <form method="post" id="recipeForm">
         <?= csrf_field() ?>
         <input type="hidden" name="product_id" value="<?= $selectedProductId ?>">
@@ -543,11 +702,54 @@ foreach ($products as $product) {
           <button type="submit" class="btn btn-primary btn-lg">💾 Lưu công thức</button>
         </div>
       </form>
+      <?php else: ?>
+      <div class="recipe-view-meta">
+        <span class="badge badge-blue">
+          <?= ($selectedRecipe['type'] ?? '') === 'food' ? 'Món ăn' : 'Đồ uống' ?>
+        </span>
+        <?php if (trim((string)($selectedRecipe['category'] ?? '')) !== ''): ?>
+        <span class="badge badge-gray"><?= htmlspecialchars($selectedRecipe['category']) ?></span>
+        <?php endif; ?>
+      </div>
+
+      <div class="section-title">Nguyên liệu và định lượng</div>
+      <?php if (!empty($selectedRecipe['ingredients'])): ?>
+      <div class="tbl-wrap" style="margin-bottom:18px;">
+        <table class="ingredient-editor recipe-view-table">
+          <thead>
+            <tr>
+              <th>Nguyên liệu</th>
+              <th class="amount-col">Định lượng</th>
+              <th class="unit-col">Đơn vị</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($selectedRecipe['ingredients'] as $ingredient): ?>
+            <tr>
+              <td><b><?= htmlspecialchars((string)($ingredient['name'] ?? '')) ?></b></td>
+              <td><?= htmlspecialchars((string)($ingredient['amount'] ?? '')) ?></td>
+              <td><?= htmlspecialchars((string)($ingredient['unit'] ?? '')) ?></td>
+            </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+      <?php else: ?>
+      <div class="empty-state" style="padding:22px 10px;">Chưa có nguyên liệu.</div>
+      <?php endif; ?>
+
+      <div class="section-title">Cách thực hiện</div>
+      <div class="recipe-instructions">
+        <?php $instructions = trim((string)($selectedRecipe['instructions'] ?? '')); ?>
+        <?= $instructions !== '' ? nl2br(htmlspecialchars($instructions)) : '<span class="text-muted">Chưa có hướng dẫn thực hiện.</span>' ?>
+      </div>
+      <?php endif; ?>
       <?php endif; ?>
     </main>
   </div>
 </div>
 
+<?php if ($isAdmin): ?>
 <template id="ingredientRowTemplate">
   <tr>
     <td><input type="text" name="ingredient_name[]" class="form-input" placeholder="Tên nguyên liệu"></td>
@@ -560,8 +762,10 @@ foreach ($products as $product) {
     </td>
   </tr>
 </template>
+<?php endif; ?>
 
 <script>
+<?php if ($isAdmin): ?>
 function addIngredientRow() {
   const template = document.getElementById('ingredientRowTemplate');
   const rows = document.getElementById('ingredientRows');
@@ -577,12 +781,44 @@ function removeIngredientRow(button) {
   }
   button.closest('tr').remove();
 }
+<?php endif; ?>
+
+function normalizeRecipeSearch(value) {
+  return String(value || '')
+    .trim()
+    .toLocaleLowerCase('vi')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/\s+/g, ' ');
+}
 
 function filterRecipeProducts() {
-  const query = document.getElementById('recipeSearch').value.trim().toLocaleLowerCase('vi');
+  const searchInput = document.getElementById('recipeSearch');
+  const noResults = document.getElementById('recipeNoResults');
+  if (!searchInput) return;
+
+  const query = normalizeRecipeSearch(searchInput.value);
+  let visibleCount = 0;
+
   document.querySelectorAll('.recipe-product').forEach(item => {
-    item.hidden = query !== '' && !item.dataset.search.includes(query);
+    const searchableText = normalizeRecipeSearch(item.dataset.search);
+    const matched = query === ''
+      || searchableText.includes(query)
+      || searchableText.replace(/\s/g, '').includes(query.replace(/\s/g, ''));
+    item.style.display = matched ? '' : 'none';
+    if (matched) visibleCount++;
   });
+
+  if (noResults) {
+    noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+  }
+}
+
+const recipeSearchInput = document.getElementById('recipeSearch');
+if (recipeSearchInput) {
+  recipeSearchInput.addEventListener('input', filterRecipeProducts);
+  recipeSearchInput.addEventListener('search', filterRecipeProducts);
 }
 </script>
 </body>

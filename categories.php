@@ -1,7 +1,7 @@
 <?php
 include 'auth.php';
 include 'config.php';
-requireRole(['admin', 'staff', 'user']);
+requireRole('admin');
 requireCsrfForFormPost();
 
 if (isset($_POST['add'])) {
