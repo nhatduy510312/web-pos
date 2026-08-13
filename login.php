@@ -9,7 +9,7 @@ if (isset($_POST['login'])) {
     $password = trim($_POST['password']);
 
     $stmt = $conn->prepare(
-        "SELECT id, username, password, role FROM users WHERE LOWER(username)=LOWER(?)"
+        "SELECT id, username, password, role, employee_id FROM users WHERE LOWER(username)=LOWER(?)"
     );
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -21,6 +21,7 @@ if (isset($_POST['login'])) {
         $_SESSION['user_id']   = $row['id'];
         $_SESSION['username']  = $row['username'];
         $_SESSION['role']      = $row['role'] ?? 'staff';
+        $_SESSION['employee_id'] = $row['employee_id'] !== null ? (int)$row['employee_id'] : null;
         header('Location: index.php');
         exit;
     }

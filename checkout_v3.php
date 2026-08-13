@@ -48,6 +48,9 @@ $data['discount_type'] ?? '';
 $discount_value =
 (float)($data['discount_value'] ?? 0);
 
+$sold_by_user_id =
+(int)($_SESSION['user_id'] ?? 0);
+
 if($order_id <= 0){
     checkoutResponse(false, 'Hoa don khong hop le');
 }
@@ -171,12 +174,13 @@ $conn->prepare("
         discount_value=?,
         discount_amount=?,
         status='paid',
-        paid_at=NOW()
+        paid_at=NOW(),
+        sold_by_user_id=?
     WHERE id=?
 ");
 
 $stmt->bind_param(
-    'dsddsddi',
+    'dsddsddii',
     $final_total,
     $payment_method,
     $cash_amount,
@@ -184,6 +188,7 @@ $stmt->bind_param(
     $discount_type,
     $discount_value,
     $discount_amount,
+    $sold_by_user_id,
     $order_id
 );
 

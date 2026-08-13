@@ -71,7 +71,7 @@ $stmt->execute();
 $top_products = $stmt->get_result();
 
 /* Sort for invoice list */
-$sort_map = ['payment' => 'payment_method ASC, id DESC', 'time' => 'paid_at DESC', 'id' => 'id DESC'];
+$sort_map = ['payment' => 'o.payment_method ASC, o.id DESC', 'time' => 'o.paid_at DESC', 'id' => 'o.id DESC'];
 $sort     = array_key_exists($_GET['sort'] ?? '', $sort_map) ? $_GET['sort'] : 'id';
 $order_by = $sort_map[$sort];
 
@@ -118,7 +118,14 @@ if ($is_grouped) {
     }
     ksort($revenue_groups);
 } else {
-    $stmt = $conn->prepare("SELECT * FROM orders WHERE status='paid' AND paid_at BETWEEN ? AND ? ORDER BY $order_by");
+    $stmt = $conn->prepare(
+        "SELECT o.*, COALESCE(e.name, u.username) AS sold_by_name
+         FROM orders o
+         LEFT JOIN users u ON u.id = o.sold_by_user_id
+         LEFT JOIN employees e ON e.id = u.employee_id
+         WHERE o.status='paid' AND o.paid_at BETWEEN ? AND ?
+         ORDER BY $order_by"
+    );
     $stmt->bind_param("ss", $dt_from, $dt_to);
     $stmt->execute();
     $orders = $stmt->get_result();
@@ -150,7 +157,14 @@ if (isset($_GET['ajax_day'])) {
 
     $day_from = $ajax_day . ' 00:00:00';
     $day_to = (clone $parsed_day)->modify('+1 day')->format('Y-m-d') . ' 00:00:00';
-    $day_stmt = $conn->prepare("SELECT * FROM orders WHERE status='paid' AND paid_at >= ? AND paid_at < ? ORDER BY paid_at DESC, id DESC");
+    $day_stmt = $conn->prepare(
+        "SELECT o.*, COALESCE(e.name, u.username) AS sold_by_name
+         FROM orders o
+         LEFT JOIN users u ON u.id = o.sold_by_user_id
+         LEFT JOIN employees e ON e.id = u.employee_id
+         WHERE o.status='paid' AND o.paid_at >= ? AND o.paid_at < ?
+         ORDER BY o.paid_at DESC, o.id DESC"
+    );
     $day_stmt->bind_param('ss', $day_from, $day_to);
     $day_stmt->execute();
     $day_orders = $day_stmt->get_result();
@@ -174,6 +188,7 @@ if (isset($_GET['ajax_day'])) {
             <div class="day-order-main">
               <a href="receipt.php?id=<?= (int)$day_order['id'] ?>" target="_blank" class="fw-600 c-blue">#<?= (int)$day_order['id'] ?></a>
               <span><?= $day_order['customer_name'] ? htmlspecialchars($day_order['customer_name']) : '—' ?></span>
+              <span>👤 <?= htmlspecialchars($day_order['sold_by_name'] ?? '—') ?></span>
               <?= pmLabel($day_order['payment_method']) ?>
             </div>
             <div class="day-order-meta">
@@ -526,6 +541,7 @@ if (isset($_GET['ajax_month'])) {
         <tr>
           <th>ID</th>
           <th>Khách</th>
+          <th>Nhân viên</th>
           <th>Tổng tiền</th>
           <th>Thanh toán</th>
           <th>Thời gian</th>
@@ -543,6 +559,7 @@ if (isset($_GET['ajax_month'])) {
             </a>
           </td>
           <td><?= $cname ?></td>
+          <td class="fw-600"><?= htmlspecialchars($row['sold_by_name'] ?? '—') ?></td>
           <td class="money fw-600"><?= number_format($row['total_amount']) ?>đ</td>
           <td><?= pmLabel($row['payment_method']) ?></td>
           <td class="text-sm text-muted"><?= date('d/m H:i', strtotime($row['paid_at'])) ?></td>
@@ -564,7 +581,7 @@ if (isset($_GET['ajax_month'])) {
           </td>
         </tr>
         <tr class="detail-row" id="detail-<?= $row['id'] ?>">
-          <td colspan="6">
+          <td colspan="7">
             <div class="detail-inner">
               <?php
               $stmt2 = $conn->prepare("SELECT oi.qty,oi.unit_price,oi.note,p.name FROM order_items oi LEFT JOIN products p ON p.id=oi.product_id WHERE oi.order_id=?");

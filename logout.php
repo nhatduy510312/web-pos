@@ -1,12 +1,9 @@
 <?php
 
-session_start();
+include 'auth.php';
+include 'config.php';
 
 session_destroy();
-
-header(
-'Location: login.php'
-);
-
+header('Location: login.php');
 exit;
 

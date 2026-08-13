@@ -19,17 +19,24 @@ $spreadsheet = new Spreadsheet();
 /* ── Sheet 1: Doanh thu ── */
 $sheet = $spreadsheet->getActiveSheet()->setTitle('Doanh Thu');
 
-$headers = ['ID HĐ','Khách hàng','Tổng tiền','Tiền mặt','Chuyển khoản','Phương thức','Thời gian'];
+$headers = ['ID HĐ','Khách hàng','Nhân viên','Tổng tiền','Tiền mặt','Chuyển khoản','Phương thức','Thời gian'];
 foreach ($headers as $i => $h) {
     $col = chr(65 + $i);
     $sheet->setCellValue("{$col}1", $h);
     $sheet->getStyle("{$col}1")->getFont()->setBold(true);
 }
-$sheet->getStyle('A1:G1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+$sheet->getStyle('A1:H1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
       ->getStartColor()->setARGB('FFEFF6FF');
 
 /* BUG FIX: use prepared statement */
-$stmt = $conn->prepare("SELECT * FROM orders WHERE status='paid' AND DATE(paid_at) BETWEEN ? AND ? ORDER BY id DESC");
+$stmt = $conn->prepare(
+    "SELECT o.*, COALESCE(e.name, u.username) AS sold_by_name
+     FROM orders o
+     LEFT JOIN users u ON u.id = o.sold_by_user_id
+     LEFT JOIN employees e ON e.id = u.employee_id
+     WHERE o.status='paid' AND DATE(o.paid_at) BETWEEN ? AND ?
+     ORDER BY o.id DESC"
+);
 $stmt->bind_param("ss", $from, $to); $stmt->execute();
 $orders = $stmt->get_result();
 
@@ -37,16 +44,17 @@ $row = 2;
 while ($o = $orders->fetch_assoc()) {
     $sheet->setCellValue("A$row", $o['id']);
     $sheet->setCellValue("B$row", $o['customer_name'] ?? '');
-    $sheet->setCellValue("C$row", (float)$o['total_amount']);
-    $sheet->setCellValue("D$row", (float)$o['cash_amount']);
-    $sheet->setCellValue("E$row", (float)$o['bank_amount']);
-    $sheet->setCellValue("F$row", $o['payment_method']);
-    $sheet->setCellValue("G$row", $o['paid_at']);
+    $sheet->setCellValue("C$row", $o['sold_by_name'] ?? '');
+    $sheet->setCellValue("D$row", (float)$o['total_amount']);
+    $sheet->setCellValue("E$row", (float)$o['cash_amount']);
+    $sheet->setCellValue("F$row", (float)$o['bank_amount']);
+    $sheet->setCellValue("G$row", $o['payment_method']);
+    $sheet->setCellValue("H$row", $o['paid_at']);
     $row++;
 }
 
-$sheet->getStyle("C2:E{$row}")->getNumberFormat()->setFormatCode('#,##0');
-foreach (range('A', 'G') as $col) $sheet->getColumnDimension($col)->setAutoSize(true);
+$sheet->getStyle("D2:F{$row}")->getNumberFormat()->setFormatCode('#,##0');
+foreach (range('A', 'H') as $col) $sheet->getColumnDimension($col)->setAutoSize(true);
 
 /* ── Sheet 2: Top món ── */
 $topSheet = $spreadsheet->createSheet()->setTitle('Top Mon');

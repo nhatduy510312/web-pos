@@ -39,6 +39,9 @@ $cash_amount =
 $bank_amount =
     (float)($data['bank_amount'] ?? 0);
 
+$sold_by_user_id =
+    (int)($_SESSION['user_id'] ?? 0);
+
 if(!in_array($payment_method, ['cash', 'bank', 'mixed'], true)){
     jsonResponse(false, 'Phuong thuc thanh toan khong hop le');
 }
@@ -115,7 +118,8 @@ try{
             cash_amount,
             bank_amount,
             payment_method,
-            paid_at
+            paid_at,
+            sold_by_user_id
         )
         VALUES(
             'paid',
@@ -123,16 +127,18 @@ try{
             ?,
             ?,
             ?,
-            NOW()
+            NOW(),
+            ?
         )
     ");
 
     $stmt->bind_param(
-        'ddds',
+        'dddsi',
         $total,
         $cash_amount,
         $bank_amount,
-        $payment_method
+        $payment_method,
+        $sold_by_user_id
     );
 
     $stmt->execute();

@@ -21,6 +21,7 @@ $closed = cbQuery($conn,
 
 /* ── POST handlers ── */
 if (isset($_POST['close_day'])) {
+    unset($_SESSION['shift_auto_close_pause'][$today]);
     $stmt = $conn->prepare("INSERT INTO cashbook_history(report_date,opening_cash,cash_revenue,transfer_revenue,expenses,deposits,closing_cash) VALUES(?,0,0,0,0,0,0) ON DUPLICATE KEY UPDATE report_date=report_date");
     $stmt->bind_param("s", $today);
     $stmt->execute();
@@ -66,6 +67,8 @@ if (isset($_POST['add_deposit']) && !$closed) {
 }
 
 if (isset($_POST['reopen_day'])) {
+    requireRole('admin');
+    $_SESSION['shift_auto_close_pause'][$today] = time() + 900;
     $stmt = $conn->prepare("DELETE FROM cashbook_history WHERE report_date=?");
     $stmt->bind_param("s", $today);
     $stmt->execute();
@@ -94,6 +97,7 @@ if (isset($_POST['close_day'])) {
     $stmt = $conn->prepare("UPDATE cashbook_history SET opening_cash=?,cash_revenue=?,transfer_revenue=?,expenses=?,deposits=?,closing_cash=? WHERE report_date=?");
     $stmt->bind_param("dddddds", $openingCash, $cashRevenue, $transferRevenue, $expenses, $deposits, $closingCash, $today);
     $stmt->execute();
+
     header("Location: cashbook.php?date=$today"); exit;
 }
 
@@ -177,6 +181,10 @@ $isToday = $today === date('Y-m-d');
 
   <?php if ($closed): ?>
   <div class="locked-banner">🔒 Ca này đã được chốt. Dữ liệu chỉ đọc.</div>
+  <?php elseif ($isToday): ?>
+  <div class="alert alert-warn" style="margin-bottom:14px;">
+    ⏰ Nếu nhân viên chưa chốt, hệ thống sẽ tự động chốt ca lúc <?= htmlspecialchars(shiftAutoCloseTime()) ?>.
+  </div>
   <?php endif; ?>
 
   <!-- Summary cards -->
@@ -241,11 +249,13 @@ $isToday = $today === date('Y-m-d');
         </button>
       </form>
       <p class="text-muted text-sm">TM cuối ca sẽ được ghi lại</p>
-      <?php else: ?>
+      <?php elseif (($_SESSION['role'] ?? '') === 'admin'): ?>
       <form method="post" onsubmit="return confirm('Mở lại để chỉnh sửa?')">
         <button type="submit" name="reopen_day" class="btn btn-danger btn-lg">🔓 Mở lại ca</button>
       </form>
-      <p class="text-muted text-sm">Cho phép chỉnh sửa lại</p>
+      <p class="text-muted text-sm">Cho phép chỉnh sửa trong 15 phút</p>
+      <?php else: ?>
+      <span class="badge badge-green">✅ Ca đã hoàn tất</span>
       <?php endif; ?>
     </div>
   </div>

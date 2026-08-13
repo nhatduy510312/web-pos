@@ -4,7 +4,7 @@ Options -Indexes
 AddDefaultCharset UTF-8
 AddCharset UTF-8 .html .htm .php .css .js .json .xml .txt
 
-<FilesMatch "^(config\.php|composer\.(json|lock)|.*\.sql)$">
+<FilesMatch "^(config\.php|auto_close_shift\.php|composer\.(json|lock)|.*\.sql)$">
     Require all denied
 </FilesMatch>
 <IfModule mod_headers.c>
