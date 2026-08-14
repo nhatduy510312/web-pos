@@ -35,6 +35,71 @@ function shiftIsClosed(mysqli $conn, string $date): bool
     return $stmt->get_result()->num_rows > 0;
 }
 
+function shiftEnsureReopenStorage(mysqli $conn): void
+{
+    static $ready = false;
+    if ($ready) {
+        return;
+    }
+
+    $conn->query(
+        "CREATE TABLE IF NOT EXISTS cashbook_reopened_shifts (
+            report_date DATE NOT NULL,
+            reopened_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            reopened_by_user_id INT NULL,
+            PRIMARY KEY (report_date),
+            KEY idx_cashbook_reopened_by_user_id (reopened_by_user_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci"
+    );
+    $ready = true;
+}
+
+function shiftIsReopened(mysqli $conn, string $date): bool
+{
+    try {
+        $stmt = $conn->prepare(
+            "SELECT 1 FROM cashbook_reopened_shifts WHERE report_date = ? LIMIT 1"
+        );
+        $stmt->bind_param('s', $date);
+        $stmt->execute();
+
+        return $stmt->get_result()->num_rows > 0;
+    } catch (mysqli_sql_exception $e) {
+        // Database cũ chưa có bảng này vẫn hoạt động bình thường.
+        if ((int)$e->getCode() === 1146) {
+            return false;
+        }
+        throw $e;
+    }
+}
+
+function markShiftReopened(mysqli $conn, string $date, ?int $userId = null): void
+{
+    shiftEnsureReopenStorage($conn);
+    $stmt = $conn->prepare(
+        "INSERT INTO cashbook_reopened_shifts (report_date, reopened_at, reopened_by_user_id)
+         VALUES (?, NOW(), ?)
+         ON DUPLICATE KEY UPDATE
+            reopened_at = VALUES(reopened_at),
+            reopened_by_user_id = VALUES(reopened_by_user_id)"
+    );
+    $stmt->bind_param('si', $date, $userId);
+    $stmt->execute();
+}
+
+function clearShiftReopened(mysqli $conn, string $date): void
+{
+    try {
+        $stmt = $conn->prepare("DELETE FROM cashbook_reopened_shifts WHERE report_date = ?");
+        $stmt->bind_param('s', $date);
+        $stmt->execute();
+    } catch (mysqli_sql_exception $e) {
+        if ((int)$e->getCode() !== 1146) {
+            throw $e;
+        }
+    }
+}
+
 function shiftHasActivity(mysqli $conn, string $date): bool
 {
     $stmt = $conn->prepare(
@@ -68,16 +133,6 @@ function shiftCutoffReached(?DateTimeImmutable $now = null): bool
 {
     $now = $now ?? new DateTimeImmutable('now');
     return $now->format('H:i') >= shiftAutoCloseTime();
-}
-
-function shiftAutoCloseIsPausedForAdmin(string $date): bool
-{
-    if (($_SESSION['role'] ?? '') !== 'admin') {
-        return false;
-    }
-
-    $until = (int)($_SESSION['shift_auto_close_pause'][$date] ?? 0);
-    return $until >= time();
 }
 
 function findShiftsDueForAutoClose(mysqli $conn, DateTimeImmutable $now): array
@@ -125,6 +180,7 @@ function closeShiftSnapshot(mysqli $conn, string $date): bool
 
     try {
         if (shiftIsClosed($conn, $date)) {
+            clearShiftReopened($conn, $date);
             $conn->commit();
             return false;
         }
@@ -187,6 +243,7 @@ function closeShiftSnapshot(mysqli $conn, string $date): bool
         );
         $stmt->execute();
         $created = $stmt->affected_rows === 1;
+        clearShiftReopened($conn, $date);
         $conn->commit();
 
         return $created;
@@ -202,7 +259,7 @@ function autoCloseDueShifts(mysqli $conn, ?DateTimeImmutable $now = null): array
     $closedDates = [];
 
     foreach (findShiftsDueForAutoClose($conn, $now) as $date) {
-        if (shiftAutoCloseIsPausedForAdmin($date)) {
+        if (shiftIsReopened($conn, $date)) {
             continue;
         }
 
@@ -221,7 +278,9 @@ function enforceClosedShiftForApi(mysqli $conn): void
     }
 
     $today = date('Y-m-d');
-    if (!shiftIsClosed($conn, $today) && !shiftCutoffReached()) {
+    $closed = shiftIsClosed($conn, $today);
+    $reopened = !$closed && shiftIsReopened($conn, $today);
+    if (!$closed && (!shiftCutoffReached() || $reopened)) {
         return;
     }
 
@@ -229,7 +288,9 @@ function enforceClosedShiftForApi(mysqli $conn): void
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([
         'success' => false,
-        'message' => 'Ca hôm nay đã kết thúc lúc ' . shiftAutoCloseTime() . '. Không thể ghi thêm giao dịch.',
+        'message' => $closed
+            ? 'Ca hôm nay đã được chốt. Không thể ghi thêm giao dịch.'
+            : 'Ca hôm nay đã kết thúc lúc ' . shiftAutoCloseTime() . '. Không thể ghi thêm giao dịch.',
         'redirect' => 'cashbook.php?date=' . rawurlencode($today),
     ], JSON_UNESCAPED_UNICODE);
     exit;

@@ -21,4 +21,11 @@ POS_AUTO_CLOSE_TIME=22:00
 POS_TIMEZONE=Asia/Ho_Chi_Minh
 ```
 
-Sau khi ca đã chốt hoặc đến giờ đóng ca, API bán hàng sẽ từ chối ghi thêm giao dịch trong ngày đó. Admin có thể mở lại ca để chỉnh sửa trong 15 phút; hết thời gian này hệ thống sẽ tự chốt lại.
+Sau khi ca đã chốt hoặc đến giờ đóng ca, API bán hàng sẽ từ chối ghi thêm
+giao dịch trong ngày đó. Admin có thể mở lại ca để nhân viên chỉnh sửa. Ca đã
+mở lại không còn giới hạn 15 phút và không bị tự chốt lại lúc 22:00; ca chỉ khóa
+khi nhân viên bấm **Chốt ca ngày này**.
+
+Trạng thái mở lại được lưu trong bảng `cashbook_reopened_shifts`. Code sẽ tự tạo
+bảng này trong lần admin mở lại ca đầu tiên; file migration tổng hợp cũng đã
+bao gồm lệnh `CREATE TABLE IF NOT EXISTS` để có thể chạy trước khi chép code.

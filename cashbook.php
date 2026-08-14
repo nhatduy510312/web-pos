@@ -15,13 +15,11 @@ function cbQuery($conn, $sql, $types, ...$params) {
     return $stmt->get_result();
 }
 
-$closed = cbQuery($conn,
-    "SELECT id FROM cashbook_history WHERE report_date=? LIMIT 1", "s", $today
-)->num_rows > 0;
+$closed = shiftIsClosed($conn, $today);
+$reopened = !$closed && shiftIsReopened($conn, $today);
 
 /* ── POST handlers ── */
-if (isset($_POST['close_day'])) {
-    unset($_SESSION['shift_auto_close_pause'][$today]);
+if (isset($_POST['close_day']) && !$closed) {
     $stmt = $conn->prepare("INSERT INTO cashbook_history(report_date,opening_cash,cash_revenue,transfer_revenue,expenses,deposits,closing_cash) VALUES(?,0,0,0,0,0,0) ON DUPLICATE KEY UPDATE report_date=report_date");
     $stmt->bind_param("s", $today);
     $stmt->execute();
@@ -68,10 +66,24 @@ if (isset($_POST['add_deposit']) && !$closed) {
 
 if (isset($_POST['reopen_day'])) {
     requireRole('admin');
-    $_SESSION['shift_auto_close_pause'][$today] = time() + 900;
-    $stmt = $conn->prepare("DELETE FROM cashbook_history WHERE report_date=?");
-    $stmt->bind_param("s", $today);
-    $stmt->execute();
+    if (!$closed) {
+        header("Location: cashbook.php?date=$today"); exit;
+    }
+    shiftEnsureReopenStorage($conn);
+    $reopenedByUserId = (int)($_SESSION['user_id'] ?? 0);
+    $reopenedByUserId = $reopenedByUserId > 0 ? $reopenedByUserId : null;
+
+    $conn->begin_transaction();
+    try {
+        markShiftReopened($conn, $today, $reopenedByUserId);
+        $stmt = $conn->prepare("DELETE FROM cashbook_history WHERE report_date=?");
+        $stmt->bind_param("s", $today);
+        $stmt->execute();
+        $conn->commit();
+    } catch (Throwable $e) {
+        $conn->rollback();
+        throw $e;
+    }
     header("Location: cashbook.php?date=$today"); exit;
 }
 
@@ -93,10 +105,11 @@ $deposits        = (float)(cbQuery($conn, "SELECT IFNULL(SUM(amount),0) s FROM c
 $totalRevenue    = $cashRevenue + $transferRevenue;
 $closingCash     = $openingCash + $cashRevenue - $expenses - $deposits;
 
-if (isset($_POST['close_day'])) {
+if (isset($_POST['close_day']) && !$closed) {
     $stmt = $conn->prepare("UPDATE cashbook_history SET opening_cash=?,cash_revenue=?,transfer_revenue=?,expenses=?,deposits=?,closing_cash=? WHERE report_date=?");
     $stmt->bind_param("dddddds", $openingCash, $cashRevenue, $transferRevenue, $expenses, $deposits, $closingCash, $today);
     $stmt->execute();
+    clearShiftReopened($conn, $today);
 
     header("Location: cashbook.php?date=$today"); exit;
 }
@@ -181,6 +194,10 @@ $isToday = $today === date('Y-m-d');
 
   <?php if ($closed): ?>
   <div class="locked-banner">🔒 Ca này đã được chốt. Dữ liệu chỉ đọc.</div>
+  <?php elseif ($reopened): ?>
+  <div class="alert alert-warn" style="margin-bottom:14px;">
+    🔓 Admin đã mở lại ca. Ca sẽ giữ trạng thái mở cho đến khi nhân viên bấm <b>Chốt ca ngày này</b>.
+  </div>
   <?php elseif ($isToday): ?>
   <div class="alert alert-warn" style="margin-bottom:14px;">
     ⏰ Nếu nhân viên chưa chốt, hệ thống sẽ tự động chốt ca lúc <?= htmlspecialchars(shiftAutoCloseTime()) ?>.
@@ -253,7 +270,7 @@ $isToday = $today === date('Y-m-d');
       <form method="post" onsubmit="return confirm('Mở lại để chỉnh sửa?')">
         <button type="submit" name="reopen_day" class="btn btn-danger btn-lg">🔓 Mở lại ca</button>
       </form>
-      <p class="text-muted text-sm">Cho phép chỉnh sửa trong 15 phút</p>
+      <p class="text-muted text-sm">Ca sẽ mở đến khi nhân viên chốt lại</p>
       <?php else: ?>
       <span class="badge badge-green">✅ Ca đã hoàn tất</span>
       <?php endif; ?>
