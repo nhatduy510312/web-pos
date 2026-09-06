@@ -1,0 +1,6 @@
+<?php $pageKey='about'; require __DIR__.'/site/header.php'; ?>
+<section class="page-intro wrap"><p class="eyebrow">VỀ GHÉ / CÀ PHÊ ĐÀ LẠT</p><h1><?= ghe_h($site['about_title']) ?></h1><p class="lead"><?= ghe_h($site['home_intro']) ?></p></section>
+<section class="wrap section editorial"><aside class="paper-note"><span class="eyebrow">MỘT ĐỊA CHỈ ĐỂ NHỚ</span><h2><?= ghe_h($site['street']) ?></h2><span><?= ghe_h($site['city'].', '.$site['region']) ?></span><p><?= ghe_h($site['hours']) ?></p><a class="text-link" href="<?= ghe_h(ghe_link('den-ghe.php')) ?>">Hẹn đường đến Ghé →</a></aside><div class="prose"><?php ghe_paragraphs($site['about_body']); ?><h2>Không gian & tiện ích</h2><?php ghe_facilities(); ?><a class="text-link" href="<?= ghe_h(ghe_link('thuc-don.php')) ?>">Đi một vòng thực đơn →</a></div></section>
+<?php ghe_gallery(); ?>
+<section class="wrap section review-note"><p class="eyebrow">GÓC NHÌN CỦA NGƯỜI ĐÃ GHÉ</p><h2>Để khách kể câu chuyện của mình.</h2><p>Đọc những chia sẻ và xem ảnh do khách đăng trên hồ sơ Google Maps của Ghé để có thêm góc nhìn cho cuộc hẹn sắp tới.</p><a class="text-link" href="<?= ghe_h($site['maps']) ?>" target="_blank" rel="noopener noreferrer">Đọc đánh giá trên Google Maps ↗</a></section>
+<?php require __DIR__.'/site/footer.php'; ?>

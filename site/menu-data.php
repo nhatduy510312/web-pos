@@ -1,0 +1,118 @@
+<?php
+// Public menu: shared by the website and the existing customer menu.
+return [
+    [
+        'id' => 'ca-phe',
+        'title' => 'Phê / Coffee',
+        'eyebrow' => 'Đậm đà & tỉnh táo',
+        'theme' => 'coffee',
+        'wide' => true,
+        'items' => [
+            ['name' => 'Đen', 'price' => 30000, 'detail' => 'Cà phê đen truyền thống', 'tags' => ['Nóng', 'Đá']],
+            ['name' => 'Nâu', 'price' => 30000, 'detail' => 'Cà phê sữa truyền thống', 'tags' => ['Nóng', 'Đá']],
+            ['name' => 'Bạc xỉu', 'price' => 35000, 'detail' => 'Êm, thơm sữa', 'tags' => ['Nóng', 'Đá']],
+            ['name' => 'Espresso', 'price' => 35000, 'detail' => 'Một shot cà phê cô đặc', 'tags' => ['Nóng', 'Đá']],
+            ['name' => 'Americano', 'price' => 35000, 'detail' => 'Espresso pha cùng nước', 'tags' => ['Nóng', 'Đá']],
+            ['name' => 'Ba chỉ', 'price' => 39000, 'detail' => 'Cà phê ba tầng', 'tags' => ['Chỉ đá']],
+            ['name' => 'Muối', 'price' => 35000, 'detail' => 'Cà phê kem muối', 'tags' => ['Chỉ đá']],
+            ['name' => 'Sữa dừa', 'price' => 35000, 'detail' => 'Cà phê sữa dừa', 'tags' => ['Chỉ đá']],
+            ['name' => 'Coldbrew truyền thống', 'price' => 35000, 'detail' => 'Ủ lạnh dịu nhẹ', 'tags' => ['Chỉ đá']],
+            ['name' => 'Coldbrew chanh sả', 'price' => 40000, 'detail' => 'Chanh và sả thơm mát', 'tags' => ['Chỉ đá']],
+            ['name' => 'Espresso cam', 'price' => 40000, 'detail' => 'Espresso cùng nước cam', 'tags' => ['Chỉ đá']],
+            ['name' => 'Caramel', 'price' => 40000, 'detail' => 'Thơm ngọt caramel', 'tags' => ['Chỉ đá']],
+            ['name' => 'Latte', 'price' => 40000, 'detail' => 'Espresso và sữa', 'tags' => ['Chỉ đá']],
+            ['name' => 'Mocha', 'price' => 49000, 'detail' => 'Cà phê, sữa và chocolate', 'tags' => ['Chỉ đá']],
+        ],
+    ],
+    [
+        'id' => 'tra',
+        'title' => 'Trà / Tea',
+        'eyebrow' => 'Êm dịu & thơm lành',
+        'theme' => 'tea',
+        'wide' => true,
+        'items' => [
+            ['name' => 'Sữa ô-long rang', 'price' => 39000, 'detail' => 'Bản nóng kèm trân châu trắng', 'tags' => ['Nóng', 'Đá']],
+            ['name' => 'Ấm áp', 'price' => 39000, 'detail' => 'Gừng, quế, cam, mật ong', 'tags' => ['Nóng']],
+            ['name' => 'An thần', 'price' => 45000, 'detail' => 'Táo đỏ, kỷ tử, long nhãn, mật ong', 'tags' => ['Nóng']],
+            ['name' => 'Thư giãn', 'price' => 45000, 'detail' => 'Hoa hồng, hoa cúc, hoa lài', 'tags' => ['Nóng']],
+            ['name' => 'Ổi chanh dây', 'price' => 39000, 'detail' => 'Trà ổi hồng và chanh dây', 'tags' => ['Đá']],
+            ['name' => 'Đào Quận Cam', 'price' => 39000, 'detail' => 'Trà đào và cam', 'tags' => ['Đá']],
+            ['name' => 'Ô-long kem trứng', 'price' => 39000, 'detail' => 'Trà ô-long phủ kem trứng', 'tags' => ['Đá']],
+        ],
+    ],
+    [
+        'id' => 'matcha',
+        'title' => 'Matcha',
+        'eyebrow' => 'Xanh mát',
+        'theme' => 'matcha',
+        'items' => [
+            ['name' => 'Matcha latte', 'price' => 40000, 'detail' => 'Sữa tươi hoặc sữa yến mạch', 'tags' => ['Chỉ đá']],
+            ['name' => 'Matcha sữa dừa', 'price' => 45000, 'detail' => 'Matcha cùng sữa dừa', 'tags' => ['Chỉ đá']],
+            ['name' => 'Matcha sữa kem', 'price' => 49000, 'detail' => 'Matcha phủ lớp kem sữa', 'tags' => ['Chỉ đá']],
+        ],
+    ],
+    [
+        'id' => 'choco',
+        'title' => 'Choco',
+        'eyebrow' => 'Ngọt ngào',
+        'theme' => 'choco',
+        'items' => [
+            ['name' => 'Choco', 'price' => 40000, 'detail' => 'Chocolate nguyên vị', 'tags' => ['Nóng', 'Đá']],
+            ['name' => 'Choco muối', 'price' => 45000, 'detail' => 'Chocolate phủ kem muối', 'tags' => ['Nóng', 'Đá']],
+            ['name' => 'Choco sữa dừa', 'price' => 45000, 'detail' => 'Chocolate cùng sữa dừa', 'tags' => ['Nóng', 'Đá']],
+        ],
+    ],
+    [
+        'id' => 'kombucha',
+        'title' => 'Kombucha',
+        'eyebrow' => 'Chua nhẹ & sảng khoái',
+        'theme' => 'kombucha',
+        'items' => [
+            ['name' => 'Kombucha trái cây', 'price' => 49000, 'detail' => 'Chọn vị dâu tây, gừng hoặc xoài', 'tags' => ['Đá']],
+        ],
+    ],
+    [
+        'id' => 'nuoc-ep',
+        'title' => 'Nước ép / Juice',
+        'eyebrow' => 'Tươi mát',
+        'theme' => 'juice',
+        'items' => [
+            ['name' => 'Cam', 'price' => 35000, 'detail' => 'Nước cam', 'tags' => ['Đá']],
+            ['name' => 'Chanh dây', 'price' => 35000, 'detail' => 'Nước chanh dây', 'tags' => ['Đá']],
+        ],
+    ],
+    [
+        'id' => 'sua-chua',
+        'title' => 'Sữa chua / Yogurt',
+        'eyebrow' => 'Mềm mịn',
+        'theme' => 'yogurt',
+        'items' => [
+            ['name' => 'Sữa chua hạt', 'price' => 40000, 'detail' => 'Hạt điều, óc chó và ngũ cốc', 'tags' => []],
+            ['name' => 'Sữa chua trái cây', 'price' => 40000, 'detail' => 'Chọn chanh dây, việt quất hoặc dâu tằm', 'tags' => []],
+        ],
+    ],
+    [
+        'id' => 'an-nhe',
+        'title' => 'Ăn nhẹ / Snacks',
+        'eyebrow' => 'Nhâm nhi cùng đồ uống',
+        'theme' => 'snack',
+        'items' => [
+            ['name' => 'Sandwich trứng', 'price' => 30000, 'detail' => 'Sandwich kẹp trứng', 'tags' => []],
+            ['name' => 'Mì tôm trứng nước', 'price' => 30000, 'detail' => 'Mì nước ăn cùng trứng', 'tags' => []],
+            ['name' => 'Khoai tây chiên', 'price' => 40000, 'detail' => 'Giòn nóng', 'tags' => []],
+            ['name' => 'Combo viên chiên', 'price' => 60000, 'detail' => 'Cá, tôm, xúc xích, khoai tây, đậu bắp và dưa leo', 'tags' => []],
+        ],
+    ],
+    [
+        'id' => 'banh',
+        'title' => 'Croissant & Cookie',
+        'eyebrow' => 'Một chút bánh',
+        'theme' => 'bakery',
+        'items' => [
+            ['name' => 'Croissant truyền thống', 'price' => 35000, 'detail' => 'Bánh sừng bò nguyên vị', 'tags' => []],
+            ['name' => 'Croissant dừa / choco', 'price' => 40000, 'detail' => 'Chọn vị dừa hoặc chocolate', 'tags' => []],
+            ['name' => 'Cookie matcha', 'price' => 10000, 'detail' => 'Bánh quy vị matcha', 'tags' => []],
+            ['name' => 'Cookie choco', 'price' => 10000, 'detail' => 'Bánh quy vị chocolate', 'tags' => []],
+        ],
+    ],
+];

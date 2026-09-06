@@ -446,6 +446,7 @@ document.addEventListener('DOMContentLoaded', function () {
   <a href="cashbook_history.php" class="<?= $_NAV_PAGE === 'cashbook_history.php' ? 'active' : '' ?>">📚 Lịch sử</a>
   <?php if ($_NAV_ROLE === 'admin'): ?>
   <a href="products.php"         class="<?= $_NAV_PAGE === 'products.php'         ? 'active' : '' ?>">🍹 Thực đơn</a>
+  <a href="website-admin.php" class="<?= $_NAV_PAGE === 'website-admin.php' ? 'active' : '' ?>">🌿 Website</a>
   <?php endif; ?>
   <a href="recipes.php"          class="<?= $_NAV_PAGE === 'recipes.php'          ? 'active' : '' ?>">📋 Công thức</a>
   <a href="ingredients.php"      class="<?= $_NAV_PAGE === 'ingredients.php'      ? 'active' : '' ?>">🧪 Nguyên liệu</a>
