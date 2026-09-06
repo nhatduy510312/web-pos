@@ -1560,6 +1560,25 @@
                 "row": null
             },
             "updated_at": "2026-07-25T17:41:51+02:00"
+        },
+        "product-68": {
+            "name": "Lồng đèn",
+            "type": "drink",
+            "category": "Thêm",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Lồng đèn",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-08-23T09:34:40+07:00"
         }
     },
     "product_map": [
@@ -1918,7 +1937,14 @@
             ],
             "recipe_code": "product-64",
             "variant": ""
+        },
+        {
+            "product_names": [
+                "Lồng đèn"
+            ],
+            "recipe_code": "product-68",
+            "variant": ""
         }
     ],
-    "updated_at": "2026-07-25T17:50:47+02:00"
+    "updated_at": "2026-08-23T09:34:40+07:00"
 }
