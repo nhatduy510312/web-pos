@@ -446,7 +446,7 @@ document.addEventListener('DOMContentLoaded', function () {
   <a href="cashbook_history.php" class="<?= $_NAV_PAGE === 'cashbook_history.php' ? 'active' : '' ?>">📚 Lịch sử</a>
   <?php if ($_NAV_ROLE === 'admin'): ?>
   <a href="expense_report.php" class="<?= $_NAV_PAGE === 'expense_report.php' ? 'active' : '' ?>">💸 Tiền chi</a>
-  <a href="purchase_accounts.php" class="<?= $_NAV_PAGE === 'purchase_accounts.php' ? 'active' : '' ?>">🧾 TK mua hàng</a>
+  <a href="account_management.php" class="<?= $_NAV_PAGE === 'account_management.php' ? 'active' : '' ?>">👥 Tài khoản</a>
   <a href="products.php"         class="<?= $_NAV_PAGE === 'products.php'         ? 'active' : '' ?>">🍹 Thực đơn</a>
   <a href="website-admin.php" class="<?= $_NAV_PAGE === 'website-admin.php' ? 'active' : '' ?>">🌿 Website</a>
   <?php endif; ?>
@@ -457,7 +457,6 @@ document.addEventListener('DOMContentLoaded', function () {
   <?php endif; ?>
   <a href="attendance.php"       class="<?= $_NAV_PAGE === 'attendance.php'       ? 'active' : '' ?>">🕒 Chấm công</a>
   <?php if ($_NAV_ROLE === 'admin'): ?>
-  <a href="employees.php"        class="<?= $_NAV_PAGE === 'employees.php'        ? 'active' : '' ?>">👥 Nhân viên</a>
   <a href="salary_report.php"    class="<?= $_NAV_PAGE === 'salary_report.php'    ? 'active' : '' ?>">💰 Lương</a>
   <?php endif; ?>
 

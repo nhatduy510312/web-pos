@@ -45,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($account && (int)$account['is_active'] === 1
             && password_verify($password, $account['password'])) {
             clearLoginFailures('purchase:' . $username);
-            clearPosSession();
             session_regenerate_id(true);
             $_SESSION['purchase_logged_in'] = true;
             $_SESSION['purchase_user_id'] = (int)$account['id'];

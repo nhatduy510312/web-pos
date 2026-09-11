@@ -96,6 +96,11 @@ function enforceAccountSession(mysqli $conn): void
         accountAccessDenied('Tài khoản mua hàng không được truy cập POS.', 'purchase_login.php');
     }
 
+    if (($account['role'] ?? '') === 'bakery_admin') {
+        endAccountSession();
+        accountAccessDenied('Tài khoản bếp bánh không được truy cập POS.', 'bakery_login.php');
+    }
+
     $_SESSION['username'] = $account['username'];
     $_SESSION['role'] = $account['role'] ?: 'staff';
     $_SESSION['employee_id'] = $account['employee_id'] !== null ? (int)$account['employee_id'] : null;

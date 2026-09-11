@@ -45,12 +45,16 @@ if (isset($_POST['login'])) {
         clearLoginFailures($username);
         recordLoginHistory($conn, (int)$row['id'], $row['username'], 'wrong_portal');
         $error = 'Đây là tài khoản mua hàng. Vui lòng đăng nhập tại trang mua hàng riêng.';
+    } elseif ($row && ($row['role'] ?? '') === 'bakery_admin' && (int)$row['is_active'] === 1
+        && $passwordMatches) {
+        clearLoginFailures($username);
+        recordLoginHistory($conn, (int)$row['id'], $row['username'], 'wrong_bakery_portal');
+        $error = 'Đây là tài khoản quản lý bếp bánh. Vui lòng đăng nhập tại trang bếp bánh riêng.';
     } elseif ($row && (int)$row['is_active'] === 1 && $employeeIsActive
         && in_array($row['role'] ?? 'staff', ['admin', 'staff', 'user'], true)
         && $passwordMatches) {
         clearLoginFailures($username);
         session_regenerate_id(true);
-        unset($_SESSION['purchase_logged_in'], $_SESSION['purchase_user_id'], $_SESSION['purchase_username'], $_SESSION['purchase_session_version']);
         $_SESSION['logged_in'] = true;
         $_SESSION['user_id']   = $row['id'];
         $_SESSION['username']  = $row['username'];
@@ -188,6 +192,7 @@ input::placeholder{color:#94a3b8;}
 .public-menu-link:hover{background:#edf3e7;border-color:#b9c9aa;color:#3f5a2e;}
 .public-menu-link:focus-visible{outline:3px solid rgba(88,112,68,.22);outline-offset:2px;}
 .purchase-login-link{display:block;text-align:center;margin-top:14px;color:#166534;font-size:13px;font-weight:700;text-decoration:none}.purchase-login-link:hover{text-decoration:underline}
+.bakery-login-link{display:block;text-align:center;margin-top:10px;color:#7c2d12;font-size:13px;font-weight:700;text-decoration:none}.bakery-login-link:hover{text-decoration:underline}
 </style>
 </head>
 <body>
@@ -219,6 +224,7 @@ input::placeholder{color:#94a3b8;}
       <button class="submit" type="submit" name="login">Đăng nhập</button>
     </form>
     <a class="purchase-login-link" href="purchase_login.php">Đăng nhập dành cho nhân viên mua hàng →</a>
+    <a class="bakery-login-link" href="bakery_login.php">Đăng nhập quản lý bếp bánh →</a>
   </div>
 
   <a class="public-menu-link" href="menu-khach.php">☕ Xem menu tại quán →</a>

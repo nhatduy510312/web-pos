@@ -145,7 +145,7 @@ if ($isAdmin) {
 
   <?php if (!$isAdmin && !$currentEmployee): ?>
   <div class="alert alert-warn">
-    ⚠️ Tài khoản này chưa được liên kết với hồ sơ nhân viên. Vui lòng nhờ admin vào mục Nhân viên để tạo tài khoản riêng.
+    ⚠️ Tài khoản này chưa được liên kết với hồ sơ nhân viên. Vui lòng nhờ admin vào mục Tài khoản để tạo tài khoản Nhân viên POS riêng.
   </div>
   <?php else: ?>
   <div class="card" style="margin-bottom:14px;">

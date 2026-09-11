@@ -1,6 +1,7 @@
 <?php
 
 if (session_status() === PHP_SESSION_NONE) {
+    session_name('ghe_purchase_session');
     session_set_cookie_params([
         'lifetime' => 0,
         'path' => '/',
@@ -49,19 +50,6 @@ function clearPurchaseSession(): void
         $_SESSION['purchase_user_id'],
         $_SESSION['purchase_username'],
         $_SESSION['purchase_session_version']
-    );
-}
-
-function clearPosSession(): void
-{
-    unset(
-        $_SESSION['logged_in'],
-        $_SESSION['user_id'],
-        $_SESSION['username'],
-        $_SESSION['role'],
-        $_SESSION['employee_id'],
-        $_SESSION['must_change_password'],
-        $_SESSION['session_version']
     );
 }
 
