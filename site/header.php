@@ -32,14 +32,15 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
 <meta property="og:image:alt" content="<?= ghe_h(ghe_is_english() ? (trim($socialPhoto['alt_en']??'') ?: 'Ghé — Da Lat Café') : ($socialPhoto?$socialPhoto['alt']:'Ghé — Cà phê Đà Lạt')) ?>">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="<?= ghe_h(ghe_link('favicon.svg')) ?>">
-<link rel="stylesheet" href="<?= ghe_h(ghe_link('assets/public.css?v=3')) ?>">
+<link rel="stylesheet" href="<?= ghe_h(ghe_link('assets/public.css?v=home-refined-1')) ?>">
+<?php if($pageKey==='home'): ?><link rel="stylesheet" href="<?= ghe_h(ghe_link('assets/home.css?v=1')) ?>"><?php endif; ?>
 <script type="application/ld+json"><?= json_encode(ghe_schema($pageKey), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
-<script src="<?= ghe_h(ghe_link('assets/public.js?v=3')) ?>" defer></script>
+<script src="<?= ghe_h(ghe_link('assets/public.js?v=photos-1')) ?>" defer></script>
 </head>
-<body>
+<body<?= $pageKey==='home'?' class="public-home"':'' ?>>
 <?php if(defined('GHE_PREVIEW') && GHE_PREVIEW): ?><div class="preview-banner">BẢN XEM TRƯỚC — Khách chưa thấy thay đổi này. <a href="website-admin.php">Về quản trị</a></div><?php endif; ?>
 <a class="skip-link" href="#main"><?= ghe_t('Đến nội dung chính','Skip to content') ?></a>
-<div class="topline"><?= ghe_h($site['hours']) ?><span><?= ghe_h($site['street']) ?></span></div>
+<?php if($pageKey!=='home'): ?><div class="topline"><?= ghe_h($site['hours']) ?><span><?= ghe_h($site['street']) ?></span></div><?php endif; ?>
 <header class="header wrap">
   <a class="wordmark" href="<?= ghe_h(ghe_link()) ?>" aria-label="<?= ghe_t('Ghé — Trang chủ','Ghé — Home') ?>">ghé<span><?= ghe_t('cà phê & những cuộc hẹn','coffee & good company') ?></span></a>
   <nav class="desktop-nav" aria-label="<?= ghe_t('Điều hướng chính','Main navigation') ?>">

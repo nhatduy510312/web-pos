@@ -1,0 +1,3 @@
+<?php $pageKey='gallery'; require __DIR__.'/site/header.php'; ?>
+<section class="page-intro wrap"><p class="eyebrow">KHÔNG GIAN & HƯƠNG VỊ Ở GHÉ</p><h1>Một khoảng xanh.<br><em>Nhiều khoảnh khắc thật.</em></h1><p class="lead">Đi một vòng sân vườn, những góc ngồi trong nhà và các món uống qua bộ ảnh chụp tại Ghé. Chọn từng ảnh để xem đầy đủ khung hình.</p><div class="actions"><a class="button" href="<?= ghe_h(ghe_link('den-ghe.php')) ?>">Hẹn đường đến Ghé ↗</a><a class="text-link" href="<?= ghe_h(ghe_link('thuc-don.php')) ?>">Xem thực đơn →</a></div></section>
+<?php ghe_gallery(true); require __DIR__.'/site/footer.php'; ?>

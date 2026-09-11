@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__.'/photo-collection.php';
 function ghe_database(): mysqli {
     if (!extension_loaded('mysqli')) throw new RuntimeException('Máy chủ chưa bật mysqli.');
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -23,9 +24,20 @@ function ghe_catalog_sections(array $rows, array $content): array {
         $key = 'category-' . (int)$row['category_id'];
         if (!isset($sections[$key])) $sections[$key] = ['id'=>$key, 'title'=>$row['category_name'] ?: 'Các món khác', 'eyebrow'=>'Thực đơn tại Ghé', 'theme'=>'coffee', 'wide'=>true, 'items'=>[]];
         $seed = $descriptions[mb_strtolower(trim($row['name']), 'UTF-8')] ?? [];
+        $photo=ghe_collection_product($row['name'],$content);
+        $image=$meta['image']??'';
+        if($image==='' && !($meta['image_manual']??false))$image=$photo['image'];
         $sections[$key]['items'][] = ['id'=>(int)$row['id'], 'name'=>$row['name'], 'price'=>(int)$row['price'],
             'detail'=>$meta['description'] ?? ($seed['detail'] ?? ''), 'tags'=>$seed['tags'] ?? [],
-            'image'=>$meta['image'] ?? '', 'featured'=>(bool)($meta['featured'] ?? false)];
+            'image'=>$image, 'image_note'=>$image===$photo['image']?$photo['image_note']:'', 'image_note_en'=>$image===$photo['image']?$photo['image_note_en']:'', 'featured'=>(bool)($meta['featured'] ?? false)];
     }
-    return array_values($sections);
+    // Keep the existing category/item order, with snacks after all other groups.
+    // Both public languages and their category links use this shared ordering.
+    $main = []; $snacks = [];
+    foreach ($sections as $section) {
+        $name = mb_strtolower(trim(explode('/', $section['title'])[0]), 'UTF-8');
+        if (in_array($name, ['ăn nhẹ', 'snacks'], true)) $snacks[] = $section;
+        else $main[] = $section;
+    }
+    return array_merge($main, $snacks);
 }

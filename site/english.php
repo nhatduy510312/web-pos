@@ -3,12 +3,13 @@
 function ghe_is_english(): bool { return defined('GHE_ENGLISH') && GHE_ENGLISH; }
 function ghe_t(string $vi, string $en): string { return ghe_is_english() ? $en : $vi; }
 function ghe_english_routes(): array {
-    return ['home'=>'', 'about'=>'gioi-thieu.php', 'menu'=>'thuc-don.php', 'story'=>'ghe-uong-gi.php', 'visit'=>'den-ghe.php'];
+    return ['home'=>'', 'about'=>'gioi-thieu.php', 'menu'=>'thuc-don.php', 'story'=>'ghe-uong-gi.php', 'visit'=>'den-ghe.php', 'gallery'=>'khong-gian.php'];
 }
 function ghe_english_path(string $key): string { return 'en.php' . ($key === 'home' ? '' : '?view=' . rawurlencode($key)); }
 function ghe_english_defaults(): array {
     return [
         'home_title'=>"A little coffee.\nA little time.\nA moment at Ghé.",
+        'home_lead'=>'A cup of coffee. A seat that feels right. Make a little time for yourself, or for a catch-up you have been looking forward to.',
         'home_intro'=>'Make time for a coffee in Da Lat. Come to Ghé for a work session, a study break or a conversation with friends. Explore our spaces, find your favourite drink and plan your visit.',
         'about_title'=>'A little pause in your Da Lat day.',
         'about_body'=>"In Vietnamese, ‘ghé’ is an invitation to stop by. At Ghé, that can mean a coffee before exploring Da Lat, time with your laptop or a catch-up with friends.\n\nChoose a drink from the menu and a seat that suits your day. You can find our current spaces and facilities below, along with opening hours and directions. If you are coming with a group or need a particular kind of seat, please contact us before your visit.",
@@ -72,6 +73,7 @@ function ghe_english_apply(): void {
         'visit'=>['label'=>'Visit us','title'=>'Visit Ghé — '.$site['street'].', Da Lat','description'=>'Find Ghé at '.$site['address'].'. Open '.$site['hours'].'. Directions, contact details, seating, Wi-Fi and parking information.'],
     ];
     foreach ($publicPages as $key=>&$page) $page['file']=ghe_english_path($key);
+    $publicPages['gallery']=['file'=>ghe_english_path('gallery'),'label'=>'Gallery','title'=>'Ghé Da Lat Photo Gallery — Garden, Indoor Spaces & Drinks','description'=>'Explore real photos of Ghé café in Da Lat: garden seating, indoor corners, coffee breaks and drinks. Find your favourite spot before your visit.'];
     unset($page);
 }
 function ghe_english_facilities(): void {

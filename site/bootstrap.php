@@ -23,6 +23,7 @@ $publicPages = [
     'visit' => ['file' => 'den-ghe.php', 'label' => 'Đến Ghé', 'title' => 'Đường đến Ghé — 30 Võ Trường Toản, Đà Lạt', 'description' => 'Địa chỉ Ghé: 30 Võ Trường Toản, Đà Lạt, Lâm Đồng. Mở Google Maps để chỉ đường, xem đánh giá và liên hệ quán qua số 0705 926 614.'],
 ];
 $publicPages['home']['description'] = mb_substr($settings['home_intro'],0,180,'UTF-8');
+$publicPages['gallery']=['file'=>'khong-gian.php','label'=>'Không gian','title'=>'Không gian Ghé Đà Lạt — Sân vườn, góc ngồi và món uống','description'=>'Xem ảnh thật của Ghé ở 30 Võ Trường Toản, Đà Lạt: không gian sân vườn, góc ngồi trong nhà, những cuộc hẹn và các món uống tại quán.'];
 $publicPages['about']['description'] = mb_substr(preg_replace('/\s+/u',' ',$settings['about_body']),0,180,'UTF-8');
 $publicPages['visit']['description'] = 'Ghé tại ' . $site['address'] . '. Mở cửa ' . $site['hours'] . '. Liên hệ ' . $site['phone'] . ' hoặc xem chỉ đường trên Google Maps.';
 $publishedPosts = array_filter($content['posts'],function($post){ return $post['enabled']; });
@@ -37,7 +38,7 @@ function ghe_link(string $path = '', bool $localize = true): string {
     }
     if (defined('GHE_PREVIEW') && GHE_PREVIEW) {
         $parts=explode('?', $path,2); $file=$parts[0] ?: 'home.php';
-        if (in_array($file,['home.php','gioi-thieu.php','thuc-don.php','ghe-uong-gi.php','den-ghe.php','chuyen-o-ghe.php','bai-viet.php','en.php'],true)) $path='website-preview.php?page=' . rawurlencode($file) . (isset($parts[1])?'&'.$parts[1]:'');
+        if (in_array($file,['home.php','gioi-thieu.php','thuc-don.php','ghe-uong-gi.php','den-ghe.php','khong-gian.php','chuyen-o-ghe.php','bai-viet.php','en.php'],true)) $path='website-preview.php?page=' . rawurlencode($file) . (isset($parts[1])?'&'.$parts[1]:'');
     }
     return rtrim(parse_url($site['url'], PHP_URL_PATH) ?: '', '/') . '/' . ltrim($path, '/');
 }
@@ -78,6 +79,11 @@ function ghe_schema(string $key): array {
         '@id' => $url . '#page', 'url' => $url, 'name' => $page['title'], 'description' => $page['description'],
         'inLanguage' => ghe_t('vi-VN','en'), 'isPartOf' => ['@id' => ghe_url('#website')], 'about' => ['@id' => ghe_url('#ghe')]];
     $graph = [$business, ['@type' => 'WebSite', '@id' => ghe_url('#website'), 'url' => ghe_url(), 'name' => 'Ghé — Cà phê Đà Lạt', 'publisher' => ['@id' => ghe_url('#ghe')]], $webpage];
+    if($key==='gallery') {
+        $graph[2]['@type']='ImageGallery';
+        $graph[2]['hasPart']=[];
+        foreach($content['media'] as $id=>$photo)if($photo['gallery'])$graph[2]['hasPart'][]=['@type'=>'ImageObject','contentUrl'=>ghe_url('ghe-image.php?id='.$id),'thumbnailUrl'=>ghe_url('ghe-image.php?id='.$id.'&size=thumb'),'caption'=>ghe_is_english()?($photo['alt_en']??'Ghé café in Da Lat'):$photo['alt']];
+    }
     if ($key !== 'home') $graph[] = ['@type' => 'BreadcrumbList', 'itemListElement' => [
         ['@type' => 'ListItem', 'position' => 1, 'name' => ghe_t('Trang chủ','Home'), 'item' => ghe_url($publicPages['home']['file'])],
         ['@type' => 'ListItem', 'position' => 2, 'name' => $page['label'], 'item' => $url]]];

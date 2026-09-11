@@ -39,7 +39,10 @@ $list = $conn->query("SELECT * FROM cashbook_history ORDER BY report_date DESC")
       <h1>📚 Lịch sử chốt ca</h1>
       <p>Toàn bộ các ca đã được chốt</p>
     </div>
-    <a href="cashbook.php" class="btn btn-primary btn-sm">📒 Ca hôm nay</a>
+    <div class="flex" style="flex-wrap:wrap">
+      <?php if (($_SESSION['role']??'')==='admin'): ?><a href="expense_report.php" class="btn btn-secondary btn-sm">💸 Báo cáo tiền chi theo tháng</a><?php endif; ?>
+      <a href="cashbook.php" class="btn btn-primary btn-sm">📒 Ca hôm nay</a>
+    </div>
   </div>
 
   <div class="tbl-wrap">

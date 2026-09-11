@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__.'/photo-collection.php';
 // Private, versioned website content. All mutations require the authenticated controller.
 function ghe_storage_dir(): string { return getenv('GHE_STORAGE_DIR') ?: __DIR__ . '/storage'; }
 function ghe_content_defaults(): array {
@@ -8,6 +9,7 @@ function ghe_content_defaults(): array {
             'phone' => '0705 926 614', 'maps' => 'https://maps.app.goo.gl/ySJSyKgaPvpcgA549',
             'opens' => '07:00', 'closes' => '18:00', 'hours_note' => 'Mở cửa hằng ngày.',
             'home_title' => "Một chút cà phê.\nMột cuộc hẹn.\nMột lần ghé.",
+            'home_lead' => 'Một ly cà phê, một chỗ ngồi vừa ý. Dành chút thời gian cho riêng mình, hoặc cho một cuộc hẹn bạn đã mong từ lâu.',
             'home_intro' => 'Ghé có sân vườn và không gian trong nhà yên tĩnh tại 30 Võ Trường Toản, Đà Lạt. Wi-Fi 6, đường truyền 1 Gbps và ổ điện ở mỗi bàn, phù hợp làm việc, học tập và trò chuyện. Mở cửa 7h–18h mỗi ngày.',
             'about_title' => 'Một khoảng yên tĩnh, giữa những cuộc hẹn ở Đà Lạt.',
             'about_body' => "Ghé là quán cà phê tại 30 Võ Trường Toản, Đà Lạt, có không gian sân vườn và chỗ ngồi trong nhà. Bạn có thể chọn khoảng ngồi phù hợp với cuộc hẹn của mình.\n\nKhông gian yên tĩnh của Ghé phù hợp để làm việc, học tập và trò chuyện. Quán có Wi-Fi 6 với đường truyền 1 Gbps, ổ điện ở mỗi bàn để bạn thuận tiện dùng máy tính hoặc sạc thiết bị.\n\nBạn có thể đỗ ô tô và xe máy dọc đường. Quán mở cửa từ 7h đến 18h hằng ngày. Xem menu trước khi đến, hoặc gọi quán nếu bạn có nhu cầu cụ thể cho nhóm của mình.",
@@ -25,9 +27,10 @@ function ghe_facility_labels(): array {
 }
 function ghe_state_read(): array {
     $file = ghe_storage_dir() . '/content.json';
-    if (!is_file($file)) return ['revision'=>0, 'draft'=>ghe_content_defaults(), 'published'=>ghe_content_defaults(), 'published_at'=>null];
+    if (!is_file($file)) return ['revision'=>0, 'draft'=>ghe_apply_photo_collection(ghe_content_defaults()), 'published'=>ghe_apply_photo_collection(ghe_content_defaults()), 'published_at'=>null];
     $data = json_decode((string)file_get_contents($file), true, 512, JSON_THROW_ON_ERROR);
     if (!is_array($data) || !isset($data['revision'], $data['draft'], $data['published'])) throw new RuntimeException('Dữ liệu website không hợp lệ. Vui lòng kiểm tra bản sao lưu.');
+    foreach(['draft','published'] as $version)$data[$version]=ghe_apply_photo_collection($data[$version]);
     return $data;
 }
 function ghe_state_update(int $expectedRevision, callable $change): array {
@@ -58,6 +61,7 @@ function ghe_text($value, int $limit, bool $required = false): string {
     return $value;
 }
 function ghe_settings_validate(array $input, array $current): array {
+    if(array_key_exists('home_lead',$input))$current['home_lead']=ghe_text($input['home_lead'],600);
     $limits = ['street'=>180,'city'=>100,'region'=>100,'phone'=>30,'maps'=>1000,'opens'=>5,'closes'=>5,'hours_note'=>250,'home_title'=>160,'home_intro'=>1000,'about_title'=>180,'about_body'=>15000,'menu_intro'=>1500,'visit_note'=>1500];
     foreach ($limits as $key=>$limit) $current[$key] = ghe_text($input[$key] ?? '', $limit, $key !== 'hours_note');
     if (!preg_match('/^\+?[0-9 ()-]{9,25}$/', $current['phone'])) throw new InvalidArgumentException('Số điện thoại không hợp lệ.');

@@ -17,7 +17,8 @@ function ghe_admin_action(array $post, array $files, array $catalog): string {
             switch ($action) {
                 case 'english_settings':
                     foreach (ghe_english_defaults() as $key=>$default) {
-                        $limits=['home_title'=>160,'home_intro'=>1000,'about_title'=>180,'about_body'=>15000,'menu_intro'=>1500,'visit_note'=>1500,'hours_note'=>250];
+                        $limits=['home_title'=>160,'home_lead'=>600,'home_intro'=>1000,'about_title'=>180,'about_body'=>15000,'menu_intro'=>1500,'visit_note'=>1500,'hours_note'=>250];
+                        if($key==='home_lead' && !array_key_exists($key,$post))continue;
                         $draft['settings_en'][$key]=ghe_text($post[$key]??'', $limits[$key]);
                     }
                     foreach (ghe_facility_labels() as $key=>$label) $draft['facility_details_en'][$key]=ghe_text($post['facility_details_en'][$key]??'',200);
@@ -62,6 +63,7 @@ function ghe_admin_action(array $post, array $files, array $catalog): string {
                     $english=[];
                     foreach (['name_en'=>200,'description_en'=>1000] as $key=>$limit) $english[$key]=ghe_text($post[$key]??($draft['products'][(string)$id][$key]??''),$limit);
                     $draft['products'][(string)$id] = ['description'=>ghe_text($post['description'] ?? '',1000), 'visible'=>isset($post['visible']), 'featured'=>isset($post['featured']), 'image'=>$image] + $english;
+                    $draft['products'][(string)$id]['image_manual']=true;
                     break;
                 case 'post':
                     $slug = ghe_text($post['slug'] ?? '',100,true);

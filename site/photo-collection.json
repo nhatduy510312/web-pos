@@ -1,0 +1,968 @@
+[
+  {
+    "number": 1,
+    "source": "04877fa4-397e-421a-b4cc-01179985159d.jpg",
+    "id": "eca0d84cc4278f1c77383f44e5437abd",
+    "source_bytes": 7014814,
+    "full": {
+      "width": 1600,
+      "height": 1067,
+      "bytes": 108444
+    },
+    "thumb": {
+      "width": 480,
+      "height": 320,
+      "bytes": 23136
+    },
+    "alt": "Góc ngồi bên cửa sổ nhìn ra sân vườn",
+    "alt_en": "Window seating overlooking the garden",
+    "category": "indoor",
+    "order": 2,
+    "gallery": true,
+    "caption": "Góc ngồi bên cửa sổ nhìn ra sân vườn",
+    "caption_en": "Window seating overlooking the garden"
+  },
+  {
+    "number": 2,
+    "source": "140d5cf6-639e-478a-97ae-7be5426bd233.jpg",
+    "id": "bb74ba63b35022145f60cd699180af75",
+    "source_bytes": 4242516,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 59546
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 12300
+    },
+    "alt": "Góc ngồi trong nhà qua khung cửa gỗ",
+    "alt_en": "Indoor seating framed by a wooden doorway",
+    "category": "indoor",
+    "order": 6,
+    "gallery": true,
+    "caption": "Góc ngồi trong nhà qua khung cửa gỗ",
+    "caption_en": "Indoor seating framed by a wooden doorway"
+  },
+  {
+    "number": 3,
+    "source": "153ad8e6-06fb-4260-b830-87496a03dffc.jpg",
+    "id": "f0328b6726873cf3367fe8b2b19342cd",
+    "source_bytes": 7972046,
+    "full": {
+      "width": 1600,
+      "height": 1067,
+      "bytes": 139646
+    },
+    "thumb": {
+      "width": 480,
+      "height": 320,
+      "bytes": 27502
+    },
+    "alt": "Một bàn cà phê với bánh và trò chơi",
+    "alt_en": "Coffee, pastries and a board game on the table",
+    "category": "indoor",
+    "order": 7,
+    "gallery": true,
+    "caption": "Một bàn cà phê với bánh và trò chơi",
+    "caption_en": "Coffee, pastries and a board game on the table"
+  },
+  {
+    "number": 4,
+    "source": "16b8ec68-5902-4470-812d-19e17ecf58cd.jpg",
+    "id": "98e6bd8e2f19839a126f12f62fad4311",
+    "source_bytes": 3060352,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 79958
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 16324
+    },
+    "alt": "Chỗ ngồi bên cửa sổ với rèm đỏ",
+    "alt_en": "A window seat beneath a red blind",
+    "category": "indoor",
+    "order": 8,
+    "gallery": true,
+    "caption": "Chỗ ngồi bên cửa sổ với rèm đỏ",
+    "caption_en": "A window seat beneath a red blind"
+  },
+  {
+    "number": 5,
+    "source": "1d7bd40d-2e57-48b4-bc05-718232241c2c.jpg",
+    "id": "7df1478dc85cfdad40b24b5c2f3fc60b",
+    "source_bytes": 9217493,
+    "full": {
+      "width": 1600,
+      "height": 1067,
+      "bytes": 130194
+    },
+    "thumb": {
+      "width": 480,
+      "height": 320,
+      "bytes": 25696
+    },
+    "alt": "Bàn dài bên cửa sổ dành cho giờ học và làm việc",
+    "alt_en": "A long window counter for studying and working",
+    "category": "indoor",
+    "order": 9,
+    "gallery": true,
+    "caption": "Bàn dài bên cửa sổ dành cho giờ học và làm việc",
+    "caption_en": "A long window counter for studying and working"
+  },
+  {
+    "number": 6,
+    "source": "2a829a66-a254-4855-902b-016744980796.jpg",
+    "id": "ce603daa1ef644e3d35e8073ba9e5c7c",
+    "source_bytes": 11878736,
+    "full": {
+      "width": 1600,
+      "height": 1067,
+      "bytes": 186416
+    },
+    "thumb": {
+      "width": 480,
+      "height": 320,
+      "bytes": 29178
+    },
+    "alt": "Khách dùng máy tính ở bàn cửa sổ",
+    "alt_en": "Guests using laptops at the window counter",
+    "category": "indoor",
+    "order": 10,
+    "gallery": true,
+    "caption": "Khách dùng máy tính ở bàn cửa sổ",
+    "caption_en": "Guests using laptops at the window counter"
+  },
+  {
+    "number": 7,
+    "source": "2e0c0eef-589e-444e-b956-68d5319c9179.jpg",
+    "id": "effb4100e2deea81f07b7f50c8dd0325",
+    "source_bytes": 4177883,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 180816
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 32550
+    },
+    "alt": "Góc trò chuyện giữa cây xanh ngoài sân",
+    "alt_en": "A conversation surrounded by garden greenery",
+    "category": "garden",
+    "order": 11,
+    "gallery": true,
+    "caption": "Góc trò chuyện giữa cây xanh ngoài sân",
+    "caption_en": "A conversation surrounded by garden greenery"
+  },
+  {
+    "number": 8,
+    "source": "3749362a-fa05-4659-b24c-ad002dfb8378.jpg",
+    "id": "c7070d66199b717961aff70b71f284d0",
+    "source_bytes": 4447206,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 251492
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 42764
+    },
+    "alt": "Chỗ ngồi đọc sách cạnh hàng rào xanh",
+    "alt_en": "A reading spot beside the green fence",
+    "category": "garden",
+    "order": 12,
+    "gallery": true,
+    "caption": "Chỗ ngồi đọc sách cạnh hàng rào xanh",
+    "caption_en": "A reading spot beside the green fence"
+  },
+  {
+    "number": 9,
+    "source": "3e050644-1a05-4878-b8e5-35eb34b821c0.jpg",
+    "id": "04223cea6d25713cc59f71d6e1ec44be",
+    "source_bytes": 4177257,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 83102
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 13946
+    },
+    "alt": "Khoảnh khắc vẽ tranh tại Ghé",
+    "alt_en": "A painting moment at Ghé",
+    "category": "indoor",
+    "order": 13,
+    "gallery": true,
+    "caption": "Khoảnh khắc vẽ tranh tại Ghé",
+    "caption_en": "A painting moment at Ghé"
+  },
+  {
+    "number": 10,
+    "source": "501581da-3712-4a1e-b8a1-456f92b4384a.jpg",
+    "id": "281c8fb124397e1603795c5872691749",
+    "source_bytes": 5032807,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 252484
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 49416
+    },
+    "alt": "Bàn ghế trắng dưới bóng cây trong sân vườn",
+    "alt_en": "White garden furniture in the shade of the trees",
+    "category": "garden",
+    "order": 0,
+    "gallery": true,
+    "caption": "Bàn ghế trắng dưới bóng cây trong sân vườn",
+    "caption_en": "White garden furniture in the shade of the trees"
+  },
+  {
+    "number": 11,
+    "source": "50d1ec25-e55c-494f-bd01-c101d1a493c1.jpg",
+    "id": "a00ed7b15131b30848fbff76057c09c4",
+    "source_bytes": 7034479,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 321142
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 51358
+    },
+    "alt": "Một góc ngồi giữa cây xanh trong sân",
+    "alt_en": "A garden seat surrounded by leafy plants",
+    "category": "garden",
+    "order": 14,
+    "gallery": true,
+    "caption": "Một góc ngồi giữa cây xanh trong sân",
+    "caption_en": "A garden seat surrounded by leafy plants"
+  },
+  {
+    "number": 12,
+    "source": "514b97c6-f7c7-45da-8d8b-7424b6c957aa.jpg",
+    "id": "a8bb87a5a87bdd08e9b6360de73dd47f",
+    "source_bytes": 4686031,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 164460
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 28764
+    },
+    "alt": "Góc làm việc nhìn ra khoảng xanh",
+    "alt_en": "A work spot looking out towards the greenery",
+    "category": "indoor",
+    "order": 15,
+    "gallery": true,
+    "caption": "Góc làm việc nhìn ra khoảng xanh",
+    "caption_en": "A work spot looking out towards the greenery"
+  },
+  {
+    "number": 13,
+    "source": "52d8b095-d64d-4935-997a-7dfb1c694099.jpg",
+    "id": "ddf6144741ed21dddbbc783638a4ac7a",
+    "source_bytes": 4643752,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 217076
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 40996
+    },
+    "alt": "Bàn ngồi dưới tán cây trong sân vườn",
+    "alt_en": "Garden seating beneath the trees",
+    "category": "garden",
+    "order": 16,
+    "gallery": true,
+    "caption": "Bàn ngồi dưới tán cây trong sân vườn",
+    "caption_en": "Garden seating beneath the trees"
+  },
+  {
+    "number": 14,
+    "source": "54917d4b-8709-4001-a58e-300fcd3b13f4.jpg",
+    "id": "1b740e2a3b2d442a6c3f032e03c991bd",
+    "source_bytes": 9156528,
+    "full": {
+      "width": 1600,
+      "height": 1067,
+      "bytes": 117368
+    },
+    "thumb": {
+      "width": 480,
+      "height": 320,
+      "bytes": 23748
+    },
+    "alt": "Một cuộc hẹn bên bàn cà phê trong nhà",
+    "alt_en": "Time together at an indoor café table",
+    "category": "indoor",
+    "order": 17,
+    "gallery": true,
+    "caption": "Một cuộc hẹn bên bàn cà phê trong nhà",
+    "caption_en": "Time together at an indoor café table"
+  },
+  {
+    "number": 15,
+    "source": "65307bb3-e83e-48d2-89b5-0f4d43a11320.jpg",
+    "id": "7b12dfbe34528035ea5c3086ecbe07f4",
+    "source_bytes": 3978044,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 89724
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 16744
+    },
+    "alt": "Khoảnh khắc thưởng thức cà phê cạnh cửa sổ",
+    "alt_en": "A coffee moment by the window",
+    "category": "indoor",
+    "order": 18,
+    "gallery": true,
+    "caption": "Khoảnh khắc thưởng thức cà phê cạnh cửa sổ",
+    "caption_en": "A coffee moment by the window"
+  },
+  {
+    "number": 16,
+    "source": "66622e22-b597-4512-b9e1-398d047069b7.jpg",
+    "id": "9effc845cd4b57c1c30367213e3b3b2f",
+    "source_bytes": 4004920,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 154470
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 31018
+    },
+    "alt": "Khách trò chuyện bên bàn trắng ngoài sân",
+    "alt_en": "Guests chatting at a white garden table",
+    "category": "garden",
+    "order": 19,
+    "gallery": true,
+    "caption": "Khách trò chuyện bên bàn trắng ngoài sân",
+    "caption_en": "Guests chatting at a white garden table"
+  },
+  {
+    "number": 17,
+    "source": "6ae35550-f1ed-49a8-9a2b-9596064c0863.jpg",
+    "id": "a856acb7435dc83e5d9229087eb564fa",
+    "source_bytes": 4620939,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 236174
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 44894
+    },
+    "alt": "Những chỗ ngồi bên lối đi xanh mát",
+    "alt_en": "Seats beside a leafy garden path",
+    "category": "garden",
+    "order": 20,
+    "gallery": true,
+    "caption": "Những chỗ ngồi bên lối đi xanh mát",
+    "caption_en": "Seats beside a leafy garden path"
+  },
+  {
+    "number": 18,
+    "source": "71e2218b-e7a9-44b4-9ed9-2c5f5a503c8a.jpg",
+    "id": "05af2e5aa3fb21748b03337707190035",
+    "source_bytes": 7965130,
+    "full": {
+      "width": 1600,
+      "height": 1067,
+      "bytes": 132494
+    },
+    "thumb": {
+      "width": 480,
+      "height": 320,
+      "bytes": 25278
+    },
+    "alt": "Bàn ngồi trong nhà cho những cuộc trò chuyện",
+    "alt_en": "Indoor seating for a catch-up with friends",
+    "category": "indoor",
+    "order": 3,
+    "gallery": true,
+    "caption": "Bàn ngồi trong nhà cho những cuộc trò chuyện",
+    "caption_en": "Indoor seating for a catch-up with friends"
+  },
+  {
+    "number": 19,
+    "source": "7eb44eba-8028-4ac0-aba2-b4e1ab34982f.jpg",
+    "id": "c24407c91b3e90565842b3d1eb24ac4b",
+    "source_bytes": 3575864,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 88016
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 17948
+    },
+    "alt": "Khách dùng máy tính giữa những chậu cây",
+    "alt_en": "A guest with a laptop among the plants",
+    "category": "indoor",
+    "order": 21,
+    "gallery": true,
+    "caption": "Khách dùng máy tính giữa những chậu cây",
+    "caption_en": "A guest with a laptop among the plants"
+  },
+  {
+    "number": 20,
+    "source": "7f187121-4cb0-40eb-84c7-2914219c9f35.jpg",
+    "id": "30a7b4e840b248cb75fc7aa97503be9b",
+    "source_bytes": 6497781,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 125426
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 21958
+    },
+    "alt": "Góc học tập bên cửa sổ mở",
+    "alt_en": "A study spot by an open window",
+    "category": "indoor",
+    "order": 22,
+    "gallery": true,
+    "caption": "Góc học tập bên cửa sổ mở",
+    "caption_en": "A study spot by an open window"
+  },
+  {
+    "number": 21,
+    "source": "859da757-5428-4930-93cb-855a3ad62dfa.jpg",
+    "id": "53125bb5f89b8f01f778d0cb3dd21d32",
+    "source_bytes": 4993673,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 132974
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 17954
+    },
+    "alt": "Chỗ ngồi làm việc bên khung cửa gỗ",
+    "alt_en": "A work spot beside a wooden window frame",
+    "category": "indoor",
+    "order": 23,
+    "gallery": true,
+    "caption": "Chỗ ngồi làm việc bên khung cửa gỗ",
+    "caption_en": "A work spot beside a wooden window frame"
+  },
+  {
+    "number": 22,
+    "source": "891a8f13-83f2-4061-9bb9-246b870c96f9.jpg",
+    "id": "ce290a37ba35429e0c4ba7ba7e1c1234",
+    "source_bytes": 5561943,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 190722
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 27610
+    },
+    "alt": "Lối đi trong nhà với cây xanh và nền gạch hoa",
+    "alt_en": "An indoor passage with plants and patterned floor tiles",
+    "category": "indoor",
+    "order": 1,
+    "gallery": true,
+    "caption": "Lối đi trong nhà với cây xanh và nền gạch hoa",
+    "caption_en": "An indoor passage with plants and patterned floor tiles"
+  },
+  {
+    "number": 23,
+    "source": "90d80dfe-6c54-489d-8a95-373ecdc974f8.jpg",
+    "id": "039f50f3b77225ec0f48bad40d4863b2",
+    "source_bytes": 3080278,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 57910
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 12378
+    },
+    "alt": "Bàn viết bên cửa sổ trong ánh sáng dịu",
+    "alt_en": "A writing table in soft window light",
+    "category": "indoor",
+    "order": 24,
+    "gallery": true,
+    "caption": "Bàn viết bên cửa sổ trong ánh sáng dịu",
+    "caption_en": "A writing table in soft window light"
+  },
+  {
+    "number": 24,
+    "source": "b19b0a4c-8e0b-4b43-bce8-d6824b2fff6c.jpg",
+    "id": "feaf837226f82accfd5dc01dcea84a50",
+    "source_bytes": 4241025,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 213644
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 27748
+    },
+    "alt": "Biển hiệu Ghé dưới tán lá",
+    "alt_en": "The Ghé sign beneath the leaves",
+    "category": "garden",
+    "order": 5,
+    "gallery": true,
+    "caption": "Biển hiệu Ghé dưới tán lá",
+    "caption_en": "The Ghé sign beneath the leaves"
+  },
+  {
+    "number": 25,
+    "source": "b4cb6038-0a89-4d1c-821d-a43457e3e709.jpg",
+    "id": "685b2a852d392af16f23eba0515b4cd4",
+    "source_bytes": 4858784,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 86650
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 13996
+    },
+    "alt": "Bàn cà phê nhìn ra khoảng sân xanh",
+    "alt_en": "A café table overlooking the garden",
+    "category": "indoor",
+    "order": 25,
+    "gallery": true,
+    "caption": "Bàn cà phê nhìn ra khoảng sân xanh",
+    "caption_en": "A café table overlooking the garden"
+  },
+  {
+    "number": 26,
+    "source": "Bạc sỉu và bánh croissant.jpg",
+    "id": "2fedf8e1828f27956bc0096f20a479b3",
+    "source_bytes": 3387243,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 117724
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 22532
+    },
+    "alt": "Bạc xỉu và bánh croissant trên bàn cạnh cửa sổ",
+    "alt_en": "Bạc xỉu milky coffee and a croissant by the window",
+    "category": "drinks",
+    "order": 26,
+    "gallery": true,
+    "caption": "Bạc xỉu và bánh croissant trên bàn cạnh cửa sổ",
+    "caption_en": "Bạc xỉu milky coffee and a croissant by the window"
+  },
+  {
+    "number": 27,
+    "source": "bc29b61c-c819-49a4-9a9e-f8ec06454983.jpg",
+    "id": "1c3ad7999e469411b019be3bd11cc503",
+    "source_bytes": 3298955,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 148620
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 26194
+    },
+    "alt": "Góc nhìn từ trên xuống bàn học bên cửa sổ",
+    "alt_en": "An overhead view of the window study counter",
+    "category": "indoor",
+    "order": 27,
+    "gallery": true,
+    "caption": "Góc nhìn từ trên xuống bàn học bên cửa sổ",
+    "caption_en": "An overhead view of the window study counter"
+  },
+  {
+    "number": 28,
+    "source": "bcfed9bb-30fd-4c3f-91c6-7c4ed6740e11.jpg",
+    "id": "8cdc4067802aba62118b06828eee2c60",
+    "source_bytes": 3646140,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 67370
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 16018
+    },
+    "alt": "Máy tính và góc ngồi nhìn ra sân vườn",
+    "alt_en": "A laptop spot with a view of the garden",
+    "category": "indoor",
+    "order": 28,
+    "gallery": true,
+    "caption": "Máy tính và góc ngồi nhìn ra sân vườn",
+    "caption_en": "A laptop spot with a view of the garden"
+  },
+  {
+    "number": 29,
+    "source": "bd1788f5-9651-4968-aca2-2e01e9444f4a.jpg",
+    "id": "44fd13233836e5e66e4d4a7027fe677b",
+    "source_bytes": 3853844,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 134346
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 25498
+    },
+    "alt": "Khung cửa sổ gỗ và khoảng sân bên ngoài",
+    "alt_en": "A wooden window frame looking out onto the courtyard",
+    "category": "indoor",
+    "order": 29,
+    "gallery": true,
+    "caption": "Khung cửa sổ gỗ và khoảng sân bên ngoài",
+    "caption_en": "A wooden window frame looking out onto the courtyard"
+  },
+  {
+    "number": 30,
+    "source": "bd9fc45f-9c42-4bdc-bcba-ebf15d778176.jpg",
+    "id": "ac9f27dd6c4b5d04768c1ca7cea18198",
+    "source_bytes": 4970629,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 188920
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 35538
+    },
+    "alt": "Ghế mây cạnh cửa mở ra sân vườn",
+    "alt_en": "Wicker seating beside an opening to the garden",
+    "category": "garden",
+    "order": 30,
+    "gallery": true,
+    "caption": "Ghế mây cạnh cửa mở ra sân vườn",
+    "caption_en": "Wicker seating beside an opening to the garden"
+  },
+  {
+    "number": 31,
+    "source": "bdc4762c-ab89-4bfa-91bd-c964b4c705c5.jpg",
+    "id": "9f2e9262d9227b018db7668feaea3fa5",
+    "source_bytes": 3900841,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 164272
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 33704
+    },
+    "alt": "Khoảnh khắc ngồi thư giãn giữa khoảng xanh",
+    "alt_en": "A relaxed moment among the greenery",
+    "category": "garden",
+    "order": 31,
+    "gallery": true,
+    "caption": "Khoảnh khắc ngồi thư giãn giữa khoảng xanh",
+    "caption_en": "A relaxed moment among the greenery"
+  },
+  {
+    "number": 32,
+    "source": "c204d253-1151-415f-8588-290283a3371e.jpg",
+    "id": "a88ef00465a71f21b501ea8302d9b2ad",
+    "source_bytes": 3300311,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 96680
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 19058
+    },
+    "alt": "Góc đàn piano trong không gian quán",
+    "alt_en": "The piano corner inside the café",
+    "category": "indoor",
+    "order": 4,
+    "gallery": true,
+    "caption": "Góc đàn piano trong không gian quán",
+    "caption_en": "The piano corner inside the café"
+  },
+  {
+    "number": 33,
+    "source": "c409cd1b-413f-4ba6-8ea8-4099747e6472.jpg",
+    "id": "c632b83b66a94ba1a92e2bfbd592f17c",
+    "source_bytes": 7789188,
+    "full": {
+      "width": 1600,
+      "height": 1067,
+      "bytes": 101876
+    },
+    "thumb": {
+      "width": 480,
+      "height": 320,
+      "bytes": 20966
+    },
+    "alt": "Góc ngồi cùng máy tính bên những chậu cây",
+    "alt_en": "A laptop seat beside potted plants",
+    "category": "indoor",
+    "order": 32,
+    "gallery": true,
+    "caption": "Góc ngồi cùng máy tính bên những chậu cây",
+    "caption_en": "A laptop seat beside potted plants"
+  },
+  {
+    "number": 34,
+    "source": "c6dd7882-ac15-4a1b-acea-729f045a8713.jpg",
+    "id": "89e84f85a71130418e61436a5f1b8026",
+    "source_bytes": 10757405,
+    "full": {
+      "width": 1600,
+      "height": 1067,
+      "bytes": 221242
+    },
+    "thumb": {
+      "width": 480,
+      "height": 320,
+      "bytes": 32538
+    },
+    "alt": "Một cuộc trò chuyện ở khu ngồi cạnh sân",
+    "alt_en": "A conversation in the seating area beside the garden",
+    "category": "garden",
+    "order": 33,
+    "gallery": true,
+    "caption": "Một cuộc trò chuyện ở khu ngồi cạnh sân",
+    "caption_en": "A conversation in the seating area beside the garden"
+  },
+  {
+    "number": 35,
+    "source": "c70cfde5-281c-4ed3-b543-4bab6ba0897a.jpg",
+    "id": "f2278ee94344a45e72df6916e6f1e72e",
+    "source_bytes": 2895286,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 58376
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 12608
+    },
+    "alt": "Cận cảnh phím đàn piano tại Ghé",
+    "alt_en": "A close-up of the piano keys at Ghé",
+    "category": "indoor",
+    "order": 34,
+    "gallery": true,
+    "caption": "Cận cảnh phím đàn piano tại Ghé",
+    "caption_en": "A close-up of the piano keys at Ghé"
+  },
+  {
+    "number": 36,
+    "source": "c83a841b-9908-4b4d-ad0f-71dc3606a5be.jpg",
+    "id": "57d34bdd6008ad7bc8235e68aa346881",
+    "source_bytes": 4235723,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 121768
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 22856
+    },
+    "alt": "Bàn làm việc cạnh khoảng sân xanh",
+    "alt_en": "A work table beside the green courtyard",
+    "category": "garden",
+    "order": 35,
+    "gallery": true,
+    "caption": "Bàn làm việc cạnh khoảng sân xanh",
+    "caption_en": "A work table beside the green courtyard"
+  },
+  {
+    "number": 37,
+    "source": "Cà phê cốt dừa và cà phê muối.jpg",
+    "id": "1e98ec6d3b639f5969983d5dc824d4f0",
+    "source_bytes": 4194485,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 75154
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 15450
+    },
+    "alt": "Cà phê cốt dừa và cà phê muối trên bàn",
+    "alt_en": "Coconut milk coffee and salt cream coffee on the table",
+    "category": "drinks",
+    "order": 36,
+    "gallery": true,
+    "caption": "Cà phê cốt dừa và cà phê muối trên bàn",
+    "caption_en": "Coconut milk coffee and salt cream coffee on the table"
+  },
+  {
+    "number": 38,
+    "source": "f1fce048-9124-4fbc-8827-c94e81a468a5.jpg",
+    "id": "877aabde10b8a59f0ca856d4dbe8b516",
+    "source_bytes": 9335061,
+    "full": {
+      "width": 1600,
+      "height": 1067,
+      "bytes": 233668
+    },
+    "thumb": {
+      "width": 480,
+      "height": 320,
+      "bytes": 43542
+    },
+    "alt": "Cuộc hẹn bên bàn trắng trong sân vườn",
+    "alt_en": "Time together at a white garden table",
+    "category": "garden",
+    "order": 37,
+    "gallery": true,
+    "caption": "Cuộc hẹn bên bàn trắng trong sân vườn",
+    "caption_en": "Time together at a white garden table"
+  },
+  {
+    "number": 39,
+    "source": "f330b712-9c7d-43aa-bce5-0357a0641f24.jpg",
+    "id": "97f911f2bd92c9c1009ec0ed1137efb0",
+    "source_bytes": 3918694,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 91428
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 16936
+    },
+    "alt": "Khung cửa gỗ và chỗ ngồi bên rèm đỏ",
+    "alt_en": "Wooden window frames and seating by a red blind",
+    "category": "indoor",
+    "order": 38,
+    "gallery": true,
+    "caption": "Khung cửa gỗ và chỗ ngồi bên rèm đỏ",
+    "caption_en": "Wooden window frames and seating by a red blind"
+  },
+  {
+    "number": 40,
+    "source": "ff2b6391-626a-4ddc-94df-eda8d07ff48d.jpg",
+    "id": "7f3b837cca06fb8747e6faa3a0f9b62e",
+    "source_bytes": 4483402,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 118870
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 20396
+    },
+    "alt": "Một góc đọc sách bên cửa sổ",
+    "alt_en": "A reading corner by the window",
+    "category": "indoor",
+    "order": 39,
+    "gallery": true,
+    "caption": "Một góc đọc sách bên cửa sổ",
+    "caption_en": "A reading corner by the window"
+  },
+  {
+    "number": 41,
+    "source": "Sữa chua dâu tằm.jpg",
+    "id": "80cb34f00289bb9bb0c9d245fd67a976",
+    "source_bytes": 5316395,
+    "full": {
+      "width": 1067,
+      "height": 1600,
+      "bytes": 127334
+    },
+    "thumb": {
+      "width": 320,
+      "height": 480,
+      "bytes": 17418
+    },
+    "alt": "Sữa chua dâu tằm tại Ghé",
+    "alt_en": "Mulberry yogurt at Ghé",
+    "category": "drinks",
+    "order": 40,
+    "gallery": true,
+    "caption": "Sữa chua dâu tằm tại Ghé",
+    "caption_en": "Mulberry yogurt at Ghé"
+  },
+  {
+    "number": 42,
+    "source": "Trà ổi chanh dây.jpg",
+    "id": "49a45e1dbbf3f1a3111ad2116b717a94",
+    "source_bytes": 8189114,
+    "full": {
+      "width": 1600,
+      "height": 1067,
+      "bytes": 105856
+    },
+    "thumb": {
+      "width": 480,
+      "height": 320,
+      "bytes": 19732
+    },
+    "alt": "Trà ổi chanh dây trên bàn cạnh cửa sổ",
+    "alt_en": "Guava and passion fruit tea on a window-side table",
+    "category": "drinks",
+    "order": 41,
+    "gallery": true,
+    "caption": "Trà ổi chanh dây trên bàn cạnh cửa sổ",
+    "caption_en": "Guava and passion fruit tea on a window-side table"
+  }
+]
