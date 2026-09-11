@@ -441,6 +441,39 @@ CREATE TABLE IF NOT EXISTS `cashbook_history` (
   UNIQUE KEY `report_date` (`report_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Purchase portal (run migration_purchasing_portal.sql on an existing database).
+CREATE TABLE IF NOT EXISTS `purchase_entries` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `purchase_date` date NOT NULL,
+  `supplier` varchar(150) NOT NULL DEFAULT '',
+  `item_name` varchar(150) NOT NULL,
+  `quantity` decimal(12,3) NOT NULL DEFAULT 1.000,
+  `unit` varchar(30) NOT NULL DEFAULT '',
+  `total_amount` decimal(12,2) NOT NULL,
+  `note` varchar(1000) NOT NULL DEFAULT '',
+  `created_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_purchase_entries_date` (`purchase_date`),
+  KEY `idx_purchase_entries_created_by_date` (`created_by`,`purchase_date`),
+  CONSTRAINT `fk_purchase_entries_user` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `purchase_advances` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `advance_date` date NOT NULL,
+  `amount` decimal(12,2) NOT NULL,
+  `note` varchar(1000) NOT NULL DEFAULT '',
+  `created_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_purchase_advances_date` (`advance_date`),
+  KEY `idx_purchase_advances_created_by_date` (`created_by`,`advance_date`),
+  CONSTRAINT `fk_purchase_advances_user` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 --
 -- Constraints for table `orders`
 --

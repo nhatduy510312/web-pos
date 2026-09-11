@@ -39,10 +39,18 @@ if (isset($_POST['login'])) {
 
     $employeeIsActive = $row
         && ($row['employee_id'] === null || (int)$row['employee_active'] === 1);
-    if ($row && (int)$row['is_active'] === 1 && $employeeIsActive
-        && password_verify($password, $row['password'])) {
+    $passwordMatches = $row && password_verify($password, $row['password']);
+    if ($row && ($row['role'] ?? '') === 'purchaser' && (int)$row['is_active'] === 1
+        && $passwordMatches) {
+        clearLoginFailures($username);
+        recordLoginHistory($conn, (int)$row['id'], $row['username'], 'wrong_portal');
+        $error = 'Đây là tài khoản mua hàng. Vui lòng đăng nhập tại trang mua hàng riêng.';
+    } elseif ($row && (int)$row['is_active'] === 1 && $employeeIsActive
+        && in_array($row['role'] ?? 'staff', ['admin', 'staff', 'user'], true)
+        && $passwordMatches) {
         clearLoginFailures($username);
         session_regenerate_id(true);
+        unset($_SESSION['purchase_logged_in'], $_SESSION['purchase_user_id'], $_SESSION['purchase_username'], $_SESSION['purchase_session_version']);
         $_SESSION['logged_in'] = true;
         $_SESSION['user_id']   = $row['id'];
         $_SESSION['username']  = $row['username'];
@@ -61,12 +69,13 @@ if (isset($_POST['login'])) {
             ? 'change_password.php?required=1'
             : 'index.php'));
         exit;
+    } else {
+        recordLoginFailure($username);
+        $historyUserId = $row ? (int)$row['id'] : null;
+        $inactive = $row && (!(int)$row['is_active'] || !$employeeIsActive);
+        recordLoginHistory($conn, $historyUserId, $username, $inactive ? 'inactive' : 'failed');
+        $error = 'Sai tài khoản hoặc mật khẩu.';
     }
-    recordLoginFailure($username);
-    $historyUserId = $row ? (int)$row['id'] : null;
-    $inactive = $row && (!(int)$row['is_active'] || !$employeeIsActive);
-    recordLoginHistory($conn, $historyUserId, $username, $inactive ? 'inactive' : 'failed');
-    $error = 'Sai tài khoản hoặc mật khẩu.';
     }
 }
 ?>
@@ -178,6 +187,7 @@ input::placeholder{color:#94a3b8;}
 }
 .public-menu-link:hover{background:#edf3e7;border-color:#b9c9aa;color:#3f5a2e;}
 .public-menu-link:focus-visible{outline:3px solid rgba(88,112,68,.22);outline-offset:2px;}
+.purchase-login-link{display:block;text-align:center;margin-top:14px;color:#166534;font-size:13px;font-weight:700;text-decoration:none}.purchase-login-link:hover{text-decoration:underline}
 </style>
 </head>
 <body>
@@ -208,6 +218,7 @@ input::placeholder{color:#94a3b8;}
       </div>
       <button class="submit" type="submit" name="login">Đăng nhập</button>
     </form>
+    <a class="purchase-login-link" href="purchase_login.php">Đăng nhập dành cho nhân viên mua hàng →</a>
   </div>
 
   <a class="public-menu-link" href="menu-khach.php">☕ Xem menu tại quán →</a>

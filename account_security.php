@@ -90,6 +90,12 @@ function enforceAccountSession(mysqli $conn): void
         accountAccessDenied('Phiên đăng nhập đã hết hiệu lực.', 'login.php?reason=session_expired');
     }
 
+    // Tài khoản mua hàng dùng phiên đăng nhập và khu vực riêng, tuyệt đối không vào POS.
+    if (($account['role'] ?? '') === 'purchaser') {
+        endAccountSession();
+        accountAccessDenied('Tài khoản mua hàng không được truy cập POS.', 'purchase_login.php');
+    }
+
     $_SESSION['username'] = $account['username'];
     $_SESSION['role'] = $account['role'] ?: 'staff';
     $_SESSION['employee_id'] = $account['employee_id'] !== null ? (int)$account['employee_id'] : null;

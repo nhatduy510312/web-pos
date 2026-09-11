@@ -4,8 +4,9 @@ Admin vào **Tiền chi** trên thanh menu hoặc **Lịch sử → Báo cáo ti
 
 ## Cách tính
 
-- Tổng tháng cộng đúng cột `expenses` của `cashbook_history` theo `report_date` trong tháng đã chọn. Không cộng nộp doanh thu, tiền đầu/cuối ca, doanh thu hay khoản chi của ca chưa chốt.
+- Tổng tháng cộng cột `expenses` của `cashbook_history` theo `report_date` với toàn bộ `purchase_entries` theo `purchase_date` trong tháng đã chọn. Báo cáo hiển thị riêng chi tại quầy, mua hàng outsource và tổng cộng.
 - Chi tiết đọc từ `cash_expenses`, ghép bằng `expense_date`. Không nhân đôi tổng ca khi một ngày có nhiều khoản chi.
+- Mua hàng outsource được tính ngay theo ngày mua, không phụ thuộc ca đã chốt và không làm thay đổi tiền mặt cuối ca.
 - Ca chưa chốt hoặc đã mở lại (không còn bản chốt) hiển thị riêng ở cuối, không cộng vào tổng đã chốt. Khi chốt lại, tải lại báo cáo để cập nhật.
 - Nếu thiếu chi tiết hoặc tổng chi tiết khác bản chốt, báo cáo hiển thị cảnh báo và vẫn lấy số đã chốt làm tổng chính; không tự sửa dữ liệu.
 - Số tiền DECIMAL được tính bằng đơn vị 1/100 đồng để giữ chính xác cả dữ liệu có phần thập phân.
@@ -21,4 +22,4 @@ Nếu hosting có thay đổi menu hoặc lịch sử mới hơn bản trong gó
 
 ## Kiểm thử
 
-`tools/expense-test-fixture.php` và `tools/check-expense-report.cjs` chỉ chạy với DB thử `ghe_website_test` trên localhost:33077. Kiểm tra tổng/chi tiết, số thập phân, ngày biên tháng/năm nhuận, tháng trống, tháng sai, ca chưa chốt, lệch số, XSS, admin/staff/tài khoản bị thu hồi, giao diện 360/1440px và dữ liệu trước/sau không thay đổi. Không đóng gói dữ liệu thử vào bản cập nhật.
+Tính năng mua hàng cần chạy `migration_purchasing_portal.sql` trước khi mở báo cáo phiên bản mới.
