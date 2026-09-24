@@ -8,12 +8,12 @@ function ghe_content_defaults(): array {
             'street' => '30 Võ Trường Toản', 'city' => 'Đà Lạt', 'region' => 'Lâm Đồng',
             'phone' => '0705 926 614', 'maps' => 'https://maps.app.goo.gl/ySJSyKgaPvpcgA549',
             'opens' => '07:00', 'closes' => '18:00', 'hours_note' => 'Mở cửa hằng ngày.',
-            'home_title' => "Một chút cà phê.\nMột cuộc hẹn.\nMột lần ghé.",
-            'home_lead' => 'Một ly cà phê, một chỗ ngồi vừa ý. Dành chút thời gian cho riêng mình, hoặc cho một cuộc hẹn bạn đã mong từ lâu.',
-            'home_intro' => 'Ghé có sân vườn và không gian trong nhà yên tĩnh tại 30 Võ Trường Toản, Đà Lạt. Wi-Fi 6, đường truyền 1 Gbps và ổ điện ở mỗi bàn, phù hợp làm việc, học tập và trò chuyện. Mở cửa 7h–18h mỗi ngày.',
-            'about_title' => 'Một khoảng yên tĩnh, giữa những cuộc hẹn ở Đà Lạt.',
-            'about_body' => "Ghé là quán cà phê tại 30 Võ Trường Toản, Đà Lạt, có không gian sân vườn và chỗ ngồi trong nhà. Bạn có thể chọn khoảng ngồi phù hợp với cuộc hẹn của mình.\n\nKhông gian yên tĩnh của Ghé phù hợp để làm việc, học tập và trò chuyện. Quán có Wi-Fi 6 với đường truyền 1 Gbps, ổ điện ở mỗi bàn để bạn thuận tiện dùng máy tính hoặc sạc thiết bị.\n\nBạn có thể đỗ ô tô và xe máy dọc đường. Quán mở cửa từ 7h đến 18h hằng ngày. Xem menu trước khi đến, hoặc gọi quán nếu bạn có nhu cầu cụ thể cho nhóm của mình.",
-            'menu_intro' => 'Chọn món cho buổi làm việc, giờ học hoặc cuộc hẹn ở Ghé. Tên món và giá được cập nhật từ thực đơn bán hàng của quán.',
+            'home_title' => "Ghé một chút.\nChậm lại một chút.",
+            'home_lead' => 'Giữa sân vườn xanh và những góc ngồi trong nhà thoáng mát, tinh tế, Ghé là nơi để học tập, làm việc, sẻ chia — hoặc đơn giản là dành cho mình một nhịp chậm hơn.',
+            'home_intro' => 'Ghé là quán cà phê có sân vườn xanh và không gian trong nhà thoáng mát, tinh tế tại 30 Võ Trường Toản, Đà Lạt. Một nơi phù hợp để học tập, làm việc, gặp gỡ và chậm lại một chút.',
+            'about_title' => 'Một nơi cho nhịp riêng của bạn.',
+            'about_body' => "Ở Ghé, bạn có thể chọn một chỗ dưới tán cây hoặc một góc trong nhà ngập ánh sáng. Không gian thoáng mát, mộc mạc và đủ riêng tư để mỗi người tìm được nhịp của mình.\n\nĐến để học tập, làm việc, gặp gỡ và sẻ chia. Hoặc không cần một lý do đặc biệt — chỉ là ghé lại, gọi một món mình thích và chậm lại một chút.\n\nWi-Fi ổn định và ổ điện ở mỗi bàn giúp những buổi học hay ngày làm việc thêm thuận tiện. Ghé mở cửa từ 7h đến 18h hằng ngày.",
+            'menu_intro' => 'Một ly cà phê, chút trà hay món bánh nhỏ — vừa đủ cho khoảng thời gian của bạn ở Ghé.',
             'visit_note' => 'Nếu đi theo nhóm hoặc có nhu cầu riêng về chỗ ngồi, bạn có thể gọi quán trước khi đến.',
             'hero_image' => '',
         ],
@@ -22,15 +22,36 @@ function ghe_content_defaults(): array {
         'media' => [], 'products' => [], 'posts' => [],
     ];
 }
+function ghe_apply_brand_refinement(array $content): array {
+    if (($content['brand_refinement_version'] ?? 0) >= 1) return $content;
+    $content['settings'] = array_replace($content['settings'] ?? [], [
+        'home_title' => "Ghé một chút.\nChậm lại một chút.",
+        'home_lead' => 'Giữa sân vườn xanh và những góc ngồi trong nhà thoáng mát, tinh tế, Ghé là nơi để học tập, làm việc, sẻ chia — hoặc đơn giản là dành cho mình một nhịp chậm hơn.',
+        'home_intro' => 'Ghé là quán cà phê có sân vườn xanh và không gian trong nhà thoáng mát, tinh tế tại 30 Võ Trường Toản, Đà Lạt. Một nơi phù hợp để học tập, làm việc, gặp gỡ và chậm lại một chút.',
+        'about_title' => 'Một nơi cho nhịp riêng của bạn.',
+        'about_body' => "Ở Ghé, bạn có thể chọn một chỗ dưới tán cây hoặc một góc trong nhà ngập ánh sáng. Không gian thoáng mát, mộc mạc và đủ riêng tư để mỗi người tìm được nhịp của mình.\n\nĐến để học tập, làm việc, gặp gỡ và sẻ chia. Hoặc không cần một lý do đặc biệt — chỉ là ghé lại, gọi một món mình thích và chậm lại một chút.\n\nWi-Fi ổn định và ổ điện ở mỗi bàn giúp những buổi học hay ngày làm việc thêm thuận tiện. Ghé mở cửa từ 7h đến 18h hằng ngày.",
+        'menu_intro' => 'Một ly cà phê, chút trà hay món bánh nhỏ — vừa đủ cho khoảng thời gian của bạn ở Ghé.',
+    ]);
+    $content['settings_en'] = array_replace($content['settings_en'] ?? [], [
+        'home_title' => "Stop by for a while.\nSlow down for a while.",
+        'home_lead' => 'Between a green garden and light-filled indoor corners, Ghé is a calm place to study, work and connect — or simply give yourself a slower moment.',
+        'home_intro' => 'Ghé is a garden café with airy, thoughtful indoor spaces at 30 Vo Truong Toan, Da Lat. A place to study, work, meet and slow down for a while.',
+        'about_title' => 'A place for your own pace.',
+        'about_body' => "At Ghé, choose a seat beneath the trees or a light-filled corner indoors. The space is airy, warm and quiet enough for everyone to find their own pace.\n\nCome to study, work, meet and connect. Or come with no particular plan — order something you like and slow down for a while.\n\nReliable Wi-Fi and a power outlet at every table make longer study and work sessions easier. Ghé is open daily from 07:00 to 18:00.",
+        'menu_intro' => 'A coffee, a tea or something small from the bakery — just enough for your time at Ghé.',
+    ]);
+    $content['brand_refinement_version'] = 1;
+    return $content;
+}
 function ghe_facility_labels(): array {
     return ['garden'=>'Không gian sân vườn','indoor'=>'Không gian trong nhà','quiet'=>'Không gian yên tĩnh','work'=>'Phù hợp làm việc','study'=>'Phù hợp học tập','chat'=>'Phù hợp trò chuyện','wifi'=>'Wi-Fi','sockets'=>'Ổ cắm điện','parking'=>'Chỗ đỗ xe'];
 }
 function ghe_state_read(): array {
     $file = ghe_storage_dir() . '/content.json';
-    if (!is_file($file)) return ['revision'=>0, 'draft'=>ghe_apply_photo_collection(ghe_content_defaults()), 'published'=>ghe_apply_photo_collection(ghe_content_defaults()), 'published_at'=>null];
+    if (!is_file($file)) return ['revision'=>0, 'draft'=>ghe_apply_brand_refinement(ghe_apply_photo_collection(ghe_content_defaults())), 'published'=>ghe_apply_brand_refinement(ghe_apply_photo_collection(ghe_content_defaults())), 'published_at'=>null];
     $data = json_decode((string)file_get_contents($file), true, 512, JSON_THROW_ON_ERROR);
     if (!is_array($data) || !isset($data['revision'], $data['draft'], $data['published'])) throw new RuntimeException('Dữ liệu website không hợp lệ. Vui lòng kiểm tra bản sao lưu.');
-    foreach(['draft','published'] as $version)$data[$version]=ghe_apply_photo_collection($data[$version]);
+    foreach(['draft','published'] as $version)$data[$version]=ghe_apply_brand_refinement(ghe_apply_photo_collection($data[$version]));
     return $data;
 }
 function ghe_state_update(int $expectedRevision, callable $change): array {

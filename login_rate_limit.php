@@ -9,5 +9,6 @@ function withLoginRateLimit(callable $callback) {
     return $result;
 }
 function loginIsRateLimited(string $username): bool { return withLoginRateLimit(function ($records) use ($username) { return (($records[loginRateLimitKey($username)]['count'] ?? 0) >= 5); }); }
-function recordLoginFailure(string $username): void { withLoginRateLimit(function (&$records) use ($username) { $key = loginRateLimitKey($username); $records[$key] = ['count' => ($records[$key]['count'] ?? 0) + 1, 'last' => time()]; }); }
+function recordLoginFailure(string $username): void { withLoginRateLimit(function (&$records) use ($username) { $key = loginRateLimitKey($username); $records[$key] = ['count' => ($records[$key]['count'] ?? 0) + 1, 'last' => time(), 'account' => hash('sha256', strtolower($username))]; }); }
 function clearLoginFailures(string $username): void { withLoginRateLimit(function (&$records) use ($username) { unset($records[loginRateLimitKey($username)]); }); }
+function clearLoginFailuresForAccount(string $username): int { return (int)withLoginRateLimit(function (&$records) use ($username) { $account = hash('sha256', strtolower($username)); $removed = 0; foreach ($records as $key => $record) { if (!isset($record['account']) || hash_equals((string)$record['account'], $account)) { unset($records[$key]); $removed++; } } return $removed; }); }

@@ -102,12 +102,13 @@ function clearShiftReopened(mysqli $conn, string $date): void
 
 function shiftHasActivity(mysqli $conn, string $date): bool
 {
+    $nextDate = date('Y-m-d', strtotime($date . ' +1 day'));
     $stmt = $conn->prepare(
         "SELECT 1
          FROM (
-             SELECT DATE(paid_at) AS activity_date
+             SELECT ? AS activity_date
              FROM orders
-             WHERE status = 'paid' AND paid_at IS NOT NULL
+             WHERE status = 'paid' AND paid_at >= ? AND paid_at < ?
              UNION
              SELECT opening_date FROM cash_opening
              UNION
@@ -118,7 +119,7 @@ function shiftHasActivity(mysqli $conn, string $date): bool
          WHERE activity.activity_date = ?
          LIMIT 1"
     );
-    $stmt->bind_param('s', $date);
+    $stmt->bind_param('ssss', $date, $date, $nextDate, $date);
     $stmt->execute();
 
     return $stmt->get_result()->num_rows > 0;
@@ -147,7 +148,9 @@ function findShiftsDueForAutoClose(mysqli $conn, DateTimeImmutable $now): array
          FROM (
              SELECT DATE(paid_at) AS activity_date
              FROM orders
-             WHERE status = 'paid' AND paid_at IS NOT NULL
+             WHERE status = 'paid'
+               AND paid_at >= ?
+               AND paid_at < DATE_ADD(?, INTERVAL 1 DAY)
              UNION
              SELECT opening_date FROM cash_opening
              UNION
@@ -162,7 +165,7 @@ function findShiftsDueForAutoClose(mysqli $conn, DateTimeImmutable $now): array
            AND history.id IS NULL
          ORDER BY activity.activity_date ASC"
     );
-    $stmt->bind_param('ss', $startDate, $lastDueDate);
+    $stmt->bind_param('ssss', $startDate, $lastDueDate, $startDate, $lastDueDate);
     $stmt->execute();
     $result = $stmt->get_result();
     $dates = [];
@@ -201,14 +204,15 @@ function closeShiftSnapshot(mysqli $conn, string $date): bool
             $openingCash = (float)($previous['closing_cash'] ?? 0);
         }
 
+        $nextDate = date('Y-m-d', strtotime($date . ' +1 day'));
         $stmt = $conn->prepare(
             "SELECT
                 IFNULL(SUM(cash_amount), 0) AS cash_revenue,
                 IFNULL(SUM(bank_amount), 0) AS transfer_revenue
              FROM orders
-             WHERE status = 'paid' AND DATE(paid_at) = ?"
+             WHERE status = 'paid' AND paid_at >= ? AND paid_at < ?"
         );
-        $stmt->bind_param('s', $date);
+        $stmt->bind_param('ss', $date, $nextDate);
         $stmt->execute();
         $revenue = $stmt->get_result()->fetch_assoc();
         $cashRevenue = (float)$revenue['cash_revenue'];

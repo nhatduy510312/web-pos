@@ -33,7 +33,7 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="<?= ghe_h(ghe_link('favicon.svg')) ?>">
 <link rel="stylesheet" href="<?= ghe_h(ghe_link('assets/public.css?v=home-refined-1')) ?>">
-<?php if($pageKey==='home'): ?><link rel="stylesheet" href="<?= ghe_h(ghe_link('assets/home.css?v=1')) ?>"><?php endif; ?>
+<?php if($pageKey==='home'): ?><link rel="stylesheet" href="<?= ghe_h(ghe_link('assets/home.css?v=2')) ?>"><?php endif; ?>
 <script type="application/ld+json"><?= json_encode(ghe_schema($pageKey), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
 <script src="<?= ghe_h(ghe_link('assets/public.js?v=photos-1')) ?>" defer></script>
 </head>
@@ -42,16 +42,24 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
 <a class="skip-link" href="#main"><?= ghe_t('Đến nội dung chính','Skip to content') ?></a>
 <?php if($pageKey!=='home'): ?><div class="topline"><?= ghe_h($site['hours']) ?><span><?= ghe_h($site['street']) ?></span></div><?php endif; ?>
 <header class="header wrap">
-  <a class="wordmark" href="<?= ghe_h(ghe_link()) ?>" aria-label="<?= ghe_t('Ghé — Trang chủ','Ghé — Home') ?>">ghé<span><?= ghe_t('cà phê & những cuộc hẹn','coffee & good company') ?></span></a>
+  <a class="wordmark" href="<?= ghe_h(ghe_link()) ?>" aria-label="<?= ghe_t('Ghé — Trang chủ','Ghé — Home') ?>">ghé<span><?= ghe_t('cà phê & một nhịp chậm','coffee at a slower pace') ?></span></a>
   <nav class="desktop-nav" aria-label="<?= ghe_t('Điều hướng chính','Main navigation') ?>">
+  <?php if($pageKey==='home'): ?>
+    <a href="#spaces"><?= ghe_t('Không gian','Spaces') ?></a><a href="#menu"><?= ghe_t('Thực đơn','Menu') ?></a><a href="#visit-info"><?= ghe_t('Đến Ghé','Visit') ?></a>
+  <?php else: ?>
   <?php foreach ($publicPages as $key => $entry): if ($key === 'home' || ($entry['navigation']??true)===false) continue; ?>
     <a href="<?= ghe_h(ghe_link($entry['file'])) ?>"<?= $key === $pageKey ? ' aria-current="page"' : '' ?>><?= ghe_h($entry['label']) ?></a>
   <?php endforeach; ?>
+  <?php endif; ?>
   </nav>
   <details class="mobile-nav"><summary>Menu <span aria-hidden="true">☰</span></summary><nav aria-label="<?= ghe_t('Điều hướng di động','Mobile navigation') ?>">
+  <?php if($pageKey==='home'): ?>
+    <a href="#spaces"><?= ghe_t('Không gian','Spaces') ?></a><a href="#menu"><?= ghe_t('Thực đơn','Menu') ?></a><a href="#visit-info"><?= ghe_t('Đến Ghé','Visit') ?></a>
+  <?php else: ?>
   <?php foreach ($publicPages as $key => $entry): if(($entry['navigation']??true)===false)continue; ?>
     <a href="<?= ghe_h(ghe_link($entry['file'])) ?>"<?= $key === $pageKey ? ' aria-current="page"' : '' ?>><?= ghe_h($entry['label']) ?></a>
   <?php endforeach; ?>
+  <?php endif; ?>
   </nav></details>
   <nav class="language-switch" aria-label="<?= ghe_t('Ngôn ngữ','Language') ?>">
     <a href="<?= ghe_h(ghe_link($languageRoutes[$pageKey]??$page['file'],false)) ?>" lang="vi" hreflang="vi"<?= !ghe_is_english()?' aria-current="true"':'' ?>>VI<span class="sr-only"> — Tiếng Việt</span></a>

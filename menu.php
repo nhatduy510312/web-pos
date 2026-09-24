@@ -421,64 +421,72 @@ h1,h2,h3,h4 { font-weight: 700; line-height: 1.2; }
   body { background: white; }
 }
 </style>
+<link rel="stylesheet" href="assets/pos-nav.css?v=1">
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('form[method="post"]').forEach(function (form) {
-    if (!form.querySelector('input[name="csrf_token"]')) {
-      const token = document.createElement('input');
-      token.type = 'hidden'; token.name = 'csrf_token';
-      token.value = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES) ?>';
-      form.appendChild(token);
-    }
-  });
-});
-</script>
-
-<nav class="nav">
-  <span class="nav-brand">☕ GHÉ</span>
+<?php
+$financePages = ['report.php', 'cashbook.php', 'cashbook_history.php', 'expense_report.php'];
+$productPages = ['products.php', 'categories.php', 'recipes.php', 'ingredients.php'];
+$peoplePages = ['attendance.php', 'salary_report.php', 'account_management.php'];
+$accountPages = ['change_password.php'];
+$navUsername = (string)($_SESSION['username'] ?? ($_SESSION['name'] ?? 'Tài khoản'));
+?>
+<nav class="nav" aria-label="Menu chính" data-pos-navigation data-csrf-token="<?= htmlspecialchars(csrf_token(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+  <a class="nav-brand" href="index.php" aria-label="GHÉ POS">☕ GHÉ</a>
   <div class="nav-sep"></div>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="posNavigationMenu" aria-label="Mở menu" data-nav-toggle>☰</button>
 
-  <a href="index.php"            class="<?= $_NAV_PAGE === 'index.php'            ? 'active' : '' ?>">🛒 POS</a>
-  <a href="dashboard.php"        class="<?= $_NAV_PAGE === 'dashboard.php'        ? 'active' : '' ?>">📊 Dashboard</a>
-  <a href="report.php"           class="<?= $_NAV_PAGE === 'report.php'           ? 'active' : '' ?>">📈 Báo cáo</a>
-  <a href="cashbook.php"         class="<?= $_NAV_PAGE === 'cashbook.php'         ? 'active' : '' ?>">📒 Chốt ca</a>
-  <a href="cashbook_history.php" class="<?= $_NAV_PAGE === 'cashbook_history.php' ? 'active' : '' ?>">📚 Lịch sử</a>
-  <?php if ($_NAV_ROLE === 'admin'): ?>
-  <a href="expense_report.php" class="<?= $_NAV_PAGE === 'expense_report.php' ? 'active' : '' ?>">💸 Tiền chi</a>
-  <a href="account_management.php" class="<?= $_NAV_PAGE === 'account_management.php' ? 'active' : '' ?>">👥 Tài khoản</a>
-  <a href="products.php"         class="<?= $_NAV_PAGE === 'products.php'         ? 'active' : '' ?>">🍹 Thực đơn</a>
-  <a href="website-admin.php" class="<?= $_NAV_PAGE === 'website-admin.php' ? 'active' : '' ?>">🌿 Website</a>
-  <?php endif; ?>
-  <a href="recipes.php"          class="<?= $_NAV_PAGE === 'recipes.php'          ? 'active' : '' ?>">📋 Công thức</a>
-  <a href="ingredients.php"      class="<?= $_NAV_PAGE === 'ingredients.php'      ? 'active' : '' ?>">🧪 Nguyên liệu</a>
-  <?php if ($_NAV_ROLE === 'admin'): ?>
-  <a href="categories.php"       class="<?= $_NAV_PAGE === 'categories.php'       ? 'active' : '' ?>">📂 Danh mục</a>
-  <?php endif; ?>
-  <a href="attendance.php"       class="<?= $_NAV_PAGE === 'attendance.php'       ? 'active' : '' ?>">🕒 Chấm công</a>
-  <?php if ($_NAV_ROLE === 'admin'): ?>
-  <a href="salary_report.php"    class="<?= $_NAV_PAGE === 'salary_report.php'    ? 'active' : '' ?>">💰 Lương</a>
-  <?php endif; ?>
+  <div class="nav-menu" id="posNavigationMenu">
+    <a href="index.php" class="<?= $_NAV_PAGE === 'index.php' ? 'active' : '' ?>">🛒 POS</a>
+    <a href="dashboard.php" class="<?= $_NAV_PAGE === 'dashboard.php' ? 'active' : '' ?>">📊 Dashboard</a>
 
-  <div class="nav-spacer"></div>
-  <a href="change_password.php" class="<?= $_NAV_PAGE === 'change_password.php' ? 'active' : '' ?>">🔑 Đổi mật khẩu</a>
-  <span class="nav-time" id="navClock"></span>
-  <div class="nav-sep"></div>
-  <div class="nav-logout">
-    <a href="logout.php" onclick="return confirm('Đăng xuất khỏi hệ thống?')">🚪 Đăng xuất</a>
+    <details class="nav-group <?= in_array($_NAV_PAGE, $financePages, true) ? 'active' : '' ?>">
+      <summary>💳 Ca &amp; tài chính</summary>
+      <div class="nav-dropdown">
+        <a href="cashbook.php" class="<?= $_NAV_PAGE === 'cashbook.php' ? 'active' : '' ?>">📒 Chốt ca</a>
+        <a href="cashbook_history.php" class="<?= $_NAV_PAGE === 'cashbook_history.php' ? 'active' : '' ?>">📚 Lịch sử ca</a>
+        <a href="report.php" class="<?= $_NAV_PAGE === 'report.php' ? 'active' : '' ?>">📈 Báo cáo doanh thu</a>
+        <?php if ($_NAV_ROLE === 'admin'): ?>
+        <a href="expense_report.php" class="<?= $_NAV_PAGE === 'expense_report.php' ? 'active' : '' ?>">💸 Báo cáo tiền chi</a>
+        <?php endif; ?>
+      </div>
+    </details>
+
+    <details class="nav-group <?= in_array($_NAV_PAGE, $productPages, true) ? 'active' : '' ?>">
+      <summary>🍹 Hàng hóa</summary>
+      <div class="nav-dropdown">
+        <?php if ($_NAV_ROLE === 'admin'): ?>
+        <a href="products.php" class="<?= $_NAV_PAGE === 'products.php' ? 'active' : '' ?>">🍹 Thực đơn</a>
+        <a href="categories.php" class="<?= $_NAV_PAGE === 'categories.php' ? 'active' : '' ?>">📂 Danh mục</a>
+        <?php endif; ?>
+        <a href="recipes.php" class="<?= $_NAV_PAGE === 'recipes.php' ? 'active' : '' ?>">📋 Công thức</a>
+        <a href="ingredients.php" class="<?= $_NAV_PAGE === 'ingredients.php' ? 'active' : '' ?>">🧪 Nguyên liệu</a>
+      </div>
+    </details>
+
+    <details class="nav-group <?= in_array($_NAV_PAGE, $peoplePages, true) ? 'active' : '' ?>">
+      <summary>👥 Nhân sự</summary>
+      <div class="nav-dropdown">
+        <a href="attendance.php" class="<?= $_NAV_PAGE === 'attendance.php' ? 'active' : '' ?>">🕒 Chấm công</a>
+        <?php if ($_NAV_ROLE === 'admin'): ?>
+        <a href="salary_report.php" class="<?= $_NAV_PAGE === 'salary_report.php' ? 'active' : '' ?>">💰 Lương</a>
+        <a href="account_management.php" class="<?= $_NAV_PAGE === 'account_management.php' ? 'active' : '' ?>">👥 Tài khoản</a>
+        <?php endif; ?>
+      </div>
+    </details>
+
+    <?php if ($_NAV_ROLE === 'admin'): ?>
+    <a href="website-admin.php" class="<?= $_NAV_PAGE === 'website-admin.php' ? 'active' : '' ?>">🌿 Website</a>
+    <?php endif; ?>
+
+    <div class="nav-spacer"></div>
+    <span class="nav-time" id="navClock" aria-label="Thời gian hiện tại"></span>
+    <details class="nav-account <?= in_array($_NAV_PAGE, $accountPages, true) ? 'active' : '' ?>">
+      <summary>👤 <span class="nav-user-name"><?= htmlspecialchars($navUsername, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span></summary>
+      <div class="nav-dropdown">
+        <a href="change_password.php" class="<?= $_NAV_PAGE === 'change_password.php' ? 'active' : '' ?>">🔑 Đổi mật khẩu</a>
+        <a href="logout.php" class="logout-link" onclick="return confirm('Đăng xuất khỏi hệ thống?')">🚪 Đăng xuất</a>
+      </div>
+    </details>
   </div>
 </nav>
-
-<script>
-(function(){
-  function tick(){
-    const d = new Date();
-    const p = n => String(n).padStart(2,'0');
-    document.getElementById('navClock').textContent =
-      p(d.getHours()) + ':' + p(d.getMinutes()) + ' · ' +
-      p(d.getDate()) + '/' + p(d.getMonth()+1);
-  }
-  tick();
-  setInterval(tick, 30000);
-})();
-</script>
+<script src="assets/pos-nav.js?v=1" defer></script>

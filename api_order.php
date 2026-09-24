@@ -39,15 +39,15 @@ function apiResponse($success, $message = '', $extra = [])
     exit;
 }
 
-function getOpenOrder($conn, $order_id)
+function getOpenOrder($conn, $order_id, $forUpdate = false)
 {
+    $lockClause = $forUpdate ? ' FOR UPDATE' : '';
     $stmt = $conn->prepare("
         SELECT *
         FROM orders
         WHERE id=?
         AND status='open'
-        LIMIT 1
-    ");
+        LIMIT 1" . $lockClause);
 
     $stmt->bind_param("i", $order_id);
     $stmt->execute();
@@ -78,7 +78,7 @@ function updateTotal($conn, $order_id)
     $stmt = $conn->prepare("
         UPDATE orders
         SET total_amount=?
-        WHERE id=?
+        WHERE id=? AND status='open'
     ");
 
     $stmt->bind_param("di", $total, $order_id);
@@ -131,32 +131,50 @@ if ($action == 'create_order') {
         apiResponse(false, 'Ban khong hop le');
     }
 
-    $stmt = $conn->prepare("
-        SELECT id
-        FROM orders
-        WHERE table_id=?
-        AND status='open'
-        LIMIT 1
-    ");
+    $conn->begin_transaction();
+    try {
+        // Khóa bàn trước khi kiểm tra/tạo order để không sinh hai
+        // hóa đơn mở khi hai thiết bị thao tác cùng lúc.
+        $stmt = $conn->prepare("SELECT id FROM tables WHERE id=? LIMIT 1 FOR UPDATE");
+        $stmt->bind_param('i', $table_id);
+        $stmt->execute();
+        if (!$stmt->get_result()->fetch_assoc()) {
+            $conn->rollback();
+            apiResponse(false, 'Ban khong ton tai');
+        }
 
-    $stmt->bind_param("i", $table_id);
-    $stmt->execute();
+        $stmt = $conn->prepare("
+            SELECT id FROM orders
+            WHERE table_id=? AND status='open'
+            ORDER BY id DESC LIMIT 1 FOR UPDATE
+        ");
+        $stmt->bind_param('i', $table_id);
+        $stmt->execute();
+        $existingOrder = $stmt->get_result()->fetch_assoc();
 
-    if ($row = $stmt->get_result()->fetch_assoc()) {
-        apiResponse(true, '', ['order_id' => $row['id']]);
+        if ($existingOrder) {
+            $orderId = (int)$existingOrder['id'];
+        } else {
+            $stmt = $conn->prepare("
+                INSERT INTO orders
+                    (table_id, customer_name, status, total_amount, cash_amount, bank_amount)
+                VALUES (?, '', 'open', 0, 0, 0)
+            ");
+            $stmt->bind_param('i', $table_id);
+            $stmt->execute();
+            $orderId = (int)$conn->insert_id;
+        }
+
+        $conn->commit();
+        apiResponse(true, '', ['order_id' => $orderId]);
+    } catch (Throwable $exception) {
+        try { $conn->rollback(); } catch (Throwable $rollbackException) {
+            error_log('Create order rollback failed: ' . $rollbackException->getMessage());
+        }
+        error_log('Create order failed: ' . $exception->getMessage());
+        http_response_code(500);
+        apiResponse(false, 'Khong the tao hoa don luc nay');
     }
-
-    $stmt = $conn->prepare("
-        INSERT INTO orders
-            (table_id, customer_name, status, total_amount, cash_amount, bank_amount)
-        VALUES
-            (?, '', 'open', 0, 0, 0)
-    ");
-
-    $stmt->bind_param("i", $table_id);
-    $stmt->execute();
-
-    apiResponse(true, '', ['order_id' => $conn->insert_id]);
 }
 
 /* =========================
@@ -217,63 +235,56 @@ if ($action == 'add_item') {
     $order_id = (int)($jsonInput['order_id'] ?? 0);
     $product_id = (int)($jsonInput['product_id'] ?? 0);
 
-    if (!$order = getOpenOrder($conn, $order_id)) {
-        apiResponse(false, 'Hoa don da thanh toan hoac khong ton tai');
-    }
-
-    $stmt = $conn->prepare("
-        SELECT * FROM order_items
-        WHERE order_id=? AND product_id=?
-        LIMIT 1
-    ");
-
-    $stmt->bind_param("ii", $order_id, $product_id);
-    $stmt->execute();
-
-    $exist = $stmt->get_result()->fetch_assoc();
-
-    if ($exist) {
-
-        $stmt = $conn->prepare("
-            UPDATE order_items
-            SET qty = qty + 1
-            WHERE id=?
-        ");
-
-        $stmt->bind_param("i", $exist['id']);
-        $stmt->execute();
-
-    } else {
-
-        $stmt = $conn->prepare("
-            SELECT price FROM products
-            WHERE id=? AND status=1
-            LIMIT 1
-        ");
-
-        $stmt->bind_param("i", $product_id);
-        $stmt->execute();
-
-        $product = $stmt->get_result()->fetch_assoc();
-
-        if (!$product) {
-            apiResponse(false, 'San pham khong ton tai hoac dang tat');
+    $conn->begin_transaction();
+    try {
+        if (!getOpenOrder($conn, $order_id, true)) {
+            $conn->rollback();
+            apiResponse(false, 'Hoa don da thanh toan hoac khong ton tai');
         }
 
-        $price = $product['price'];
-
         $stmt = $conn->prepare("
-            INSERT INTO order_items (order_id, product_id, qty, unit_price)
-            VALUES (?, ?, 1, ?)
+            SELECT id FROM order_items
+            WHERE order_id=? AND product_id=?
+            LIMIT 1 FOR UPDATE
         ");
-
-        $stmt->bind_param("iid", $order_id, $product_id, $price);
+        $stmt->bind_param('ii', $order_id, $product_id);
         $stmt->execute();
+        $exist = $stmt->get_result()->fetch_assoc();
+
+        if ($exist) {
+            $stmt = $conn->prepare("UPDATE order_items SET qty=qty+1 WHERE id=?");
+            $stmt->bind_param('i', $exist['id']);
+            $stmt->execute();
+        } else {
+            $stmt = $conn->prepare("SELECT price FROM products WHERE id=? AND status=1 LIMIT 1");
+            $stmt->bind_param('i', $product_id);
+            $stmt->execute();
+            $product = $stmt->get_result()->fetch_assoc();
+            if (!$product) {
+                $conn->rollback();
+                apiResponse(false, 'San pham khong ton tai hoac dang tat');
+            }
+
+            $price = $product['price'];
+            $stmt = $conn->prepare("
+                INSERT INTO order_items (order_id, product_id, qty, unit_price)
+                VALUES (?, ?, 1, ?)
+            ");
+            $stmt->bind_param('iid', $order_id, $product_id, $price);
+            $stmt->execute();
+        }
+
+        updateTotal($conn, $order_id);
+        $conn->commit();
+        apiResponse(true);
+    } catch (Throwable $exception) {
+        try { $conn->rollback(); } catch (Throwable $rollbackException) {
+            error_log('Add item rollback failed: ' . $rollbackException->getMessage());
+        }
+        error_log('Add item failed: ' . $exception->getMessage());
+        http_response_code(500);
+        apiResponse(false, 'Khong the them mon luc nay');
     }
-
-    updateTotal($conn, $order_id);
-
-    apiResponse(true);
 }
 
 /* =========================
@@ -289,60 +300,55 @@ if ($action == 'update_qty') {
         apiResponse(false, 'Kieu cap nhat khong hop le');
     }
 
-    $stmt = $conn->prepare("
-        SELECT oi.*
-        FROM order_items oi
-        JOIN orders o ON o.id = oi.order_id
-        WHERE oi.id=? AND o.status='open'
-        LIMIT 1
-    ");
-
-    $stmt->bind_param("i", $item_id);
-    $stmt->execute();
-
-    $item = $stmt->get_result()->fetch_assoc();
-
-    if (!$item) {
-        apiResponse(false, 'Mon khong ton tai hoac hoa don da thanh toan');
-    }
-
-    // FIX (#7): dùng prepared statement thay vì nối chuỗi $item_id vào query
-    if ($mode == 'plus') {
-
-        $stmt = $conn->prepare("
-            UPDATE order_items
-            SET qty = qty + 1
-            WHERE id=?
-        ");
-        $stmt->bind_param("i", $item_id);
+    $conn->begin_transaction();
+    try {
+        $stmt = $conn->prepare("SELECT order_id FROM order_items WHERE id=? LIMIT 1");
+        $stmt->bind_param('i', $item_id);
         $stmt->execute();
+        $itemReference = $stmt->get_result()->fetch_assoc();
 
-    } else {
+        if (!$itemReference || !getOpenOrder($conn, (int)$itemReference['order_id'], true)) {
+            $conn->rollback();
+            apiResponse(false, 'Mon khong ton tai hoac hoa don da thanh toan');
+        }
 
-        if ($item['qty'] <= 1) {
+        $orderId = (int)$itemReference['order_id'];
+        $stmt = $conn->prepare(
+            "SELECT * FROM order_items WHERE id=? AND order_id=? LIMIT 1 FOR UPDATE"
+        );
+        $stmt->bind_param('ii', $item_id, $orderId);
+        $stmt->execute();
+        $item = $stmt->get_result()->fetch_assoc();
+        if (!$item) {
+            $conn->rollback();
+            apiResponse(false, 'Mon khong ton tai hoac da duoc thay doi');
+        }
 
-            $stmt = $conn->prepare("
-                DELETE FROM order_items
-                WHERE id=?
-            ");
-            $stmt->bind_param("i", $item_id);
+        if ($mode === 'plus') {
+            $stmt = $conn->prepare("UPDATE order_items SET qty=qty+1 WHERE id=?");
+            $stmt->bind_param('i', $item_id);
             $stmt->execute();
-
+        } elseif ((int)$item['qty'] <= 1) {
+            $stmt = $conn->prepare("DELETE FROM order_items WHERE id=?");
+            $stmt->bind_param('i', $item_id);
+            $stmt->execute();
         } else {
-
-            $stmt = $conn->prepare("
-                UPDATE order_items
-                SET qty = qty - 1
-                WHERE id=?
-            ");
-            $stmt->bind_param("i", $item_id);
+            $stmt = $conn->prepare("UPDATE order_items SET qty=qty-1 WHERE id=?");
+            $stmt->bind_param('i', $item_id);
             $stmt->execute();
         }
+
+        updateTotal($conn, $orderId);
+        $conn->commit();
+        apiResponse(true);
+    } catch (Throwable $exception) {
+        try { $conn->rollback(); } catch (Throwable $rollbackException) {
+            error_log('Update quantity rollback failed: ' . $rollbackException->getMessage());
+        }
+        error_log('Update quantity failed: ' . $exception->getMessage());
+        http_response_code(500);
+        apiResponse(false, 'Khong the cap nhat so luong luc nay');
     }
-
-    updateTotal($conn, $item['order_id']);
-
-    apiResponse(true);
 }
 
 /* =========================

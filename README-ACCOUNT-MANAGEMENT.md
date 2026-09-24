@@ -17,4 +17,6 @@ Chép đè các tệp trong gói cập nhật vào thư mục gốc của websit
 3. Chọn khu vực cần tạo tài khoản, nhập thông tin và mật khẩu tối thiểu 8 ký tự.
 4. Tại danh sách bên phải, admin có thể sửa tên đăng nhập, đổi mật khẩu, khóa hoặc kích hoạt tài khoản.
 
+Nếu tài khoản nhập sai mật khẩu 5 lần và bị giới hạn trong 15 phút, admin bấm **Xóa giới hạn** tại dòng tài khoản đó để cho phép đăng nhập lại ngay. Thao tác được lưu trong bảng 100 lần đăng nhập gần nhất.
+
 Khi admin đổi mật khẩu hoặc khóa tài khoản, phiên đăng nhập hiện tại của tài khoản đó sẽ bị thu hồi. Nhân viên POS phải đổi mật khẩu ở lần đăng nhập đầu tiên hoặc sau khi admin đặt lại mật khẩu. Tài khoản Mua hàng và Bakery tiếp tục đăng nhập ở trang riêng và có thể hoạt động song song với phiên POS.

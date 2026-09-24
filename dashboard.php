@@ -4,23 +4,25 @@ include 'config.php';
 
 $today = $conn->query("
     SELECT COUNT(*) total_orders, IFNULL(SUM(total_amount),0) revenue
-    FROM orders WHERE status='paid' AND DATE(paid_at)=CURDATE()
+    FROM orders
+    WHERE status='paid' AND paid_at>=CURDATE() AND paid_at<CURDATE()+INTERVAL 1 DAY
 ")->fetch_assoc();
 
 $month = $conn->query("
     SELECT COUNT(*) total_orders, IFNULL(SUM(total_amount),0) revenue
     FROM orders WHERE status='paid'
-    AND YEAR(paid_at)=YEAR(CURDATE()) AND MONTH(paid_at)=MONTH(CURDATE())
+    AND paid_at>=DATE_FORMAT(CURDATE(), '%Y-%m-01')
+    AND paid_at<DATE_FORMAT(CURDATE()+INTERVAL 1 MONTH, '%Y-%m-01')
 ")->fetch_assoc();
 
 $cash_today = $conn->query("
     SELECT IFNULL(SUM(cash_amount),0) t FROM orders
-    WHERE status='paid' AND DATE(paid_at)=CURDATE()
+    WHERE status='paid' AND paid_at>=CURDATE() AND paid_at<CURDATE()+INTERVAL 1 DAY
 ")->fetch_assoc();
 
 $bank_today = $conn->query("
     SELECT IFNULL(SUM(bank_amount),0) t FROM orders
-    WHERE status='paid' AND DATE(paid_at)=CURDATE()
+    WHERE status='paid' AND paid_at>=CURDATE() AND paid_at<CURDATE()+INTERVAL 1 DAY
 ")->fetch_assoc();
 
 $top_qty = $conn->query("

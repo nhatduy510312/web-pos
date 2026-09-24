@@ -167,22 +167,41 @@ if (isset($_GET['ajax_day'])) {
     );
     $day_stmt->bind_param('ss', $day_from, $day_to);
     $day_stmt->execute();
-    $day_orders = $day_stmt->get_result();
+    $dayResult = $day_stmt->get_result();
+    $dayOrders = [];
+    while ($dayOrder = $dayResult->fetch_assoc()) {
+        $dayOrders[] = $dayOrder;
+    }
+
+    // Lấy toàn bộ món trong ngày bằng một truy vấn, thay vì một
+    // truy vấn cho mỗi hóa đơn (N+1).
+    $dayItemsByOrder = [];
+    if ($dayOrders) {
+        $itemStmt = $conn->prepare(
+            "SELECT oi.order_id,oi.qty,oi.unit_price,oi.note,p.name
+             FROM order_items oi
+             JOIN orders o ON o.id=oi.order_id
+             LEFT JOIN products p ON p.id=oi.product_id
+             WHERE o.status='paid' AND o.paid_at>=? AND o.paid_at<?
+             ORDER BY oi.order_id,oi.id"
+        );
+        $itemStmt->bind_param('ss', $day_from, $day_to);
+        $itemStmt->execute();
+        $itemResult = $itemStmt->get_result();
+        while ($dayItem = $itemResult->fetch_assoc()) {
+            $dayItemsByOrder[(int)$dayItem['order_id']][] = $dayItem;
+        }
+    }
     ?>
     <div class="day-orders-heading">
       <span>📋 Hóa đơn ngày <?= date('d/m/Y', strtotime($ajax_day)) ?></span>
-      <span class="badge badge-blue"><?= number_format($day_orders->num_rows) ?> hóa đơn</span>
+      <span class="badge badge-blue"><?= number_format(count($dayOrders)) ?> hóa đơn</span>
     </div>
-    <?php if ($day_orders->num_rows === 0): ?>
+    <?php if (!$dayOrders): ?>
       <div class="day-orders-empty">Ngày này chưa có hóa đơn đã thanh toán.</div>
     <?php else: ?>
       <div class="day-orders-list">
-      <?php while ($day_order = $day_orders->fetch_assoc()):
-          $item_stmt = $conn->prepare("SELECT oi.qty,oi.unit_price,oi.note,p.name FROM order_items oi LEFT JOIN products p ON p.id=oi.product_id WHERE oi.order_id=?");
-          $item_stmt->bind_param('i', $day_order['id']);
-          $item_stmt->execute();
-          $day_items = $item_stmt->get_result();
-      ?>
+      <?php foreach ($dayOrders as $day_order): ?>
         <div class="day-order-card">
           <div class="day-order-head">
             <div class="day-order-main">
@@ -200,7 +219,7 @@ if (isset($_GET['ajax_day'])) {
             <table class="detail-tbl">
               <thead><tr><th>Tên món</th><th>SL</th><th>Đơn giá</th><th class="text-right">Thành tiền</th></tr></thead>
               <tbody>
-                <?php while ($day_item = $day_items->fetch_assoc()): ?>
+                <?php foreach ($dayItemsByOrder[(int)$day_order['id']] ?? [] as $day_item): ?>
                 <tr>
                   <td>
                     <?= htmlspecialchars($day_item['name'] ?? 'Món đã xóa') ?>
@@ -210,7 +229,7 @@ if (isset($_GET['ajax_day'])) {
                   <td class="money"><?= number_format($day_item['unit_price']) ?>đ</td>
                   <td class="text-right money fw-600"><?= number_format($day_item['qty'] * $day_item['unit_price']) ?>đ</td>
                 </tr>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
               </tbody>
             </table>
             <div class="day-order-totals">
@@ -223,7 +242,7 @@ if (isset($_GET['ajax_day'])) {
             </div>
           </div>
         </div>
-      <?php endwhile; ?>
+      <?php endforeach; ?>
       </div>
     <?php endif; ?>
     <?php

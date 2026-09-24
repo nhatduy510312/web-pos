@@ -63,137 +63,98 @@ if(!in_array($discount_type, ['', 'percent', 'amount'], true)){
     checkoutResponse(false, 'Giam gia khong hop le');
 }
 
-$stmt =
-$conn->prepare("
-    SELECT id
-    FROM orders
-    WHERE id=?
-    AND status='open'
-    LIMIT 1
-");
+$conn->begin_transaction();
 
-$stmt->bind_param(
-    'i',
-    $order_id
-);
+try {
+    // Khóa hóa đơn trong suốt quá trình tính tiền để hai thiết bị
+    // không thể thanh toán hoặc sửa cùng một hóa đơn đồng thời.
+    $stmt = $conn->prepare(
+        "SELECT id FROM orders WHERE id=? AND status='open' LIMIT 1 FOR UPDATE"
+    );
+    $stmt->bind_param('i', $order_id);
+    $stmt->execute();
 
-$stmt->execute();
-
-if(!$stmt->get_result()->fetch_assoc()){
-    checkoutResponse(false, 'Hoa don da thanh toan hoac khong ton tai');
-}
-
-if($discount_value < 0){
-    $discount_value = 0;
-}
-
-$stmt =
-$conn->prepare("
-    SELECT
-        SUM(qty*unit_price)
-        AS total
-    FROM order_items
-    WHERE order_id=?
-");
-
-$stmt->bind_param(
-    'i',
-    $order_id
-);
-
-$stmt->execute();
-
-$row =
-$stmt->get_result()
-->fetch_assoc();
-
-$total =
-(float)($row['total'] ?? 0);
-
-if($total <= 0){
-    checkoutResponse(false, 'Hoa don khong co mon');
-}
-
-if($discount_type == 'percent'){
-
-    if($discount_value > 100){
-        $discount_value = 100;
+    if (!$stmt->get_result()->fetch_assoc()) {
+        $conn->rollback();
+        checkoutResponse(false, 'Hoa don da thanh toan hoac khong ton tai');
     }
 
-    $discount_amount =
-        $total
-        *
-        $discount_value
-        /
-        100;
+    $stmt = $conn->prepare(
+        "SELECT qty, unit_price FROM order_items WHERE order_id=? FOR UPDATE"
+    );
+    $stmt->bind_param('i', $order_id);
+    $stmt->execute();
+    $items = $stmt->get_result();
+    $total = 0.0;
+    while ($item = $items->fetch_assoc()) {
+        $total += (float)$item['qty'] * (float)$item['unit_price'];
+    }
 
-}else if($discount_type == 'amount'){
+    if ($total <= 0) {
+        $conn->rollback();
+        checkoutResponse(false, 'Hoa don khong co mon');
+    }
 
-    $discount_amount =
-        $discount_value;
+    if ($discount_value < 0) {
+        $discount_value = 0;
+    }
+    if ($discount_type === 'percent') {
+        $discount_value = min($discount_value, 100);
+        $discount_amount = $total * $discount_value / 100;
+    } elseif ($discount_type === 'amount') {
+        $discount_amount = $discount_value;
+    } else {
+        $discount_value = 0;
+        $discount_amount = 0;
+    }
+    $discount_amount = min($discount_amount, $total);
+    $final_total = $total - $discount_amount;
 
-}else{
+    if ($payment_method === 'cash') {
+        $cash_amount = $final_total;
+        $bank_amount = 0;
+    } elseif ($payment_method === 'bank') {
+        $cash_amount = 0;
+        $bank_amount = $final_total;
+    } elseif (($cash_amount + $bank_amount) < $final_total) {
+        $conn->rollback();
+        checkoutResponse(false, 'Khach chua thanh toan du');
+    }
 
-    $discount_value = 0;
-    $discount_amount = 0;
+    $stmt = $conn->prepare("
+        UPDATE orders
+        SET total_amount=?, payment_method=?, cash_amount=?, bank_amount=?,
+            discount_type=?, discount_value=?, discount_amount=?, status='paid',
+            paid_at=NOW(), sold_by_user_id=?
+        WHERE id=? AND status='open'
+    ");
+    $stmt->bind_param(
+        'dsddsddii',
+        $final_total,
+        $payment_method,
+        $cash_amount,
+        $bank_amount,
+        $discount_type,
+        $discount_value,
+        $discount_amount,
+        $sold_by_user_id,
+        $order_id
+    );
+    $stmt->execute();
+    if ($stmt->affected_rows !== 1) {
+        $conn->rollback();
+        checkoutResponse(false, 'Hoa don da duoc xu ly tren thiet bi khac');
+    }
+
+    $conn->commit();
+    checkoutResponse(true, '', ['order_id' => $order_id]);
+} catch (Throwable $exception) {
+    try {
+        $conn->rollback();
+    } catch (Throwable $rollbackException) {
+        error_log('Checkout rollback failed: ' . $rollbackException->getMessage());
+    }
+    error_log('Checkout failed: ' . $exception->getMessage());
+    http_response_code(500);
+    checkoutResponse(false, 'Khong the thanh toan luc nay. Vui long thu lai.');
 }
-
-if($discount_amount > $total){
-    $discount_amount = $total;
-}
-
-$final_total =
-    $total
-    -
-    $discount_amount;
-
-if($payment_method == 'cash'){
-
-    $cash_amount = $final_total;
-    $bank_amount = 0;
-
-}else if($payment_method == 'bank'){
-
-    $cash_amount = 0;
-    $bank_amount = $final_total;
-
-}else if(($cash_amount + $bank_amount) < $final_total){
-
-    checkoutResponse(false, 'Khach chua thanh toan du');
-}
-
-$stmt =
-$conn->prepare("
-    UPDATE orders
-    SET
-        total_amount=?,
-        payment_method=?,
-        cash_amount=?,
-        bank_amount=?,
-        discount_type=?,
-        discount_value=?,
-        discount_amount=?,
-        status='paid',
-        paid_at=NOW(),
-        sold_by_user_id=?
-    WHERE id=?
-");
-
-$stmt->bind_param(
-    'dsddsddii',
-    $final_total,
-    $payment_method,
-    $cash_amount,
-    $bank_amount,
-    $discount_type,
-    $discount_value,
-    $discount_amount,
-    $sold_by_user_id,
-    $order_id
-);
-
-$stmt->execute();
-
-checkoutResponse(true, '', [
-    'order_id' => $order_id
-]);

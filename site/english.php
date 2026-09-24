@@ -8,12 +8,12 @@ function ghe_english_routes(): array {
 function ghe_english_path(string $key): string { return 'en.php' . ($key === 'home' ? '' : '?view=' . rawurlencode($key)); }
 function ghe_english_defaults(): array {
     return [
-        'home_title'=>"A little coffee.\nA little time.\nA moment at Ghé.",
-        'home_lead'=>'A cup of coffee. A seat that feels right. Make a little time for yourself, or for a catch-up you have been looking forward to.',
-        'home_intro'=>'Make time for a coffee in Da Lat. Come to Ghé for a work session, a study break or a conversation with friends. Explore our spaces, find your favourite drink and plan your visit.',
-        'about_title'=>'A little pause in your Da Lat day.',
-        'about_body'=>"In Vietnamese, ‘ghé’ is an invitation to stop by. At Ghé, that can mean a coffee before exploring Da Lat, time with your laptop or a catch-up with friends.\n\nChoose a drink from the menu and a seat that suits your day. You can find our current spaces and facilities below, along with opening hours and directions. If you are coming with a group or need a particular kind of seat, please contact us before your visit.",
-        'menu_intro'=>'Coffee, tea and something to enjoy alongside. Prices and availability come from the same menu used by our team. Vietnamese names are included to make ordering easier.',
+        'home_title'=>"Stop by for a while.\nSlow down for a while.",
+        'home_lead'=>'Between a green garden and light-filled indoor corners, Ghé is a calm place to study, work and connect — or simply give yourself a slower moment.',
+        'home_intro'=>'Ghé is a garden café with airy, thoughtful indoor spaces at 30 Vo Truong Toan, Da Lat. A place to study, work, meet and slow down for a while.',
+        'about_title'=>'A place for your own pace.',
+        'about_body'=>"At Ghé, choose a seat beneath the trees or a light-filled corner indoors. The space is airy, warm and quiet enough for everyone to find their own pace.\n\nCome to study, work, meet and connect. Or come with no particular plan — order something you like and slow down for a while.\n\nReliable Wi-Fi and a power outlet at every table make longer study and work sessions easier. Ghé is open daily from 07:00 to 18:00.",
+        'menu_intro'=>'A coffee, a tea or something small from the bakery — just enough for your time at Ghé.',
         'visit_note'=>'For group visits or specific seating needs, please contact us before coming. Street parking is subject to availability and local signs; please keep entrances clear.',
         'hours_note'=>'Opening times are shown in local Vietnam time (UTC+7).',
     ];
@@ -67,9 +67,9 @@ function ghe_english_apply(): void {
     $menuSections=ghe_english_menu($menuSections,$content);
     $publicPages=[
         'home'=>['label'=>'Home','title'=>'Ghé Café in Da Lat — Coffee, Work & Catch-ups','description'=>$site['home_intro']],
-        'about'=>['label'=>'About Ghé','title'=>'About Ghé — Your Coffee Stop in Da Lat','description'=>'Meet Ghé at '.$site['address'].'. Explore our café spaces and facilities, and plan a coffee break in Da Lat.'],
+        'about'=>['label'=>'About Ghé','title'=>'About Ghé — A Green Pause in Da Lat','description'=>'Meet Ghé at '.$site['address'].': a green garden, airy indoor corners and a place to move at your own pace.','navigation'=>false],
         'menu'=>['label'=>'Menu','title'=>'Ghé Da Lat Menu — Coffee, Tea & Prices in VND','description'=>'Browse the English menu at Ghé café in Da Lat. Coffee, tea, matcha and snacks, with prices in Vietnamese dong and Vietnamese names to help you order.'],
-        'story'=>['label'=>'What to order','title'=>'What to Order at Ghé Café in Da Lat','description'=>'Find a drink for your coffee break at Ghé. Explore the current coffee, tea and snack selection with English descriptions and prices.'],
+        'story'=>['label'=>'What to order','title'=>'What to Order at Ghé Café in Da Lat','description'=>'Find a drink for your coffee break at Ghé. Explore the current coffee, tea and snack selection with English descriptions and prices.','navigation'=>false],
         'visit'=>['label'=>'Visit us','title'=>'Visit Ghé — '.$site['street'].', Da Lat','description'=>'Find Ghé at '.$site['address'].'. Open '.$site['hours'].'. Directions, contact details, seating, Wi-Fi and parking information.'],
     ];
     foreach ($publicPages as $key=>&$page) $page['file']=ghe_english_path($key);

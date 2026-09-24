@@ -1,19 +1,43 @@
 <?php $bakeryPage = basename((string)($_SERVER['PHP_SELF'] ?? '')); ?>
 <link rel="icon" type="image/svg+xml" href="bakery_favicon.svg">
 <link rel="stylesheet" href="assets/bakery.css">
-<nav class="bk-nav">
+<?php
+$bakeryCostPages = ['bakery_investments.php', 'bakery_equipment.php', 'bakery_operating_expenses.php', 'bakery_material_purchases.php'];
+$bakeryStockPages = ['bakery_inventory.php', 'bakery_materials.php'];
+$bakeryBusinessPages = ['bakery_revenue.php', 'bakery_reports.php'];
+?>
+<nav class="bk-nav" aria-label="Bakery" data-bakery-navigation>
   <a class="bk-brand" href="bakery.php">🥐 Bếp bánh</a>
-  <div class="bk-links">
+  <button class="bk-nav-toggle" type="button" aria-expanded="false" aria-controls="bakeryNavigationMenu" aria-label="Mở menu" data-bakery-nav-toggle>☰</button>
+  <div class="bk-nav-menu" id="bakeryNavigationMenu">
+   <div class="bk-links">
     <a class="<?= $bakeryPage==='bakery.php'?'active':'' ?>" href="bakery.php">Tổng quan</a>
-    <a class="<?= $bakeryPage==='bakery_investments.php'?'active':'' ?>" href="bakery_investments.php">Đầu tư phần thô</a>
-    <a class="<?= $bakeryPage==='bakery_equipment.php'?'active':'' ?>" href="bakery_equipment.php">Thiết bị</a>
-    <a class="<?= $bakeryPage==='bakery_operating_expenses.php'?'active':'' ?>" href="bakery_operating_expenses.php">Chi phí vận hành</a>
-    <a class="<?= $bakeryPage==='bakery_material_purchases.php'?'active':'' ?>" href="bakery_material_purchases.php">Mua nguyên liệu</a>
-    <a class="<?= $bakeryPage==='bakery_inventory.php'?'active':'' ?>" href="bakery_inventory.php">Tồn kho</a>
-    <a class="<?= $bakeryPage==='bakery_materials.php'?'active':'' ?>" href="bakery_materials.php">Danh mục</a>
-    <a class="<?= $bakeryPage==='bakery_revenue.php'?'active':'' ?>" href="bakery_revenue.php">Doanh thu</a>
-    <a class="<?= $bakeryPage==='bakery_reports.php'?'active':'' ?>" href="bakery_reports.php">Báo cáo</a>
+    <details class="bk-group <?= in_array($bakeryPage, $bakeryCostPages, true)?'active':'' ?>">
+      <summary>Chi phí</summary>
+      <div class="bk-dropdown">
+        <a class="<?= $bakeryPage==='bakery_investments.php'?'active':'' ?>" href="bakery_investments.php">Đầu tư phần thô</a>
+        <a class="<?= $bakeryPage==='bakery_equipment.php'?'active':'' ?>" href="bakery_equipment.php">Thiết bị</a>
+        <a class="<?= $bakeryPage==='bakery_operating_expenses.php'?'active':'' ?>" href="bakery_operating_expenses.php">Chi phí vận hành</a>
+        <a class="<?= $bakeryPage==='bakery_material_purchases.php'?'active':'' ?>" href="bakery_material_purchases.php">Mua nguyên liệu</a>
+      </div>
+    </details>
+    <details class="bk-group <?= in_array($bakeryPage, $bakeryStockPages, true)?'active':'' ?>">
+      <summary>Kho</summary>
+      <div class="bk-dropdown">
+        <a class="<?= $bakeryPage==='bakery_inventory.php'?'active':'' ?>" href="bakery_inventory.php">Tồn kho</a>
+        <a class="<?= $bakeryPage==='bakery_materials.php'?'active':'' ?>" href="bakery_materials.php">Danh mục</a>
+      </div>
+    </details>
+    <details class="bk-group <?= in_array($bakeryPage, $bakeryBusinessPages, true)?'active':'' ?>">
+      <summary>Kinh doanh</summary>
+      <div class="bk-dropdown">
+        <a class="<?= $bakeryPage==='bakery_revenue.php'?'active':'' ?>" href="bakery_revenue.php">Doanh thu</a>
+        <a class="<?= $bakeryPage==='bakery_reports.php'?'active':'' ?>" href="bakery_reports.php">Báo cáo</a>
+      </div>
+    </details>
+   </div>
+   <div class="bk-user"><?= bakeryLanguageSwitcher() ?><span><?= bakeryH($bakeryAccount['username']) ?></span><a href="bakery_account.php">Tài khoản</a><a class="logout" href="bakery_logout.php">Đăng xuất</a></div>
   </div>
-  <div class="bk-user"><?= bakeryLanguageSwitcher() ?><span><?= bakeryH($bakeryAccount['username']) ?></span><a href="bakery_account.php">Tài khoản</a><a class="logout" href="bakery_logout.php">Đăng xuất</a></div>
 </nav>
 <?= bakeryTranslationScript() ?>
+<script src="assets/bakery-nav.js?v=1" defer></script>

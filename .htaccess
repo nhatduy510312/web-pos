@@ -5,7 +5,7 @@ DirectoryIndex home.php index.php
 AddDefaultCharset UTF-8
 AddCharset UTF-8 .html .htm .php .css .js .json .xml .txt
 
-<FilesMatch "^(config\.php|auto_close_shift\.php|composer\.(json|lock)|.*\.sql)$">
+<FilesMatch "^(config\.php|db_config\.php|auto_close_shift\.php|composer\.(json|lock)|.*\.(sql|zip|bak|md|lock|phar))$">
     Require all denied
 </FilesMatch>
 <IfModule mod_headers.c>
@@ -23,7 +23,7 @@ AddCharset UTF-8 .html .htm .php .css .js .json .xml .txt
 <FilesMatch "^README-PUBLIC-WEBSITE\.md$">
     Require all denied
 </FilesMatch>
-RewriteRule ^(?:site|tools)(?:/|$) - [F,L]
+RewriteRule ^(?:site|tools|vendor|data|DB|web-pos-[^/]*)(?:/|$) - [F,L]
 
 # Ép HTTPS
 RewriteCond %{HTTPS} !=on

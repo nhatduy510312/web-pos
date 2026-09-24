@@ -7,6 +7,7 @@ require_once __DIR__ . '/recipe_helpers.php';
 requireRole('admin');
 
 $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
+$importError = '';
 $addError = '';
 $updateError = '';
 
@@ -20,35 +21,165 @@ function productRecipePostArray($key)
     return isset($_POST[$key]) && is_array($_POST[$key]) ? $_POST[$key] : [];
 }
 
+function productPublicError(Throwable $exception, string $operation): string
+{
+    if ($exception instanceof mysqli_sql_exception) {
+        error_log('Product ' . $operation . ' failed: ' . $exception->getMessage());
+        return 'Không thể lưu dữ liệu món. Vui lòng thử lại.';
+    }
+    return $exception->getMessage();
+}
+
 /* ── Import Excel ── */
 if (isset($_POST['import_excel'])) {
     csrf_require($_POST['csrf_token'] ?? '');
-    $spreadsheet = IOFactory::load($_FILES['excel_file']['tmp_name']);
-    $rows = $spreadsheet->getActiveSheet()->toArray();
-    $imported = 0;
-    foreach ($rows as $i => $row) {
-        if ($i === 0) continue;
-        $category = trim($row[0]); $name = trim($row[1]);
-        $price = (int)preg_replace('/[^0-9]/', '', $row[2]);
-        if (empty($name)) continue;
+    $transactionStarted = false;
+    $spreadsheet = null;
 
-        $stmt = $conn->prepare("SELECT id FROM categories WHERE name=?");
-        $stmt->bind_param("s", $category); $stmt->execute();
-        $cat_row = $stmt->get_result()->fetch_assoc();
-        if ($cat_row) { $cid = $cat_row['id']; }
-        else {
-            $stmt = $conn->prepare("INSERT INTO categories(name) VALUES(?)");
-            $stmt->bind_param("s", $category); $stmt->execute();
-            $cid = $conn->insert_id;
+    try {
+        $upload = $_FILES['excel_file'] ?? null;
+        if (!is_array($upload) || (int)($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            throw new UnexpectedValueException('Tệp Excel chưa được tải lên hoặc bị lỗi.');
         }
-        $stmt = $conn->prepare("SELECT id FROM products WHERE name=?");
-        $stmt->bind_param("s", $name); $stmt->execute();
-        if ($stmt->get_result()->num_rows) continue;
-        $stmt = $conn->prepare("INSERT INTO products(name,price,category_id) VALUES(?,?,?)");
-        $stmt->bind_param("sii", $name, $price, $cid); $stmt->execute();
-        $imported++;
+
+        $tempPath = (string)($upload['tmp_name'] ?? '');
+        $originalName = (string)($upload['name'] ?? '');
+        $fileSize = (int)($upload['size'] ?? 0);
+        if ($tempPath === '' || !is_uploaded_file($tempPath)) {
+            throw new UnexpectedValueException('Tệp tải lên không hợp lệ.');
+        }
+        if ($fileSize < 1 || $fileSize > 5 * 1024 * 1024) {
+            throw new UnexpectedValueException('Tệp Excel phải có dung lượng tối đa 5 MB.');
+        }
+
+        $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+        $expectedReaders = [
+            'xlsx' => IOFactory::READER_XLSX,
+            'xls' => IOFactory::READER_XLS,
+        ];
+        if (!isset($expectedReaders[$extension])) {
+            throw new UnexpectedValueException('Chỉ chấp nhận tệp .xlsx hoặc .xls.');
+        }
+
+        $allowedMimes = [
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-excel',
+            'application/zip',
+            'application/x-ole-storage',
+            'application/cdfv2',
+            'application/octet-stream',
+        ];
+        $fileInfo = new finfo(FILEINFO_MIME_TYPE);
+        $mime = strtolower((string)$fileInfo->file($tempPath));
+        if ($mime === '' || !in_array($mime, $allowedMimes, true)) {
+            throw new UnexpectedValueException('Nội dung tệp không đúng định dạng Excel.');
+        }
+
+        $readerType = IOFactory::identify($tempPath, array_values($expectedReaders));
+        if ($readerType !== $expectedReaders[$extension]) {
+            throw new UnexpectedValueException('Phần mở rộng và nội dung tệp Excel không khớp.');
+        }
+
+        $reader = IOFactory::createReader($readerType);
+        $reader->setReadDataOnly(true);
+        $reader->setReadEmptyCells(false);
+        $worksheetInfo = $reader->listWorksheetInfo($tempPath);
+        if (!$worksheetInfo) {
+            throw new UnexpectedValueException('Tệp Excel không có trang tính.');
+        }
+
+        $totalRows = (int)($worksheetInfo[0]['totalRows'] ?? 0);
+        $totalColumns = (int)($worksheetInfo[0]['totalColumns'] ?? 0);
+        if ($totalRows > 2001) {
+            throw new UnexpectedValueException('Mỗi lần chỉ được import tối đa 2.000 món.');
+        }
+        if ($totalColumns > 20) {
+            throw new UnexpectedValueException('Tệp Excel có quá nhiều cột.');
+        }
+
+        $reader->setLoadSheetsOnly((string)$worksheetInfo[0]['worksheetName']);
+        $spreadsheet = $reader->load($tempPath);
+        $rows = $spreadsheet->getActiveSheet()->rangeToArray(
+            'A1:C' . max(1, $totalRows),
+            null,
+            true,
+            true,
+            false
+        );
+
+        $categoryMap = [];
+        $categoryResult = $conn->query("SELECT id, name FROM categories");
+        while ($categoryRow = $categoryResult->fetch_assoc()) {
+            $categoryMap[mb_strtolower(trim((string)$categoryRow['name']), 'UTF-8')] = (int)$categoryRow['id'];
+        }
+        $productNames = [];
+        $productResult = $conn->query("SELECT name FROM products");
+        while ($productRow = $productResult->fetch_assoc()) {
+            $productNames[mb_strtolower(trim((string)$productRow['name']), 'UTF-8')] = true;
+        }
+
+        $insertCategory = $conn->prepare("INSERT INTO categories(name) VALUES(?)");
+        $insertProduct = $conn->prepare("INSERT INTO products(name,price,category_id) VALUES(?,?,?)");
+        $conn->begin_transaction();
+        $transactionStarted = true;
+        $imported = 0;
+
+        foreach ($rows as $i => $row) {
+            if ($i === 0) continue;
+            $category = productRecipeCleanValue($row[0] ?? '');
+            $name = productRecipeCleanValue($row[1] ?? '');
+            $priceDigits = preg_replace('/[^0-9]/', '', (string)($row[2] ?? ''));
+            if ($category === '' && $name === '' && $priceDigits === '') continue;
+            if ($category === '' || $name === '') {
+                throw new UnexpectedValueException('Dòng ' . ($i + 1) . ' thiếu danh mục hoặc tên món.');
+            }
+            if (mb_strlen($category, 'UTF-8') > 100 || mb_strlen($name, 'UTF-8') > 100) {
+                throw new UnexpectedValueException('Dòng ' . ($i + 1) . ' có tên quá dài.');
+            }
+
+            $price = (int)$priceDigits;
+            if ($price > 9999999999) {
+                throw new UnexpectedValueException('Dòng ' . ($i + 1) . ' có giá vượt giới hạn.');
+            }
+            $categoryKey = mb_strtolower($category, 'UTF-8');
+            $nameKey = mb_strtolower($name, 'UTF-8');
+            if (isset($productNames[$nameKey])) continue;
+
+            if (!isset($categoryMap[$categoryKey])) {
+                $insertCategory->bind_param('s', $category);
+                $insertCategory->execute();
+                $categoryMap[$categoryKey] = (int)$conn->insert_id;
+            }
+            $cid = $categoryMap[$categoryKey];
+            $insertProduct->bind_param('sii', $name, $price, $cid);
+            $insertProduct->execute();
+            $productNames[$nameKey] = true;
+            $imported++;
+        }
+
+        $conn->commit();
+        $transactionStarted = false;
+        $spreadsheet->disconnectWorksheets();
+        header('Location: products.php?imported=' . $imported);
+        exit;
+    } catch (Throwable $e) {
+        if ($transactionStarted) {
+            try {
+                $conn->rollback();
+            } catch (Throwable $rollbackError) {
+                error_log('Unable to rollback product import: ' . $rollbackError->getMessage());
+            }
+        }
+        if ($spreadsheet !== null) {
+            $spreadsheet->disconnectWorksheets();
+        }
+        if ($e instanceof UnexpectedValueException) {
+            $importError = $e->getMessage();
+        } else {
+            error_log('Product Excel import failed: ' . $e->getMessage());
+            $importError = 'Không thể đọc tệp Excel. Vui lòng kiểm tra lại tệp và thử lại.';
+        }
     }
-    header("Location: products.php?imported=$imported"); exit;
 }
 
 /* ── Add ── */
@@ -63,6 +194,9 @@ if (isset($_POST['add'])) {
     try {
         if ($name === '') {
             throw new RuntimeException('Vui lòng nhập tên món.');
+        }
+        if (mb_strlen($name, 'UTF-8') > 100 || $price > 9999999999) {
+            throw new RuntimeException('Tên món hoặc giá vượt giới hạn cho phép.');
         }
 
         $conn->begin_transaction();
@@ -184,7 +318,7 @@ if (isset($_POST['add'])) {
             }
         }
 
-        $addError = $e->getMessage();
+        $addError = productPublicError($e, 'creation');
     }
 }
 
@@ -202,6 +336,9 @@ if (isset($_POST['update'])) {
     try {
         if ($name === '') {
             throw new RuntimeException('Tên món không được để trống.');
+        }
+        if (mb_strlen($name, 'UTF-8') > 100 || $price > 9999999999) {
+            throw new RuntimeException('Tên món hoặc giá vượt giới hạn cho phép.');
         }
 
         $conn->begin_transaction();
@@ -258,7 +395,7 @@ if (isset($_POST['update'])) {
             }
         }
 
-        $updateError = $e->getMessage();
+        $updateError = productPublicError($e, 'update');
     }
 }
 
@@ -408,6 +545,12 @@ if (!$newIngredientRows) {
 
   <?php if ($imported > 0): ?>
   <div class="alert alert-ok mt-8" style="margin-bottom:14px;">✅ Import thành công <?= $imported ?> món mới</div>
+  <?php endif; ?>
+
+  <?php if ($importError !== ''): ?>
+  <div class="alert alert-err mt-8" style="margin-bottom:14px;">
+    ⚠️ <?= htmlspecialchars($importError, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+  </div>
   <?php endif; ?>
 
   <?php if ($added): ?>
@@ -569,7 +712,7 @@ if (!$newIngredientRows) {
     <div class="card">
       <div class="section-title">📊 Import từ Excel</div>
       <p class="text-muted text-sm" style="margin-bottom:12px;">
-        File .xlsx có 3 cột: <b>Danh mục</b> · <b>Tên món</b> · <b>Giá</b><br>
+        File .xlsx hoặc .xls, tối đa 5 MB và 2.000 món, có 3 cột: <b>Danh mục</b> · <b>Tên món</b> · <b>Giá</b><br>
         Hàng đầu là tiêu đề, bỏ qua tự động. Tên trùng sẽ được bỏ qua.
         Món import chưa có công thức có thể bổ sung bằng nút 📋 trong danh sách.
       </p>

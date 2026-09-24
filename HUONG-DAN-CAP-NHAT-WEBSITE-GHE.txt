@@ -1,0 +1,16 @@
+GÓI CẬP NHẬT WEBSITE GIỚI THIỆU GHÉ — 12/09/2026
+
+1. Sao lưu thư mục site/storage trên server.
+2. Giải nén gói ZIP.
+3. Chép toàn bộ nội dung bên trong vào thư mục gốc của POS và cho phép ghi đè các file trùng tên.
+4. Không xóa file hoặc thư mục nào trên server.
+5. Không cần chạy SQL và không cần cập nhật vendor.
+6. Mở trang chủ tiếng Việt và tiếng Anh, sau đó tải lại bằng Ctrl + F5.
+
+Gói không chứa site/storage/content.json nên không ghi đè ảnh, món, bài viết hoặc các cài đặt CMS hiện có. Nội dung giới thiệu mới được code áp dụng an toàn khi website chạy.
+
+Các trang nên kiểm tra:
+- Trang chủ: /
+- Tiếng Anh: /en.php
+- Không gian: /khong-gian.php
+- Giới thiệu: /gioi-thieu.php

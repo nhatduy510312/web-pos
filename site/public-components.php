@@ -50,6 +50,27 @@ function ghe_gallery(bool $full=false, int $limit=6, bool $excludeHero=false): v
     }
     echo '</div></section>';
 }
+function ghe_home_spaces(): void {
+    global $content;
+    $moments = [
+        ['number'=>7, 'vi_title'=>'Ngoài vườn', 'en_title'=>'In the garden', 'vi_text'=>'Một khoảng xanh, thoáng và dịu để gặp gỡ hoặc ngồi lại với chính mình.', 'en_text'=>'A green, open-air setting for good company or a quiet moment of your own.'],
+        ['number'=>22, 'vi_title'=>'Bên trong', 'en_title'=>'Indoors', 'vi_text'=>'Những góc ngồi ngập ánh sáng, mộc mạc và vừa đủ riêng tư.', 'en_text'=>'Light-filled corners that feel warm, considered and quietly private.'],
+        ['number'=>5, 'vi_title'=>'Một góc tập trung', 'en_title'=>'A place to focus', 'vi_text'=>'Thoải mái cho một giờ học, một ngày làm việc hay một ý tưởng còn dang dở.', 'en_text'=>'Settle in for a study session, a workday or an idea still taking shape.'],
+    ];
+    $byNumber=[];
+    foreach($content['media'] as $id=>$photo) if(isset($photo['number'])) $byNumber[(int)$photo['number']]=[$id,$photo];
+    echo '<div class="home-space-grid" data-photo-gallery>';
+    foreach($moments as $index=>$moment) {
+        if(!isset($byNumber[$moment['number']]))continue;
+        [$id,$photo]=$byNumber[$moment['number']];
+        $alt=ghe_is_english()?(trim($photo['alt_en']??'')?:'Ghé café in Da Lat'):$photo['alt'];
+        $suffix=defined('GHE_PREVIEW')&&GHE_PREVIEW?'&preview=1':'';
+        echo '<article class="home-space-card"><a class="gallery-link" href="'.ghe_h(ghe_link('ghe-image.php?id='.$id.$suffix)).'" data-gallery-photo data-caption="'.ghe_h($alt).'" aria-label="'.ghe_h(ghe_t('Xem ảnh lớn: ','Enlarge photo: ').$alt).'">';
+        ghe_photo($id,'home-space-photo',false,true);
+        echo '<span class="photo-expand" aria-hidden="true">↗</span></a><p class="home-space-number">0'.($index+1).'</p><h3>'.ghe_h(ghe_is_english()?$moment['en_title']:$moment['vi_title']).'</h3><p>'.ghe_h(ghe_is_english()?$moment['en_text']:$moment['vi_text']).'</p></article>';
+    }
+    echo '</div>';
+}
 function ghe_menu_photo(array $item,string $class): void {
     ghe_photo($item['image'],$class);
     $note=ghe_is_english()?($item['image_note_en']??''):($item['image_note']??'');

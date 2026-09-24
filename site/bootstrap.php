@@ -17,9 +17,9 @@ try { $publicDb=ghe_database(); $menuSections=ghe_catalog_sections(ghe_catalog_r
 catch (Throwable $e) { $catalogAvailable=false; $menuSections=[]; error_log('Public menu unavailable: '.$e->getMessage()); }
 $publicPages = [
     'home' => ['file' => '', 'label' => 'Trang chủ', 'title' => 'Ghé — Cà phê ở 30 Võ Trường Toản, Đà Lạt', 'description' => 'Ghé, quán cà phê tại 30 Võ Trường Toản, Đà Lạt. Khám phá menu cà phê, trà, matcha, bánh và lưu đường đến quán trên Google Maps.'],
-    'about' => ['file' => 'gioi-thieu.php', 'label' => 'Về Ghé', 'title' => 'Về Ghé — Một lời hẹn cà phê ở Đà Lạt', 'description' => 'Làm quen với Ghé tại 30 Võ Trường Toản, Đà Lạt: một lời mời gặp nhau bên cà phê, trà, matcha và những món bánh trong menu của quán.'],
+    'about' => ['file' => 'gioi-thieu.php', 'label' => 'Về Ghé', 'title' => 'Về Ghé — Một khoảng xanh để chậm lại ở Đà Lạt', 'description' => 'Làm quen với Ghé tại 30 Võ Trường Toản, Đà Lạt: sân vườn xanh, những góc ngồi trong nhà thoáng mát và một nhịp riêng dành cho bạn.', 'navigation' => false],
     'menu' => ['file' => 'thuc-don.php', 'label' => 'Thực đơn', 'title' => 'Thực đơn Ghé Đà Lạt — Cà phê, trà, matcha và giá món', 'description' => 'Xem menu và giá tham khảo tại Ghé Đà Lạt: cà phê đen, nâu, bạc xỉu, cold brew, trà, matcha, chocolate, bánh và món ăn nhẹ.'],
-    'story' => ['file' => 'ghe-uong-gi.php', 'label' => 'Ghé uống gì?', 'title' => 'Ghé uống gì? Gợi ý chọn cà phê, trà và matcha ở Đà Lạt', 'description' => 'Lần đầu đến Ghé ở Đà Lạt nên gọi món gì? Chọn theo gu từ cà phê truyền thống, cold brew chanh sả đến trà nóng, matcha và bánh ăn kèm.'],
+    'story' => ['file' => 'ghe-uong-gi.php', 'label' => 'Ghé uống gì?', 'title' => 'Ghé uống gì? Gợi ý chọn cà phê, trà và matcha ở Đà Lạt', 'description' => 'Lần đầu đến Ghé ở Đà Lạt nên gọi món gì? Chọn theo gu từ cà phê truyền thống, cold brew chanh sả đến trà nóng, matcha và bánh ăn kèm.', 'navigation' => false],
     'visit' => ['file' => 'den-ghe.php', 'label' => 'Đến Ghé', 'title' => 'Đường đến Ghé — 30 Võ Trường Toản, Đà Lạt', 'description' => 'Địa chỉ Ghé: 30 Võ Trường Toản, Đà Lạt, Lâm Đồng. Mở Google Maps để chỉ đường, xem đánh giá và liên hệ quán qua số 0705 926 614.'],
 ];
 $publicPages['home']['description'] = mb_substr($settings['home_intro'],0,180,'UTF-8');

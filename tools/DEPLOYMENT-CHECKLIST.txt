@@ -1,0 +1,40 @@
+CHECKLIST CAP NHAT BAO MAT / HIEU NANG
+====================================
+
+1. Sao luu database va code dang chay.
+
+2. Server phai dung PHP 8.2 tro len va bat cac extension:
+   mysqli, fileinfo, dom, gd, zip, mbstring, xmlreader, xmlwriter.
+
+3. Khai bao bien moi truong tren hosting/Apache/PHP-FPM:
+   POS_APP_ENV=production
+   POS_DB_HOST=...
+   POS_DB_PORT=3306
+   POS_DB_NAME=...
+   POS_DB_USER=...
+   POS_DB_PASS=...
+
+   POS_DB_USER nen la tai khoan rieng, khong dung root.
+
+4. Chay migration_performance_integrity.sql mot lan tren database hien co.
+
+5. Tai code moi len server, bao gom composer.lock va toan bo thu muc vendor.
+
+6. Neu hosting co SSH/terminal, chay tu thu muc du an:
+   php tools/deployment_preflight.php
+
+   Cong cu nay chi chay bang CLI. Duong dan /tools bi .htaccess chan truy cap web.
+
+7. Kiem tra nghiep vu sau cap nhat:
+   - Dang nhap song song POS, Bakery va Mua hang.
+   - Tao ban, them/bot mon va thanh toan.
+   - Thu bam thanh toan hai lan; lan thu hai phai bi tu choi.
+   - Import mot XLSX hop le va thu tep lon hon 5 MB.
+   - Xuat Excel trong mot khoang ngay.
+   - Xem Dashboard, Chot ca, Bao cao va doanh thu Bakery.
+   - Thu menu desktop va mobile o ca giao dien VI/EN.
+
+8. Tren production xac nhan:
+   display_errors=Off
+   log_errors=On
+   HTTPS hoat dong va database khong mo cong khai ra Internet.

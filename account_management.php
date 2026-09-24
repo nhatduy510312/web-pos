@@ -1,6 +1,7 @@
 <?php
 include 'auth.php';
 include 'config.php';
+require_once __DIR__ . '/login_rate_limit.php';
 requireRole('admin');
 requireCsrfForFormPost();
 
@@ -10,6 +11,7 @@ $successMessages = [
     'updated'=>'Đã cập nhật tài khoản.',
     'enabled'=>'Đã kích hoạt tài khoản.',
     'disabled'=>'Đã khóa tài khoản và thu hồi phiên đăng nhập.',
+    'rate_limit_cleared'=>'Đã xóa giới hạn đăng nhập. Tài khoản có thể đăng nhập lại ngay.',
 ];
 $success = $successMessages[$_GET['success'] ?? ''] ?? '';
 $areaLabels = ['staff'=>'Nhân viên POS','purchaser'=>'Mua hàng','bakery_admin'=>'Bakery'];
@@ -182,6 +184,24 @@ if (isset($_POST['set_active'])) {
     }
 }
 
+if (isset($_POST['clear_rate_limit'])) {
+    $userId = (int)($_POST['user_id'] ?? 0);
+    $stmt = $conn->prepare("SELECT id,username,role FROM users WHERE id=? AND role IN ('staff','user','purchaser','bakery_admin') LIMIT 1");
+    $stmt->bind_param('i', $userId); $stmt->execute();
+    $account = $stmt->get_result()->fetch_assoc();
+    if (!$account) {
+        $error = 'Không tìm thấy tài khoản.';
+    } else {
+        $role = in_array($account['role'], ['staff','user'], true) ? 'staff' : $account['role'];
+        $rateName = $account['username'];
+        if ($account['role'] === 'purchaser') $rateName = 'purchase:' . $rateName;
+        elseif ($account['role'] === 'bakery_admin') $rateName = 'bakery:' . $rateName;
+        clearLoginFailuresForAccount($rateName);
+        recordLoginHistory($conn, (int)$account['id'], $account['username'], 'rate_limit_cleared');
+        unifiedAccountRedirect('rate_limit_cleared', $role);
+    }
+}
+
 $accounts = [];
 $result = $conn->query(
     "SELECT u.id AS user_id,u.username,u.role,u.employee_id,u.is_active AS account_active,
@@ -245,12 +265,13 @@ $loginResultLabels = [
     'bakery_rate_limited'=>'Bakery bị giới hạn đăng nhập',
     'wrong_portal'=>'Tài khoản Mua hàng đăng nhập nhầm POS',
     'wrong_bakery_portal'=>'Tài khoản Bakery đăng nhập nhầm POS',
+    'rate_limit_cleared'=>'Admin đã xóa giới hạn đăng nhập',
 ];
 ?>
 <!doctype html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/svg+xml" href="favicon.svg"><title>Quản lý tài khoản — GHÉ</title>
 <style>
-.account-layout{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);gap:16px;align-items:start}.account-table{min-width:1180px}.account-actions{display:flex;gap:6px;align-items:center;white-space:nowrap}.account-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}.account-portal-links{display:flex;gap:8px;flex-wrap:wrap}.account-stats{margin-bottom:16px}@media(max-width:850px){.account-layout{grid-template-columns:1fr}}
+.account-layout{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);gap:16px;align-items:start}.account-table{min-width:1180px}.account-actions{display:flex;gap:6px;align-items:center;white-space:nowrap}.account-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}.account-portal-links{display:flex;gap:8px;flex-wrap:wrap}.account-stats{margin-bottom:16px}@media(max-width:850px){.account-layout{grid-template-columns:1fr}}@media(max-width:700px){.account-table{min-width:0}.account-responsive{border:0;overflow:visible}.account-responsive .tbl,.account-responsive tbody,.account-responsive tr,.account-responsive td{display:block;width:100%}.account-responsive thead{display:none}.account-responsive tr{margin-bottom:10px;border:1px solid var(--s200);border-radius:12px;background:#fff;overflow:hidden}.account-responsive td{display:grid;grid-template-columns:110px minmax(0,1fr);align-items:center;gap:8px;padding:9px 11px}.account-responsive td:before{content:attr(data-label);font-size:10px;font-weight:700;text-transform:uppercase;color:var(--s500)}.account-responsive td.account-empty{display:block}.account-responsive td.account-empty:before{display:none}.account-actions{flex-wrap:wrap;white-space:normal}.account-actions form{display:inline-flex}.account-portal-links{width:100%}.account-portal-links .btn{flex:1}}
 </style></head><body>
 <?php include 'menu.php'; ?>
 <main class="page-content">
@@ -276,18 +297,18 @@ $loginResultLabels = [
 </section>
 <section>
 <nav class="account-tabs"><?php foreach (['all'=>'Tất cả']+$areaLabels as $key=>$label): ?><a class="btn btn-sm <?=$areaFilter===$key?'btn-primary':'btn-secondary'?>" href="?area=<?=$key?>"><?=htmlspecialchars($label)?></a><?php endforeach; ?></nav>
-<div class="tbl-wrap"><table class="tbl account-table"><thead><tr><th>Khu vực</th><th>Tên nhân viên</th><th>Loại</th><th>Tên đăng nhập</th><th>Trạng thái</th><th>Đăng nhập cuối</th><th>Mật khẩu mới</th><th>Thao tác</th></tr></thead><tbody>
-<?php if (!$visibleAccounts): ?><tr><td colspan="8"><div class="empty-state">Chưa có tài khoản trong khu vực này.</div></td></tr><?php endif; ?>
+<div class="tbl-wrap account-responsive"><table class="tbl account-table"><thead><tr><th>Khu vực</th><th>Tên nhân viên</th><th>Loại</th><th>Tên đăng nhập</th><th>Trạng thái</th><th>Đăng nhập cuối</th><th>Mật khẩu mới</th><th>Thao tác</th></tr></thead><tbody>
+<?php if (!$visibleAccounts): ?><tr><td class="account-empty" colspan="8"><div class="empty-state">Chưa có tài khoản trong khu vực này.</div></td></tr><?php endif; ?>
 <?php foreach ($visibleAccounts as $row): $formId='account-'.(int)$row['user_id'].'-'.(int)$row['employee_id']; ?>
 <tr>
-<td><span class="badge <?=$row['area']==='staff'?'badge-blue':($row['area']==='purchaser'?'badge-green':'badge-yellow')?>"><?=htmlspecialchars($areaLabels[$row['area']])?></span></td>
-<td><?php if ($row['area']==='staff' && (int)$row['employee_id']>0): ?><input form="<?=$formId?>" class="form-input" name="name" maxlength="100" required value="<?=htmlspecialchars($row['display_name'])?>"><?php else: ?><span class="text-muted"><?=htmlspecialchars($row['display_name'])?></span><?php endif; ?></td>
-<td><?php if ($row['area']==='staff' && (int)$row['employee_id']>0): ?><select form="<?=$formId?>" class="form-select" name="employee_type" style="width:125px"><option value="probation" <?=$row['employee_type']==='probation'?'selected':''?>>Thử việc</option><option value="official" <?=$row['employee_type']==='official'?'selected':''?>>Chính thức</option></select><?php else: ?>—<?php endif; ?></td>
-<td><input form="<?=$formId?>" class="form-input" name="username" minlength="3" maxlength="50" required value="<?=htmlspecialchars($row['username'])?>" placeholder="Tên đăng nhập"></td>
-<td><?php if ($row['orphan']): ?><span class="badge badge-yellow">Chưa có tài khoản</span><?php elseif (!$row['active']): ?><span class="badge badge-gray">Đã khóa</span><?php elseif ((int)$row['must_change_password']===1 && $row['area']==='staff'): ?><span class="badge badge-yellow">Chờ đổi mật khẩu</span><?php else: ?><span class="badge badge-green">Hoạt động</span><?php endif; ?></td>
-<td class="text-sm text-muted"><?=$row['last_login_at']?date('d/m/Y H:i',strtotime($row['last_login_at'])):'—'?></td>
-<td><input form="<?=$formId?>" class="form-input" type="password" name="password" minlength="8" <?=$row['orphan']?'required':''?> autocomplete="new-password" placeholder="<?=$row['orphan']?'Bắt buộc để cấp TK':'Để trống nếu giữ nguyên'?>"></td>
-<td><div class="account-actions"><form method="post" id="<?=$formId?>"><?=csrf_field()?><input type="hidden" name="user_id" value="<?=(int)$row['user_id']?>"><input type="hidden" name="employee_id" value="<?=(int)$row['employee_id']?>"><button class="btn btn-sm btn-primary" name="update_account"><?=$row['orphan']?'Cấp tài khoản':'Lưu'?></button></form><form method="post" onsubmit="return confirm('<?=$row['active']?'Khóa':'Kích hoạt'?> tài khoản này?')"><?=csrf_field()?><input type="hidden" name="user_id" value="<?=(int)$row['user_id']?>"><input type="hidden" name="employee_id" value="<?=(int)$row['employee_id']?>"><button class="btn btn-sm <?=$row['active']?'btn-danger':'btn-success'?>" name="set_active" value="<?=$row['active']?0:1?>"><?=$row['active']?'Khóa':'Kích hoạt'?></button></form></div></td>
+<td data-label="Khu vực"><span class="badge <?=$row['area']==='staff'?'badge-blue':($row['area']==='purchaser'?'badge-green':'badge-yellow')?>"><?=htmlspecialchars($areaLabels[$row['area']])?></span></td>
+<td data-label="Nhân viên"><?php if ($row['area']==='staff' && (int)$row['employee_id']>0): ?><input form="<?=$formId?>" class="form-input" name="name" maxlength="100" required value="<?=htmlspecialchars($row['display_name'])?>"><?php else: ?><span class="text-muted"><?=htmlspecialchars($row['display_name'])?></span><?php endif; ?></td>
+<td data-label="Loại"><?php if ($row['area']==='staff' && (int)$row['employee_id']>0): ?><select form="<?=$formId?>" class="form-select" name="employee_type" style="width:125px"><option value="probation" <?=$row['employee_type']==='probation'?'selected':''?>>Thử việc</option><option value="official" <?=$row['employee_type']==='official'?'selected':''?>>Chính thức</option></select><?php else: ?>—<?php endif; ?></td>
+<td data-label="Tên đăng nhập"><input form="<?=$formId?>" class="form-input" name="username" minlength="3" maxlength="50" required value="<?=htmlspecialchars($row['username'])?>" placeholder="Tên đăng nhập"></td>
+<td data-label="Trạng thái"><?php if ($row['orphan']): ?><span class="badge badge-yellow">Chưa có tài khoản</span><?php elseif (!$row['active']): ?><span class="badge badge-gray">Đã khóa</span><?php elseif ((int)$row['must_change_password']===1 && $row['area']==='staff'): ?><span class="badge badge-yellow">Chờ đổi mật khẩu</span><?php else: ?><span class="badge badge-green">Hoạt động</span><?php endif; ?></td>
+<td data-label="Đăng nhập cuối" class="text-sm text-muted"><?=$row['last_login_at']?date('d/m/Y H:i',strtotime($row['last_login_at'])):'—'?></td>
+<td data-label="Mật khẩu mới"><input form="<?=$formId?>" class="form-input" type="password" name="password" minlength="8" <?=$row['orphan']?'required':''?> autocomplete="new-password" placeholder="<?=$row['orphan']?'Bắt buộc để cấp TK':'Để trống nếu giữ nguyên'?>"></td>
+<td data-label="Thao tác"><div class="account-actions"><form method="post" id="<?=$formId?>"><?=csrf_field()?><input type="hidden" name="user_id" value="<?=(int)$row['user_id']?>"><input type="hidden" name="employee_id" value="<?=(int)$row['employee_id']?>"><button class="btn btn-sm btn-primary" name="update_account"><?=$row['orphan']?'Cấp tài khoản':'Lưu'?></button></form><?php if(!$row['orphan']):?><form method="post" onsubmit="return confirm('Xóa giới hạn đăng nhập sai của tài khoản này?')"><?=csrf_field()?><input type="hidden" name="user_id" value="<?=(int)$row['user_id']?>"><button class="btn btn-sm btn-secondary" name="clear_rate_limit" title="Cho phép đăng nhập lại ngay sau khi nhập sai quá 5 lần">Xóa giới hạn</button></form><?php endif;?><form method="post" onsubmit="return confirm('<?=$row['active']?'Khóa':'Kích hoạt'?> tài khoản này?')"><?=csrf_field()?><input type="hidden" name="user_id" value="<?=(int)$row['user_id']?>"><input type="hidden" name="employee_id" value="<?=(int)$row['employee_id']?>"><button class="btn btn-sm <?=$row['active']?'btn-danger':'btn-success'?>" name="set_active" value="<?=$row['active']?0:1?>"><?=$row['active']?'Khóa':'Kích hoạt'?></button></form></div></td>
 </tr>
 <?php endforeach; ?>
 </tbody></table></div>
@@ -307,7 +328,7 @@ $loginResultLabels = [
         $historyArea = 'POS'; $historyAreaClass = 'badge-blue';
     }
     $historySuccess = in_array($historyResult, ['success','purchase_success','bakery_success'], true);
-    $historyChanged = $historyResult === 'password_changed';
+    $historyChanged = in_array($historyResult, ['password_changed','rate_limit_cleared'], true);
     $resultClass = $historySuccess ? 'badge-green' : ($historyChanged ? 'badge-blue' : 'badge-red');
 ?>
 <tr>

@@ -1,0 +1,185 @@
+.nav {
+  overflow: visible;
+}
+
+.nav-brand {
+  text-decoration: none;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 36px;
+  margin-left: auto;
+  border: 1px solid var(--s200);
+  border-radius: var(--r-sm);
+  background: var(--white);
+  color: var(--s700);
+  font-size: 20px;
+}
+
+.nav-group,
+.nav-account {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.nav-group > summary,
+.nav-account > summary {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border-radius: var(--r-sm);
+  color: var(--s500);
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 500;
+  list-style: none;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.nav-group > summary::-webkit-details-marker,
+.nav-account > summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-group > summary::after,
+.nav-account > summary::after {
+  content: '›';
+  font-size: 15px;
+  transform: rotate(90deg);
+  transition: transform var(--tr);
+}
+
+.nav-group[open] > summary::after,
+.nav-account[open] > summary::after {
+  transform: rotate(-90deg);
+}
+
+.nav-group > summary:hover,
+.nav-group.active > summary,
+.nav-account > summary:hover,
+.nav-account.active > summary {
+  background: var(--p-lt);
+  color: var(--p);
+}
+
+.nav-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  display: grid;
+  min-width: 210px;
+  padding: 7px;
+  border: 1px solid var(--s200);
+  border-radius: var(--r-md);
+  background: var(--white);
+  box-shadow: var(--sh-lg);
+}
+
+.nav-dropdown a {
+  width: 100%;
+  padding: 9px 10px;
+}
+
+.nav-account .nav-dropdown {
+  right: 0;
+  left: auto;
+}
+
+.nav-dropdown .logout-link {
+  color: var(--err);
+}
+
+.nav-dropdown .logout-link:hover {
+  background: var(--err-lt);
+}
+
+.nav-user-name {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav a:focus-visible,
+.nav summary:focus-visible,
+.nav button:focus-visible {
+  outline: 3px solid var(--p-bd);
+  outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+  .nav {
+    flex-wrap: wrap;
+    padding: 7px 9px;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  .nav > .nav-sep {
+    display: none;
+  }
+
+  .nav-menu {
+    display: none;
+    width: 100%;
+    flex: 0 0 100%;
+    align-items: stretch;
+    padding-top: 7px;
+    border-top: 1px solid var(--s200);
+  }
+
+  .nav.nav-open .nav-menu {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nav-menu > a,
+  .nav-group > summary,
+  .nav-account > summary {
+    min-height: 40px;
+    justify-content: space-between;
+    padding: 9px 11px;
+  }
+
+  .nav-group,
+  .nav-account,
+  .nav-spacer {
+    min-width: 0;
+  }
+
+  .nav-dropdown,
+  .nav-account .nav-dropdown {
+    position: static;
+    min-width: 0;
+    margin: 2px 0 6px;
+    border-radius: var(--r-sm);
+    box-shadow: none;
+    background: var(--s50);
+  }
+
+  .nav-time,
+  .nav-spacer {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .nav.nav-open .nav-menu {
+    grid-template-columns: 1fr;
+  }
+}

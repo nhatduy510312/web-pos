@@ -23,6 +23,7 @@ date_default_timezone_set(getenv('POS_TIMEZONE') ?: 'Asia/Ho_Chi_Minh');
 
 require_once __DIR__ . '/csrf.php';
 require_once __DIR__ . '/account_security.php';
+require_once __DIR__ . '/db_config.php';
 
 function purchaseDatabase(): mysqli
 {
@@ -30,14 +31,15 @@ function purchaseDatabase(): mysqli
         throw new RuntimeException('Máy chủ chưa bật mysqli.');
     }
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+    $settings = posDatabaseSettings();
     $db = mysqli_init();
     $db->options(MYSQLI_OPT_CONNECT_TIMEOUT, 3);
     $db->real_connect(
-        getenv('POS_DB_HOST') ?: 'localhost',
-        getenv('POS_DB_USER') ?: 'root',
-        getenv('POS_DB_PASS') ?: '',
-        getenv('POS_DB_NAME') ?: 'cafe_pos',
-        (int)(getenv('POS_DB_PORT') ?: 3306)
+        $settings['host'],
+        $settings['user'],
+        $settings['password'],
+        $settings['name'],
+        $settings['port']
     );
     $db->set_charset('utf8mb4');
     return $db;

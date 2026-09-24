@@ -98,8 +98,21 @@ if ($openingRow) {
     $openingCash = (float)($last['closing_cash'] ?? 0);
 }
 
-$cashRevenue     = (float)(cbQuery($conn, "SELECT IFNULL(SUM(cash_amount),0) s FROM orders WHERE status='paid' AND DATE(paid_at)=?", "s", $today)->fetch_assoc()['s']);
-$transferRevenue = (float)(cbQuery($conn, "SELECT IFNULL(SUM(bank_amount),0) s FROM orders WHERE status='paid' AND DATE(paid_at)=?", "s", $today)->fetch_assoc()['s']);
+$nextDay = date('Y-m-d', strtotime($today . ' +1 day'));
+$cashRevenue = (float)(cbQuery(
+    $conn,
+    "SELECT IFNULL(SUM(cash_amount),0) s FROM orders WHERE status='paid' AND paid_at>=? AND paid_at<?",
+    'ss',
+    $today,
+    $nextDay
+)->fetch_assoc()['s']);
+$transferRevenue = (float)(cbQuery(
+    $conn,
+    "SELECT IFNULL(SUM(bank_amount),0) s FROM orders WHERE status='paid' AND paid_at>=? AND paid_at<?",
+    'ss',
+    $today,
+    $nextDay
+)->fetch_assoc()['s']);
 $expenses        = (float)(cbQuery($conn, "SELECT IFNULL(SUM(amount),0) s FROM cash_expenses WHERE expense_date=?", "s", $today)->fetch_assoc()['s']);
 $deposits        = (float)(cbQuery($conn, "SELECT IFNULL(SUM(amount),0) s FROM cash_deposit WHERE deposit_date=?", "s", $today)->fetch_assoc()['s']);
 $totalRevenue    = $cashRevenue + $transferRevenue;
