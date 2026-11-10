@@ -2,6 +2,27 @@
 include 'auth.php';
 include 'config.php';
 
+$bakeryOrderJoin = "LEFT JOIN (
+    SELECT oi.order_id,
+           SUM(CASE WHEN LOWER(TRIM(c.name))='bakery' THEN oi.qty*oi.unit_price ELSE 0 END) bakery_gross,
+           SUM(oi.qty*oi.unit_price) order_gross
+    FROM order_items oi
+    JOIN products p ON p.id=oi.product_id
+    LEFT JOIN categories c ON c.id=p.category_id
+    GROUP BY oi.order_id
+) bakery_items ON bakery_items.order_id=o.id";
+$bakeryRevenueSql = "CASE WHEN COALESCE(bakery_items.order_gross,0)>0
+    THEN GREATEST(0, bakery_items.bakery_gross - LEAST(bakery_items.bakery_gross,
+         COALESCE(o.discount_amount,0)*bakery_items.bakery_gross/bakery_items.order_gross))
+    ELSE 0 END";
+$bakeryPaymentTotalSql = "(COALESCE(o.cash_amount,0)+COALESCE(o.bank_amount,0))";
+$bakeryCashSql = "CASE WHEN $bakeryPaymentTotalSql>0
+    THEN ($bakeryRevenueSql)*COALESCE(o.cash_amount,0)/$bakeryPaymentTotalSql
+    WHEN o.payment_method='cash' THEN ($bakeryRevenueSql) ELSE 0 END";
+$bakeryBankSql = "CASE WHEN $bakeryPaymentTotalSql>0
+    THEN ($bakeryRevenueSql)*COALESCE(o.bank_amount,0)/$bakeryPaymentTotalSql
+    WHEN o.payment_method='bank' THEN ($bakeryRevenueSql) ELSE 0 END";
+
 $today = $conn->query("
     SELECT COUNT(*) total_orders, IFNULL(SUM(total_amount),0) revenue
     FROM orders
@@ -24,6 +45,28 @@ $bank_today = $conn->query("
     SELECT IFNULL(SUM(bank_amount),0) t FROM orders
     WHERE status='paid' AND paid_at>=CURDATE() AND paid_at<CURDATE()+INTERVAL 1 DAY
 ")->fetch_assoc();
+
+$bakery_today = $conn->query("SELECT
+    IFNULL(SUM($bakeryRevenueSql),0) revenue,
+    IFNULL(SUM($bakeryCashSql),0) cash,
+    IFNULL(SUM($bakeryBankSql),0) bank
+    FROM orders o $bakeryOrderJoin
+    WHERE o.status='paid' AND o.paid_at>=CURDATE() AND o.paid_at<CURDATE()+INTERVAL 1 DAY
+")->fetch_assoc();
+
+$bakery_month = $conn->query("SELECT IFNULL(SUM($bakeryRevenueSql),0) revenue
+    FROM orders o $bakeryOrderJoin
+    WHERE o.status='paid'
+    AND o.paid_at>=DATE_FORMAT(CURDATE(), '%Y-%m-01')
+    AND o.paid_at<DATE_FORMAT(CURDATE()+INTERVAL 1 MONTH, '%Y-%m-01')
+")->fetch_assoc();
+
+$cafe_today = [
+    'revenue' => (float)$today['revenue'] - (float)$bakery_today['revenue'],
+    'cash' => (float)$cash_today['t'] - (float)$bakery_today['cash'],
+    'bank' => (float)$bank_today['t'] - (float)$bakery_today['bank'],
+];
+$cafe_month = (float)$month['revenue'] - (float)$bakery_month['revenue'];
 
 $top_qty = $conn->query("
     SELECT p.name, SUM(oi.qty) qty
@@ -111,6 +154,38 @@ $avg_today = $today['total_orders'] > 0 ? $today['revenue'] / $today['total_orde
     </div>
   </div>
 
+  <p class="section-title" style="margin-bottom:10px;color:var(--s400);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">BAKERY — HÔM NAY</p>
+  <div class="stats-grid" style="margin-bottom:20px;">
+    <div class="stat-card">
+      <div class="stat-label">Doanh thu Bakery</div>
+      <div class="stat-value c-green money"><?= number_format($bakery_today['revenue']) ?>đ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Tiền mặt Bakery</div>
+      <div class="stat-value c-orange money"><?= number_format($bakery_today['cash']) ?>đ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Chuyển khoản Bakery</div>
+      <div class="stat-value c-purple money"><?= number_format($bakery_today['bank']) ?>đ</div>
+    </div>
+  </div>
+
+  <p class="section-title" style="margin-bottom:10px;color:var(--s400);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">CAFE — HÔM NAY</p>
+  <div class="stats-grid" style="margin-bottom:20px;">
+    <div class="stat-card">
+      <div class="stat-label">Doanh thu Cafe</div>
+      <div class="stat-value c-green money"><?= number_format($cafe_today['revenue']) ?>đ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Tiền mặt Cafe</div>
+      <div class="stat-value c-orange money"><?= number_format($cafe_today['cash']) ?>đ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Chuyển khoản Cafe</div>
+      <div class="stat-value c-purple money"><?= number_format($cafe_today['bank']) ?>đ</div>
+    </div>
+  </div>
+
   <!-- Stats month -->
   <p class="section-title" style="margin-bottom:10px;color:var(--s400);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">THÁNG <?= date('m/Y') ?></p>
   <div class="stats-grid" style="margin-bottom:28px;">
@@ -121,6 +196,14 @@ $avg_today = $today['total_orders'] > 0 ? $today['revenue'] / $today['total_orde
     <div class="stat-card">
       <div class="stat-label">Số hóa đơn</div>
       <div class="stat-value c-blue"><?= number_format($month['total_orders']) ?></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Doanh thu Bakery tháng</div>
+      <div class="stat-value c-green money"><?= number_format($bakery_month['revenue']) ?>đ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Doanh thu Cafe tháng</div>
+      <div class="stat-value c-green money"><?= number_format($cafe_month) ?>đ</div>
     </div>
   </div>
 

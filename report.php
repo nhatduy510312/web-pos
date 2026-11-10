@@ -3,6 +3,27 @@ include 'auth.php';
 include 'config.php';
 requireRole(['admin', 'staff', 'user']);
 
+$bakeryOrderJoin = "LEFT JOIN (
+    SELECT oi.order_id,
+           SUM(CASE WHEN LOWER(TRIM(c.name))='bakery' THEN oi.qty*oi.unit_price ELSE 0 END) bakery_gross,
+           SUM(oi.qty*oi.unit_price) order_gross
+    FROM order_items oi
+    JOIN products p ON p.id=oi.product_id
+    LEFT JOIN categories c ON c.id=p.category_id
+    GROUP BY oi.order_id
+) bakery_items ON bakery_items.order_id=o.id";
+$bakeryRevenueSql = "CASE WHEN COALESCE(bakery_items.order_gross,0)>0
+    THEN GREATEST(0, bakery_items.bakery_gross - LEAST(bakery_items.bakery_gross,
+         COALESCE(o.discount_amount,0)*bakery_items.bakery_gross/bakery_items.order_gross))
+    ELSE 0 END";
+$bakeryPaymentTotalSql = "(COALESCE(o.cash_amount,0)+COALESCE(o.bank_amount,0))";
+$bakeryCashSql = "CASE WHEN $bakeryPaymentTotalSql>0
+    THEN ($bakeryRevenueSql)*COALESCE(o.cash_amount,0)/$bakeryPaymentTotalSql
+    WHEN o.payment_method='cash' THEN ($bakeryRevenueSql) ELSE 0 END";
+$bakeryBankSql = "CASE WHEN $bakeryPaymentTotalSql>0
+    THEN ($bakeryRevenueSql)*COALESCE(o.bank_amount,0)/$bakeryPaymentTotalSql
+    WHEN o.payment_method='bank' THEN ($bakeryRevenueSql) ELSE 0 END";
+
 /* ── Validate date / time inputs ── */
 $period = $_GET['period'] ?? 'today';
 
@@ -36,22 +57,33 @@ $group_by_month = in_array($period, ['year', 'last_year'], true);
 
 /* ── BUG FIX: use prepared statements instead of interpolation ── */
 $stmt = $conn->prepare("
-    SELECT COUNT(*) total_orders, IFNULL(SUM(total_amount),0) revenue
-    FROM orders WHERE status='paid' AND paid_at BETWEEN ? AND ?
+    SELECT COUNT(*) total_orders, IFNULL(SUM(o.total_amount),0) revenue,
+           IFNULL(SUM($bakeryRevenueSql),0) bakery_revenue,
+           IFNULL(SUM($bakeryCashSql),0) bakery_cash,
+           IFNULL(SUM($bakeryBankSql),0) bakery_bank
+    FROM orders o $bakeryOrderJoin
+    WHERE o.status='paid' AND o.paid_at BETWEEN ? AND ?
 ");
 $stmt->bind_param("ss", $dt_from, $dt_to);
 $stmt->execute();
 $summary = $stmt->get_result()->fetch_assoc();
+$cafeSummary = [
+    'revenue' => (float)$summary['revenue'] - (float)$summary['bakery_revenue'],
+    'cash' => 0.0,
+    'bank' => 0.0,
+];
 
 $stmt = $conn->prepare("SELECT IFNULL(SUM(cash_amount),0) t FROM orders WHERE status='paid' AND paid_at BETWEEN ? AND ?");
 $stmt->bind_param("ss", $dt_from, $dt_to);
 $stmt->execute();
 $cash = $stmt->get_result()->fetch_assoc();
+$cafeSummary['cash'] = (float)$cash['t'] - (float)$summary['bakery_cash'];
 
 $stmt = $conn->prepare("SELECT IFNULL(SUM(bank_amount),0) t FROM orders WHERE status='paid' AND paid_at BETWEEN ? AND ?");
 $stmt->bind_param("ss", $dt_from, $dt_to);
 $stmt->execute();
 $bank = $stmt->get_result()->fetch_assoc();
+$cafeSummary['bank'] = (float)$bank['t'] - (float)$summary['bakery_bank'];
 
 $stmt = $conn->prepare("SELECT IFNULL(SUM(discount_amount),0) t FROM orders WHERE status='paid' AND paid_at BETWEEN ? AND ?");
 $stmt->bind_param("ss", $dt_from, $dt_to);
@@ -79,16 +111,19 @@ $orders = null;
 $revenue_groups = [];
 
 if ($is_grouped) {
-    $group_expression = $group_by_month ? "DATE_FORMAT(paid_at, '%Y-%m')" : 'DATE(paid_at)';
+    $group_expression = $group_by_month ? "DATE_FORMAT(o.paid_at, '%Y-%m')" : 'DATE(o.paid_at)';
     $stmt = $conn->prepare("
         SELECT $group_expression period_key,
                COUNT(*) total_orders,
-               IFNULL(SUM(total_amount), 0) revenue,
-               IFNULL(SUM(cash_amount), 0) cash_total,
-               IFNULL(SUM(bank_amount), 0) bank_total,
-               IFNULL(SUM(discount_amount), 0) discount_total
-        FROM orders
-        WHERE status='paid' AND paid_at BETWEEN ? AND ?
+               IFNULL(SUM(o.total_amount), 0) revenue,
+               IFNULL(SUM(o.cash_amount), 0) cash_total,
+               IFNULL(SUM(o.bank_amount), 0) bank_total,
+               IFNULL(SUM(o.discount_amount), 0) discount_total,
+               IFNULL(SUM($bakeryRevenueSql),0) bakery_revenue,
+               IFNULL(SUM($bakeryCashSql),0) bakery_cash,
+               IFNULL(SUM($bakeryBankSql),0) bakery_bank
+        FROM orders o $bakeryOrderJoin
+        WHERE o.status='paid' AND o.paid_at BETWEEN ? AND ?
         GROUP BY period_key
         ORDER BY period_key ASC
     ");
@@ -96,6 +131,9 @@ if ($is_grouped) {
     $stmt->execute();
     $result = $stmt->get_result();
     while ($row = $result->fetch_assoc()) {
+        $row['cafe_revenue'] = (float)$row['revenue'] - (float)$row['bakery_revenue'];
+        $row['cafe_cash'] = (float)$row['cash_total'] - (float)$row['bakery_cash'];
+        $row['cafe_bank'] = (float)$row['bank_total'] - (float)$row['bakery_bank'];
         $revenue_groups[$row['period_key']] = $row;
     }
 
@@ -112,6 +150,12 @@ if ($is_grouped) {
                 'cash_total' => 0,
                 'bank_total' => 0,
                 'discount_total' => 0,
+                'bakery_revenue' => 0,
+                'bakery_cash' => 0,
+                'bakery_bank' => 0,
+                'cafe_revenue' => 0,
+                'cafe_cash' => 0,
+                'cafe_bank' => 0,
             ];
         }
         $cursor->add($step);
@@ -268,14 +312,17 @@ if (isset($_GET['ajax_month'])) {
     $month_to = (clone $month_end)->modify('+1 day')->format('Y-m-d') . ' 00:00:00';
 
     $month_stmt = $conn->prepare("
-        SELECT DATE(paid_at) period_key,
+        SELECT DATE(o.paid_at) period_key,
                COUNT(*) total_orders,
-               IFNULL(SUM(total_amount), 0) revenue,
-               IFNULL(SUM(cash_amount), 0) cash_total,
-               IFNULL(SUM(bank_amount), 0) bank_total,
-               IFNULL(SUM(discount_amount), 0) discount_total
-        FROM orders
-        WHERE status='paid' AND paid_at >= ? AND paid_at < ?
+               IFNULL(SUM(o.total_amount), 0) revenue,
+               IFNULL(SUM(o.cash_amount), 0) cash_total,
+               IFNULL(SUM(o.bank_amount), 0) bank_total,
+               IFNULL(SUM(o.discount_amount), 0) discount_total,
+               IFNULL(SUM($bakeryRevenueSql),0) bakery_revenue,
+               IFNULL(SUM($bakeryCashSql),0) bakery_cash,
+               IFNULL(SUM($bakeryBankSql),0) bakery_bank
+        FROM orders o $bakeryOrderJoin
+        WHERE o.status='paid' AND o.paid_at >= ? AND o.paid_at < ?
         GROUP BY period_key
         ORDER BY period_key ASC
     ");
@@ -284,6 +331,9 @@ if (isset($_GET['ajax_month'])) {
     $month_result = $month_stmt->get_result();
     $month_days = [];
     while ($month_row = $month_result->fetch_assoc()) {
+        $month_row['cafe_revenue'] = (float)$month_row['revenue'] - (float)$month_row['bakery_revenue'];
+        $month_row['cafe_cash'] = (float)$month_row['cash_total'] - (float)$month_row['bakery_cash'];
+        $month_row['cafe_bank'] = (float)$month_row['bank_total'] - (float)$month_row['bakery_bank'];
         $month_days[$month_row['period_key']] = $month_row;
     }
 
@@ -298,6 +348,12 @@ if (isset($_GET['ajax_month'])) {
                 'cash_total' => 0,
                 'bank_total' => 0,
                 'discount_total' => 0,
+                'bakery_revenue' => 0,
+                'bakery_cash' => 0,
+                'bakery_bank' => 0,
+                'cafe_revenue' => 0,
+                'cafe_cash' => 0,
+                'cafe_bank' => 0,
             ];
         }
         $day_cursor->modify('+1 day');
@@ -311,7 +367,7 @@ if (isset($_GET['ajax_month'])) {
     <div class="tbl-wrap month-days-wrap">
       <table class="tbl revenue-summary month-days-table">
         <thead>
-          <tr><th>Ngày</th><th>Số hóa đơn</th><th>Doanh thu</th><th>Tiền mặt</th><th>Chuyển khoản</th><th>Giảm giá</th></tr>
+          <tr><th>Ngày</th><th>Số hóa đơn</th><th>Doanh thu</th><th>Tiền mặt</th><th>Chuyển khoản</th><th>Bakery</th><th>Bakery tiền mặt</th><th>Bakery chuyển khoản</th><th>Cafe</th><th>Cafe tiền mặt</th><th>Cafe chuyển khoản</th><th>Giảm giá</th></tr>
         </thead>
         <tbody>
           <?php foreach ($month_days as $month_day): ?>
@@ -328,10 +384,16 @@ if (isset($_GET['ajax_month'])) {
             <td class="money fw-600 c-green"><?= number_format($month_day['revenue']) ?>đ</td>
             <td class="money"><?= number_format($month_day['cash_total']) ?>đ</td>
             <td class="money"><?= number_format($month_day['bank_total']) ?>đ</td>
+            <td class="money fw-600 c-green"><?= number_format($month_day['bakery_revenue']) ?>đ</td>
+            <td class="money"><?= number_format($month_day['bakery_cash']) ?>đ</td>
+            <td class="money"><?= number_format($month_day['bakery_bank']) ?>đ</td>
+            <td class="money fw-600 c-green"><?= number_format($month_day['cafe_revenue']) ?>đ</td>
+            <td class="money"><?= number_format($month_day['cafe_cash']) ?>đ</td>
+            <td class="money"><?= number_format($month_day['cafe_bank']) ?>đ</td>
             <td class="money c-red"><?= number_format($month_day['discount_total']) ?>đ</td>
           </tr>
           <tr class="day-detail-row" id="day-detail-<?= htmlspecialchars($month_day['period_key']) ?>">
-            <td colspan="6"><div class="day-detail-content"></div></td>
+            <td colspan="12"><div class="day-detail-content"></div></td>
           </tr>
           <?php endforeach; ?>
         </tbody>
@@ -477,6 +539,38 @@ if (isset($_GET['ajax_month'])) {
     </div>
   </div>
 
+  <div class="section-title" style="margin-bottom:10px;">🥐 Doanh thu Bakery trong kỳ</div>
+  <div class="stats-grid" style="margin-bottom:20px;">
+    <div class="stat-card">
+      <div class="stat-label">Doanh thu Bakery</div>
+      <div class="stat-value c-green money"><?= number_format($summary['bakery_revenue']) ?>đ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Tiền mặt Bakery</div>
+      <div class="stat-value c-orange money"><?= number_format($summary['bakery_cash']) ?>đ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Chuyển khoản Bakery</div>
+      <div class="stat-value c-purple money"><?= number_format($summary['bakery_bank']) ?>đ</div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-bottom:10px;">☕ Doanh thu Cafe trong kỳ</div>
+  <div class="stats-grid" style="margin-bottom:20px;">
+    <div class="stat-card">
+      <div class="stat-label">Doanh thu Cafe</div>
+      <div class="stat-value c-green money"><?= number_format($cafeSummary['revenue']) ?>đ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Tiền mặt Cafe</div>
+      <div class="stat-value c-orange money"><?= number_format($cafeSummary['cash']) ?>đ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Chuyển khoản Cafe</div>
+      <div class="stat-value c-purple money"><?= number_format($cafeSummary['bank']) ?>đ</div>
+    </div>
+  </div>
+
   <?php if ($is_grouped): ?>
   <!-- Revenue grouped by day/month -->
   <div class="flex-b no-print" style="margin-bottom:10px;">
@@ -494,6 +588,12 @@ if (isset($_GET['ajax_month'])) {
           <th class="text-right">Doanh thu</th>
           <th class="text-right">Tiền mặt</th>
           <th class="text-right">Chuyển khoản</th>
+          <th class="text-right">Bakery</th>
+          <th class="text-right">Bakery tiền mặt</th>
+          <th class="text-right">Bakery chuyển khoản</th>
+          <th class="text-right">Cafe</th>
+          <th class="text-right">Cafe tiền mặt</th>
+          <th class="text-right">Cafe chuyển khoản</th>
           <th class="text-right">Giảm giá</th>
         </tr>
       </thead>
@@ -523,15 +623,21 @@ if (isset($_GET['ajax_month'])) {
           <td class="text-right money fw-600 c-green"><?= number_format($group['revenue']) ?>đ</td>
           <td class="text-right money"><?= number_format($group['cash_total']) ?>đ</td>
           <td class="text-right money"><?= number_format($group['bank_total']) ?>đ</td>
+          <td class="text-right money fw-600 c-green"><?= number_format($group['bakery_revenue']) ?>đ</td>
+          <td class="text-right money"><?= number_format($group['bakery_cash']) ?>đ</td>
+          <td class="text-right money"><?= number_format($group['bakery_bank']) ?>đ</td>
+          <td class="text-right money fw-600 c-green"><?= number_format($group['cafe_revenue']) ?>đ</td>
+          <td class="text-right money"><?= number_format($group['cafe_cash']) ?>đ</td>
+          <td class="text-right money"><?= number_format($group['cafe_bank']) ?>đ</td>
           <td class="text-right money c-red"><?= number_format($group['discount_total']) ?>đ</td>
         </tr>
         <?php if ($group_by_month): ?>
         <tr class="month-detail-row" id="month-detail-<?= htmlspecialchars($group['period_key']) ?>">
-          <td colspan="6"><div class="month-detail-content"></div></td>
+          <td colspan="12"><div class="month-detail-content"></div></td>
         </tr>
         <?php else: ?>
         <tr class="day-detail-row" id="day-detail-<?= htmlspecialchars($group['period_key']) ?>">
-          <td colspan="6"><div class="day-detail-content"></div></td>
+          <td colspan="12"><div class="day-detail-content"></div></td>
         </tr>
         <?php endif; ?>
         <?php endforeach; ?>
