@@ -1579,6 +1579,101 @@
                 }
             ],
             "updated_at": "2026-08-23T09:34:40+07:00"
+        },
+        "product-70": {
+            "name": "1. Croissant",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Bánh Croissants",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-09T21:49:05+07:00"
+        },
+        "product-71": {
+            "name": "2. Pain au chocolate",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Bánh Pain au",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-09T21:50:15+07:00"
+        },
+        "product-72": {
+            "name": "3. Almond croissant",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Almond croissant",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-09T21:51:16+07:00"
+        },
+        "product-73": {
+            "name": "4. Tomato cheesy",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Tomato cheesy",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-09T21:51:55+07:00"
+        },
+        "product-74": {
+            "name": "5. Cinamon roll",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Cinamon roll",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-09T21:52:30+07:00"
         }
     },
     "product_map": [
@@ -1944,7 +2039,42 @@
             ],
             "recipe_code": "product-68",
             "variant": ""
+        },
+        {
+            "product_names": [
+                "1. Croissant"
+            ],
+            "recipe_code": "product-70",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "2. Pain au chocolate"
+            ],
+            "recipe_code": "product-71",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "3. Almond croissant"
+            ],
+            "recipe_code": "product-72",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "4. Tomato cheesy"
+            ],
+            "recipe_code": "product-73",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "5. Cinamon roll"
+            ],
+            "recipe_code": "product-74",
+            "variant": ""
         }
     ],
-    "updated_at": "2026-08-23T09:34:40+07:00"
+    "updated_at": "2026-11-09T21:52:30+07:00"
 }
