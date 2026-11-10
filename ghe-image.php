@@ -7,9 +7,23 @@ try {
     $id = is_string($_GET['id'] ?? null) ? $_GET['id'] : '';
     $size = ($_GET['size'] ?? '') === 'thumb' ? 'thumb' : 'full';
     $content=ghe_state_read()[$preview?'draft':'published'];
-    if (!isset($content['media'][$id])) throw new RuntimeException('Not found');
-    $used=$preview || $content['media'][$id]['gallery'] || $content['settings']['hero_image']===$id;
-    foreach ($content['products'] as $meta) if (($meta['visible']??true) && ($meta['image']??'')===$id) $used=true;
+    $used = $preview;
+    if (isset($content['media'][$id])) {
+        $used=$preview || $content['media'][$id]['gallery'] || $content['settings']['hero_image']===$id;
+        foreach ($content['products'] as $meta) if (($meta['visible']??true) && ($meta['image']??'')===$id) $used=true;
+    }
+    if (!$used && !$preview) {
+        try {
+            require_once __DIR__ . '/site/catalog.php';
+            $preorderImageDb = ghe_database();
+            try {
+                $preorderImage = $preorderImageDb->prepare('SELECT 1 FROM bread_preorder_product_images WHERE image_id=? LIMIT 1');
+                $preorderImage->bind_param('s', $id);
+                $preorderImage->execute();
+                $used = (bool)$preorderImage->get_result()->fetch_row();
+            } finally { $preorderImageDb->close(); }
+        } catch (Throwable $ignored) {}
+    }
     // A collection photo may be assigned by the current POS name before its first admin save.
     if(!$used && ghe_collection_file($id,$size)!==null) {
         require_once __DIR__.'/site/catalog.php';

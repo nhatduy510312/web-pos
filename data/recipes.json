@@ -1674,6 +1674,158 @@
                 }
             ],
             "updated_at": "2026-11-09T21:52:30+07:00"
+        },
+        "product-75": {
+            "name": "20. Country Sourdough",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "ingredients": [
+                {
+                    "name": "Country Sourdough",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "updated_at": "2026-11-10T18:05:57+07:00"
+        },
+        "product-76": {
+            "name": "21. Multigrain Sourdough",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "ingredients": [
+                {
+                    "name": "Multigrain Sourdough",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "updated_at": "2026-11-10T18:05:54+07:00"
+        },
+        "product-77": {
+            "name": "Brioche",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Brioche",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-10T18:03:57+07:00"
+        },
+        "product-78": {
+            "name": "23. Babka",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Babka",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-10T18:04:36+07:00"
+        },
+        "product-79": {
+            "name": "24. Baguette sur Levain",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Baguette sur Levain",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-10T18:04:54+07:00"
+        },
+        "product-80": {
+            "name": "25. Rustic Baguette",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Rustic Baguette",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-10T18:05:29+07:00"
+        },
+        "product-81": {
+            "name": "6. Pain Suisse",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Pain Suisse",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-10T19:13:22+07:00"
+        },
+        "product-82": {
+            "name": "7. Miso Cinnamon Roll with Cashew Nuts",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Miso Cinnamon Roll with Cashew Nuts",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-10T19:13:43+07:00"
         }
     },
     "product_map": [
@@ -2074,7 +2226,63 @@
             ],
             "recipe_code": "product-74",
             "variant": ""
+        },
+        {
+            "product_names": [
+                "20. Country Sourdough"
+            ],
+            "recipe_code": "product-75",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "21. Multigrain Sourdough"
+            ],
+            "recipe_code": "product-76",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "22. Brioche"
+            ],
+            "recipe_code": "product-77",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "23. Babka"
+            ],
+            "recipe_code": "product-78",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "24. Baguette sur Levain"
+            ],
+            "recipe_code": "product-79",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "25. Rustic Baguette"
+            ],
+            "recipe_code": "product-80",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "6. Pain Suisse"
+            ],
+            "recipe_code": "product-81",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "7. Miso Cinnamon Roll with Cashew Nuts"
+            ],
+            "recipe_code": "product-82",
+            "variant": ""
         }
     ],
-    "updated_at": "2026-11-09T21:52:30+07:00"
+    "updated_at": "2026-11-10T19:13:43+07:00"
 }

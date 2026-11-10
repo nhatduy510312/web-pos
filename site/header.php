@@ -51,6 +51,7 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
     <a href="<?= ghe_h(ghe_link($entry['file'])) ?>"<?= $key === $pageKey ? ' aria-current="page"' : '' ?>><?= ghe_h($entry['label']) ?></a>
   <?php endforeach; ?>
   <?php endif; ?>
+    <a class="order-nav-link" href="<?= ghe_h(ghe_link('banh-mi.php')) ?>">Đặt bánh mì</a>
   </nav>
   <details class="mobile-nav"><summary>Menu <span aria-hidden="true">☰</span></summary><nav aria-label="<?= ghe_t('Điều hướng di động','Mobile navigation') ?>">
   <?php if($pageKey==='home'): ?>
@@ -60,6 +61,7 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
     <a href="<?= ghe_h(ghe_link($entry['file'])) ?>"<?= $key === $pageKey ? ' aria-current="page"' : '' ?>><?= ghe_h($entry['label']) ?></a>
   <?php endforeach; ?>
   <?php endif; ?>
+    <a href="<?= ghe_h(ghe_link('banh-mi.php')) ?>">Đặt bánh mì</a>
   </nav></details>
   <nav class="language-switch" aria-label="<?= ghe_t('Ngôn ngữ','Language') ?>">
     <a href="<?= ghe_h(ghe_link($languageRoutes[$pageKey]??$page['file'],false)) ?>" lang="vi" hreflang="vi"<?= !ghe_is_english()?' aria-current="true"':'' ?>>VI<span class="sr-only"> — Tiếng Việt</span></a>

@@ -7,6 +7,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <?php foreach ($publicPages as $entry): ?>
   <url><loc><?= ghe_h(ghe_url($entry['file'])) ?></loc></url>
 <?php endforeach; ?>
+  <url><loc><?= ghe_h(ghe_url('banh-mi.php')) ?></loc></url>
 <?php foreach(ghe_english_routes() as $key=>$viPath): ?>
   <url><loc><?= ghe_h(ghe_url(ghe_english_path($key))) ?></loc></url>
 <?php endforeach; ?>
