@@ -424,7 +424,7 @@ h1,h2,h3,h4 { font-weight: 700; line-height: 1.2; }
 <link rel="stylesheet" href="assets/pos-nav.css?v=1">
 
 <?php
-$financePages = ['report.php', 'cashbook.php', 'cashbook_history.php', 'expense_report.php'];
+$financePages = ['cashbook_history.php', 'expense_report.php'];
 $productPages = ['products.php', 'categories.php', 'recipes.php', 'ingredients.php'];
 $peoplePages = ['attendance.php', 'salary_report.php', 'account_management.php'];
 $accountPages = ['change_password.php'];
@@ -438,13 +438,13 @@ $navUsername = (string)($_SESSION['username'] ?? ($_SESSION['name'] ?? 'Tài kho
   <div class="nav-menu" id="posNavigationMenu">
     <a href="index.php" class="<?= $_NAV_PAGE === 'index.php' ? 'active' : '' ?>">🛒 POS</a>
     <a href="dashboard.php" class="<?= $_NAV_PAGE === 'dashboard.php' ? 'active' : '' ?>">📊 Dashboard</a>
+    <a href="report.php" class="<?= $_NAV_PAGE === 'report.php' ? 'active' : '' ?>">📈 Báo cáo doanh thu</a>
+    <a href="cashbook.php" class="<?= $_NAV_PAGE === 'cashbook.php' ? 'active' : '' ?>">📒 Chốt ca</a>
 
     <details class="nav-group <?= in_array($_NAV_PAGE, $financePages, true) ? 'active' : '' ?>">
-      <summary>💳 Ca &amp; tài chính</summary>
+      <summary>💳 Tài chính khác</summary>
       <div class="nav-dropdown">
-        <a href="cashbook.php" class="<?= $_NAV_PAGE === 'cashbook.php' ? 'active' : '' ?>">📒 Chốt ca</a>
         <a href="cashbook_history.php" class="<?= $_NAV_PAGE === 'cashbook_history.php' ? 'active' : '' ?>">📚 Lịch sử ca</a>
-        <a href="report.php" class="<?= $_NAV_PAGE === 'report.php' ? 'active' : '' ?>">📈 Báo cáo doanh thu</a>
         <?php if ($_NAV_ROLE === 'admin'): ?>
         <a href="expense_report.php" class="<?= $_NAV_PAGE === 'expense_report.php' ? 'active' : '' ?>">💸 Báo cáo tiền chi</a>
         <?php endif; ?>

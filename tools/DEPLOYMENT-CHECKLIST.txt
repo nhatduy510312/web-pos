@@ -17,6 +17,7 @@ CHECKLIST CAP NHAT BAO MAT / HIEU NANG
    POS_DB_USER nen la tai khoan rieng, khong dung root.
 
 4. Chay migration_performance_integrity.sql mot lan tren database hien co.
+   Chay migration_combo_revenue_split.sql de bat tinh nang phan bo doanh thu combo Cafe + Bakery.
 
 5. Tai code moi len server, bao gom composer.lock va toan bo thu muc vendor.
 

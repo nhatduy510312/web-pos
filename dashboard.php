@@ -1,10 +1,12 @@
 <?php
 include 'auth.php';
 include 'config.php';
+require_once __DIR__ . '/revenue_split_helpers.php';
 
+$bakeryGrossSql = revenueSplitBakeryGrossSql('oi', 'p', 'c');
 $bakeryOrderJoin = "LEFT JOIN (
     SELECT oi.order_id,
-           SUM(CASE WHEN LOWER(TRIM(c.name))='bakery' THEN oi.qty*oi.unit_price ELSE 0 END) bakery_gross,
+           SUM($bakeryGrossSql) bakery_gross,
            SUM(oi.qty*oi.unit_price) order_gross
     FROM order_items oi
     JOIN products p ON p.id=oi.product_id

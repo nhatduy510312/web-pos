@@ -109,7 +109,8 @@ CREATE TABLE `order_items` (
   `order_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
   `qty` int(11) NOT NULL,
-  `unit_price` decimal(10,0) NOT NULL
+  `unit_price` decimal(10,0) NOT NULL,
+  `bakery_revenue_amount` decimal(10,0) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -176,6 +177,7 @@ CREATE TABLE `products` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `price` decimal(10,0) NOT NULL,
+  `bakery_revenue_amount` decimal(10,0) DEFAULT NULL,
   `status` tinyint(4) DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `category_id` int(11) DEFAULT 5,

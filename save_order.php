@@ -66,10 +66,11 @@ foreach($items as $item){
     }
 
     $stmt = $conn->prepare("
-        SELECT id, price
-        FROM products
-        WHERE id=?
-        AND status=1
+        SELECT p.id, p.price, p.bakery_revenue_amount, c.name AS category_name
+        FROM products p
+        LEFT JOIN categories c ON c.id=p.category_id
+        WHERE p.id=?
+        AND p.status=1
         LIMIT 1
     ");
 
@@ -90,6 +91,9 @@ foreach($items as $item){
 
     $price =
         (float)$product['price'];
+    $bakery_revenue_amount = $product['bakery_revenue_amount'] !== null
+        ? (float)$product['bakery_revenue_amount']
+        : (strtolower(trim((string)$product['category_name'])) === 'bakery' ? $price : 0.0);
 
     $total +=
         $price
@@ -99,7 +103,8 @@ foreach($items as $item){
     $order_items[] = [
         'product_id' => $product_id,
         'qty' => $qty,
-        'price' => $price
+        'price' => $price,
+        'bakery_revenue_amount' => $bakery_revenue_amount
     ];
 }
 
@@ -156,14 +161,19 @@ try{
         $price =
             $item['price'];
 
+        $bakery_revenue_amount =
+            $item['bakery_revenue_amount'];
+
         $stmt = $conn->prepare("
             INSERT INTO order_items(
                 order_id,
                 product_id,
                 qty,
-                unit_price
+                unit_price,
+                bakery_revenue_amount
             )
             VALUES(
+                ?,
                 ?,
                 ?,
                 ?,
@@ -172,11 +182,12 @@ try{
         ");
 
         $stmt->bind_param(
-            'iiid',
+            'iiidd',
             $order_id,
             $product_id,
             $qty,
-            $price
+            $price,
+            $bakery_revenue_amount
         );
 
         $stmt->execute();

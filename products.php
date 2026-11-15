@@ -21,6 +21,37 @@ function productRecipePostArray($key)
     return isset($_POST[$key]) && is_array($_POST[$key]) ? $_POST[$key] : [];
 }
 
+function productOptionalMoney($value, string $label): ?int
+{
+    $raw = trim((string)$value);
+    if ($raw === '') {
+        return null;
+    }
+
+    $digits = preg_replace('/[^0-9]/', '', $raw);
+    if ($digits === '') {
+        throw new RuntimeException($label . ' không hợp lệ.');
+    }
+    return (int)$digits;
+}
+
+function productBakeryRevenueAmountFromPost(int $price): ?int
+{
+    $cafeAmount = productOptionalMoney($_POST['cafe_revenue_amount'] ?? '', 'Doanh thu Cafe');
+    $bakeryAmount = productOptionalMoney($_POST['bakery_revenue_amount'] ?? '', 'Doanh thu Bakery');
+
+    if ($cafeAmount === null && $bakeryAmount === null) {
+        return null;
+    }
+    if ($cafeAmount === null || $bakeryAmount === null) {
+        throw new RuntimeException('Vui lòng nhập đủ doanh thu Cafe và Bakery cho combo.');
+    }
+    if ($cafeAmount + $bakeryAmount !== $price) {
+        throw new RuntimeException('Doanh thu Cafe + Bakery phải bằng đúng giá bán của combo.');
+    }
+    return $bakeryAmount;
+}
+
 function productPublicError(Throwable $exception, string $operation): string
 {
     if ($exception instanceof mysqli_sql_exception) {
@@ -28,6 +59,22 @@ function productPublicError(Throwable $exception, string $operation): string
         return 'Không thể lưu dữ liệu món. Vui lòng thử lại.';
     }
     return $exception->getMessage();
+}
+
+function productIsAjaxRequest(): bool
+{
+    return strtolower((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest';
+}
+
+function productJsonResponse(bool $success, string $message, array $data = [], int $status = 200): void
+{
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(
+        ['success' => $success, 'message' => $message] + $data,
+        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+    );
+    exit;
 }
 
 /* ── Import Excel ── */
@@ -198,22 +245,15 @@ if (isset($_POST['add'])) {
         if (mb_strlen($name, 'UTF-8') > 100 || $price > 9999999999) {
             throw new RuntimeException('Tên món hoặc giá vượt giới hạn cho phép.');
         }
+        $bakeryRevenueAmount = productBakeryRevenueAmountFromPost($price);
 
         $conn->begin_transaction();
-        $stmt = $conn->prepare("INSERT INTO products(name,price,category_id) VALUES(?,?,?)");
-        $stmt->bind_param("sii", $name, $price, $cid);
+        $stmt = $conn->prepare("INSERT INTO products(name,price,bakery_revenue_amount,category_id) VALUES(?,?,?,?)");
+        $stmt->bind_param("siii", $name, $price, $bakeryRevenueAmount, $cid);
         $stmt->execute();
         $newProductId = (int)$conn->insert_id;
 
         if ($isAdmin) {
-            $categoryStmt = $conn->prepare("SELECT name FROM categories WHERE id=? LIMIT 1");
-            $categoryStmt->bind_param("i", $cid);
-            $categoryStmt->execute();
-            $categoryRow = $categoryStmt->get_result()->fetch_assoc();
-            if (!$categoryRow) {
-                throw new RuntimeException('Danh mục đã chọn không tồn tại.');
-            }
-
             $ingredientNames = productRecipePostArray('new_ingredient_name');
             $commonAmounts = productRecipePostArray('new_amount_common');
             $hotAmounts = productRecipePostArray('new_amount_hot');
@@ -252,52 +292,60 @@ if (isset($_POST['add'])) {
             }
 
             $instructions = trim((string)($_POST['new_recipe_instructions'] ?? ''));
-            if (!$ingredients && $instructions === '') {
-                throw new RuntimeException('Vui lòng nhập nguyên liệu hoặc cách thực hiện cho món mới.');
-            }
             if (strlen($instructions) > 30000) {
                 throw new RuntimeException('Phần cách thực hiện quá dài.');
             }
 
             $recipeName = productRecipeCleanValue($_POST['new_recipe_name'] ?? '');
-            if ($recipeName === '') {
-                $recipeName = $name;
-            }
             $recipeType = (string)($_POST['new_recipe_type'] ?? 'drink');
             if (!in_array($recipeType, ['drink', 'food'], true)) {
                 $recipeType = 'drink';
             }
 
-            $originalRecipeData = recipeReadDataFile();
-            $updatedRecipeData = $originalRecipeData;
-            $recipeCode = 'product-' . $newProductId;
-            $suffix = 2;
-            while (isset($updatedRecipeData['recipes'][$recipeCode])) {
-                $recipeCode = 'product-' . $newProductId . '-' . $suffix;
-                $suffix++;
+            $shouldCreateRecipe = $recipeName !== '' || $instructions !== '' || !empty($ingredients);
+            if ($shouldCreateRecipe) {
+                $categoryStmt = $conn->prepare("SELECT name FROM categories WHERE id=? LIMIT 1");
+                $categoryStmt->bind_param("i", $cid);
+                $categoryStmt->execute();
+                $categoryRow = $categoryStmt->get_result()->fetch_assoc();
+                if (!$categoryRow) {
+                    throw new RuntimeException('Danh mục đã chọn không tồn tại.');
+                }
+
+                if ($recipeName === '') {
+                    $recipeName = $name;
+                }
+                $originalRecipeData = recipeReadDataFile();
+                $updatedRecipeData = $originalRecipeData;
+                $recipeCode = 'product-' . $newProductId;
+                $suffix = 2;
+                while (isset($updatedRecipeData['recipes'][$recipeCode])) {
+                    $recipeCode = 'product-' . $newProductId . '-' . $suffix;
+                    $suffix++;
+                }
+
+                $updatedRecipeData['recipes'][$recipeCode] = [
+                    'name' => $recipeName,
+                    'type' => $recipeType,
+                    'category' => (string)$categoryRow['name'],
+                    'instructions' => $instructions,
+                    'source' => [
+                        'sheet' => 'ADMIN',
+                        'row' => null,
+                    ],
+                    'ingredients' => $ingredients,
+                    'updated_at' => date(DATE_ATOM),
+                ];
+                $updatedRecipeData['product_map'][] = [
+                    'product_names' => [$name],
+                    'recipe_code' => $recipeCode,
+                    'variant' => '',
+                ];
+                $updatedRecipeData['updated_at'] = date(DATE_ATOM);
+
+                recipeWriteDataFile($updatedRecipeData);
+                $recipeJsonWritten = true;
             }
-
-            $updatedRecipeData['recipes'][$recipeCode] = [
-                'name' => $recipeName,
-                'type' => $recipeType,
-                'category' => (string)$categoryRow['name'],
-                'instructions' => $instructions,
-                'source' => [
-                    'sheet' => 'ADMIN',
-                    'row' => null,
-                ],
-                'ingredients' => $ingredients,
-                'updated_at' => date(DATE_ATOM),
-            ];
-            $updatedRecipeData['product_map'][] = [
-                'product_names' => [$name],
-                'recipe_code' => $recipeCode,
-                'variant' => '',
-            ];
-            $updatedRecipeData['updated_at'] = date(DATE_ATOM);
-
-            recipeWriteDataFile($updatedRecipeData);
-            $recipeJsonWritten = true;
         }
 
         $conn->commit();
@@ -340,6 +388,7 @@ if (isset($_POST['update'])) {
         if (mb_strlen($name, 'UTF-8') > 100 || $price > 9999999999) {
             throw new RuntimeException('Tên món hoặc giá vượt giới hạn cho phép.');
         }
+        $bakeryRevenueAmount = productBakeryRevenueAmountFromPost($price);
 
         $conn->begin_transaction();
         $oldProductStmt = $conn->prepare("SELECT name FROM products WHERE id=? LIMIT 1");
@@ -350,8 +399,8 @@ if (isset($_POST['update'])) {
             throw new RuntimeException('Không tìm thấy món cần cập nhật.');
         }
 
-        $stmt = $conn->prepare("UPDATE products SET name=?,price=?,category_id=?,sort_order=? WHERE id=?");
-        $stmt->bind_param("siiii", $name, $price, $cid, $sort, $id);
+        $stmt = $conn->prepare("UPDATE products SET name=?,price=?,bakery_revenue_amount=?,category_id=?,sort_order=? WHERE id=?");
+        $stmt->bind_param("siiiii", $name, $price, $bakeryRevenueAmount, $cid, $sort, $id);
         $stmt->execute();
 
         if (recipeNormalizeProductName($oldProduct['name']) !== recipeNormalizeProductName($name)) {
@@ -378,6 +427,12 @@ if (isset($_POST['update'])) {
         }
 
         $conn->commit();
+        if (productIsAjaxRequest()) {
+            productJsonResponse(true, 'Đã lưu thay đổi.', [
+                'product_id' => $id,
+                'name' => $name,
+            ]);
+        }
         header("Location: products.php?updated=1");
         exit;
     } catch (Throwable $e) {
@@ -396,15 +451,36 @@ if (isset($_POST['update'])) {
         }
 
         $updateError = productPublicError($e, 'update');
+        if (productIsAjaxRequest()) {
+            productJsonResponse(false, $updateError, [], 422);
+        }
     }
 }
 
 /* ── Delete (soft) ── */
 if (isset($_POST['delete'])) {
     csrf_require($_POST['csrf_token'] ?? '');
-    $id   = (int)$_POST['delete'];
-    $stmt = $conn->prepare("UPDATE products SET status=0 WHERE id=?");
-    $stmt->bind_param("i", $id); $stmt->execute();
+    $id = (int)$_POST['delete'];
+    try {
+        if ($id <= 0) {
+            throw new RuntimeException('Món cần ẩn không hợp lệ.');
+        }
+        $stmt = $conn->prepare("UPDATE products SET status=0 WHERE id=? AND status=1");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        if ($stmt->affected_rows !== 1) {
+            throw new RuntimeException('Không tìm thấy món đang hoạt động để ẩn.');
+        }
+        if (productIsAjaxRequest()) {
+            productJsonResponse(true, 'Đã ẩn món.', ['product_id' => $id]);
+        }
+    } catch (Throwable $e) {
+        $message = productPublicError($e, 'hide');
+        if (productIsAjaxRequest()) {
+            productJsonResponse(false, $message, [], 422);
+        }
+        $updateError = $message;
+    }
     header("Location: products.php"); exit;
 }
 
@@ -471,70 +547,120 @@ if (!$newIngredientRows) {
 <style>
 .page-content { width:100%; max-width:1320px; margin:0 auto; }
 .prod-toolbar { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
-.product-create-card { width:100%; max-width:1000px; }
+.product-create-card { width:100%; max-width:1080px; }
 .new-product-grid {
   display: grid;
-  grid-template-columns: minmax(300px, 420px) 150px 220px;
+  grid-template-columns: minmax(280px, 2fr) minmax(130px, .7fr) minmax(180px, 1fr);
   gap: 10px;
   align-items: end;
 }
-.edit-select  { font-size:12px; padding:4px 24px 4px 8px; border-radius:6px; border:1px solid var(--s200); background:var(--s50); appearance:none; cursor:pointer; }
-.edit-input   { font-size:12px; padding:5px 8px; border-radius:6px; border:1px solid var(--s200); width:100%; background:var(--s50); }
+.edit-select, .edit-input {
+  min-height:40px;font-size:13px;padding:8px 10px;border-radius:7px;
+  border:1px solid var(--s200);width:100%;background:var(--s50);
+}
+.edit-select { padding-right:28px;cursor:pointer; }
 .edit-input:focus, .edit-select:focus { border-color:var(--p); outline:none; background:var(--white); }
 .money-input  { text-align:right; font-weight:600; }
-.sort-input   { text-align:center; width:50px; }
-.row-btns     { display:flex; gap:4px; }
-.product-list-width { width:100%; max-width:1080px; }
-#productTable { width:1080px; min-width:1080px; table-layout:fixed; }
-.new-recipe-box {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--s200);
+.sort-input   { text-align:center; }
+.row-btns     { display:flex;gap:6px;align-items:center; }
+.row-btns .btn { min-height:40px;white-space:nowrap; }
+.product-list-width { width:100%;max-width:1080px; }
+.product-card-list { display:grid;gap:8px; }
+.product-edit-card {
+  display:grid;grid-template-columns:170px minmax(220px,1fr) 125px 78px 230px;
+  gap:10px;align-items:end;padding:11px 12px;background:var(--white);
+  border:1px solid var(--s200);border-radius:var(--r-sm);box-shadow:var(--sh-sm);
 }
+.product-edit-card .form-label { margin-bottom:4px;font-size:10px; }
+.product-actions { min-width:0; }
+.product-edit-card.is-saving { opacity:.65;pointer-events:none; }
+.product-action-notice {
+  position:fixed;right:18px;bottom:18px;z-index:2000;max-width:min(380px,calc(100vw - 28px));
+  padding:11px 14px;border-radius:10px;color:var(--white);font-size:13px;font-weight:700;
+  box-shadow:var(--sh-lg);opacity:0;transform:translateY(10px);pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease;
+}
+.product-action-notice.show { opacity:1;transform:translateY(0); }
+.product-action-notice.ok { background:var(--ok); }
+.product-action-notice.error { background:var(--err); }
+.optional-recipe {
+  margin-top:14px;border:1px solid var(--s200);border-radius:var(--r-sm);background:var(--s50);
+}
+.optional-recipe summary {
+  cursor:pointer;list-style:none;padding:12px 14px;font-weight:700;color:var(--s700);
+  min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.optional-recipe summary::-webkit-details-marker { display:none; }
+.optional-recipe summary::after { content:'⌄';font-size:18px;color:var(--s400); }
+.optional-recipe[open] summary { border-bottom:1px solid var(--s200); }
+.optional-recipe[open] summary::after { transform:rotate(180deg); }
+.optional-recipe-body { padding:14px; }
+.optional-badge {
+  padding:3px 7px;border-radius:999px;background:var(--white);border:1px solid var(--s200);
+  color:var(--s500);font-size:10px;font-weight:600;
+}
+.revenue-split-grid {
+  display:grid;grid-template-columns:repeat(2,minmax(150px,220px));gap:10px;align-items:end;
+}
+.revenue-split-help { margin:0 0 10px;color:var(--s500);font-size:12px; }
+.product-split-details { grid-column:1/-1;margin-top:0; }
+.product-split-details summary { min-height:40px;padding:9px 11px;font-size:12px; }
+.product-split-details .optional-recipe-body { padding:11px; }
 .new-recipe-grid {
   display: grid;
-  grid-template-columns: minmax(300px, 420px) 180px;
+  grid-template-columns: minmax(260px, 420px) 180px;
   gap: 10px;
 }
-.new-ingredient-table {
-  width: 850px;
-  min-width: 850px;
-  table-layout: fixed;
-  border-collapse: collapse;
+.new-ingredient-list {
+  margin-top:8px;border:1px solid var(--s200);border-radius:var(--r-sm);background:var(--white);
 }
-.new-ingredient-table th {
-  padding: 7px 5px;
-  color: var(--s500);
-  background: var(--s50);
-  border-bottom: 1px solid var(--s200);
-  font-size: 10px;
-  text-align: left;
-  text-transform: uppercase;
+.new-ingredient-row {
+  display:grid;grid-template-columns:minmax(180px,2fr) repeat(3,minmax(72px,.7fr)) minmax(72px,.7fr) 42px;
+  gap:8px;align-items:end;padding:10px;
 }
-.new-ingredient-table td { padding: 5px; border-bottom: 1px solid var(--s100); }
-.new-ingredient-table .form-input { padding: 7px 8px; }
-.new-ingredient-table .ingredient-col { width: 330px; }
-.new-ingredient-table .amount-col { width: 110px; }
-.new-ingredient-table .unit-col { width: 90px; }
-.new-ingredient-table .remove-col { width: 44px; text-align: center; }
+.new-ingredient-row + .new-ingredient-row { border-top:1px solid var(--s100); }
+.new-ingredient-row .form-group { margin:0;min-width:0; }
+.new-ingredient-row .form-label { font-size:10px;margin-bottom:4px; }
+.new-ingredient-row .form-input { padding:8px; }
+.ingredient-remove .btn { width:100%;min-height:40px; }
 .new-recipe-help { color: var(--s500); font-size: 11.5px; margin: 3px 0 9px; }
-.new-instructions { max-width:850px; }
+.new-instructions { max-width:900px; }
 .new-save-row { display:flex; justify-content:flex-start; margin-top:12px; }
-.new-save-row .btn { min-width:260px; }
+.new-save-row .btn { min-width:220px;min-height:44px; }
 @media (max-width: 900px) {
-  .new-product-grid { grid-template-columns: minmax(240px, 1fr) 160px; }
-  .new-product-grid .category-field { grid-column:1/-1; max-width:420px; }
+  .product-edit-card { grid-template-columns:150px minmax(200px,1fr) 115px 72px; }
+  .product-actions { grid-column:1/-1; }
 }
 @media (max-width: 640px) {
-  .new-recipe-grid, .new-product-grid { grid-template-columns: 1fr; }
-  .new-product-grid .category-field { grid-column:auto; max-width:none; }
+  .page-hdr { margin-bottom:14px; }
+  .product-create-card { padding:14px; }
+  .new-product-grid, .new-recipe-grid, .product-edit-card, .revenue-split-grid { grid-template-columns:1fr 1fr; }
+  .new-product-grid .name-field, .new-recipe-grid .recipe-name-field,
+  .product-name-field, .product-category-field, .product-actions { grid-column:1/-1; }
+  .optional-recipe-body { padding:12px; }
+  .optional-recipe summary { padding:11px 12px; }
+  .new-ingredient-row { grid-template-columns:1fr 1fr;padding:10px; }
+  .new-ingredient-row .ingredient-main { grid-column:1/-1; }
+  .ingredient-remove { align-self:end; }
+  .prod-toolbar > * { width:100%!important;max-width:none!important; }
+  .product-edit-card { padding:12px;gap:9px; }
+  .edit-select, .edit-input, .new-product-grid .form-input,
+  .new-product-grid .form-select, .new-recipe-grid .form-input,
+  .new-recipe-grid .form-select, .new-ingredient-row .form-input { font-size:16px;min-height:44px; }
+  .row-btns { display:grid;grid-template-columns:1fr 1fr 1fr;width:100%; }
+  .row-btns .btn { width:100%;min-height:44px;padding:8px 6px; }
   .new-save-row .btn { width:100%; min-width:0; }
+}
+@media (max-width: 420px) {
+  .revenue-split-grid { grid-template-columns:1fr; }
 }
 </style>
 </head>
 <body>
 <?php include 'menu.php'; ?>
 <div class="page-content">
+
+  <div id="productActionNotice" class="product-action-notice" role="status" aria-live="polite"></div>
 
   <div class="page-hdr">
     <div class="page-hdr-left">
@@ -555,7 +681,7 @@ if (!$newIngredientRows) {
 
   <?php if ($added): ?>
   <div class="alert alert-ok mt-8" style="margin-bottom:14px;">
-    ✅ Đã thêm món<?= $isAdmin ? ' và công thức' : '' ?> thành công.
+    ✅ Đã thêm món thành công. Nguyên liệu và công thức có thể bổ sung sau.
   </div>
   <?php endif; ?>
 
@@ -588,12 +714,12 @@ if (!$newIngredientRows) {
     <!-- Add form -->
     <div class="card product-create-card" <?= $isAdmin ? 'style="grid-column:1/-1;"' : '' ?>>
       <div class="section-title">
-        ➕ <?= $isAdmin ? 'Thêm món và công thức' : 'Thêm món mới' ?>
+        ➕ Thêm món mới
       </div>
-      <form method="post">
+      <form method="post" data-revenue-split-form>
         <?= csrf_field() ?>
         <div class="new-product-grid">
-          <div class="form-group">
+          <div class="form-group name-field">
             <label class="form-label">Tên món</label>
             <input
               type="text"
@@ -610,6 +736,8 @@ if (!$newIngredientRows) {
               type="text"
               name="price"
               class="form-input money-input"
+              inputmode="numeric"
+              data-total-price
               placeholder="Giá"
               value="<?= htmlspecialchars($_POST['price'] ?? '') ?>"
               required
@@ -627,10 +755,53 @@ if (!$newIngredientRows) {
           </div>
         </div>
 
+        <details class="optional-recipe" <?= trim((string)($_POST['bakery_revenue_amount'] ?? '')) !== '' ? 'open' : '' ?>>
+          <summary>
+            <span>☕🥖 Phân bổ doanh thu combo</span>
+            <span class="optional-badge">Không bắt buộc</span>
+          </summary>
+          <div class="optional-recipe-body">
+            <p class="revenue-split-help">
+              Chỉ dùng cho combo Cafe + Bakery. Nhập một bên, hệ thống tự tính bên còn lại; tổng phải bằng giá bán.
+            </p>
+            <div class="revenue-split-grid">
+              <div class="form-group">
+                <label class="form-label">Doanh thu Cafe (đ)</label>
+                <input
+                  type="text"
+                  name="cafe_revenue_amount"
+                  class="form-input money-input"
+                  inputmode="numeric"
+                  data-cafe-amount
+                  value="<?= htmlspecialchars($_POST['cafe_revenue_amount'] ?? '') ?>"
+                  placeholder="VD: 30.000"
+                >
+              </div>
+              <div class="form-group">
+                <label class="form-label">Doanh thu Bakery (đ)</label>
+                <input
+                  type="text"
+                  name="bakery_revenue_amount"
+                  class="form-input money-input"
+                  inputmode="numeric"
+                  data-bakery-amount
+                  value="<?= htmlspecialchars($_POST['bakery_revenue_amount'] ?? '') ?>"
+                  placeholder="VD: 65.000"
+                >
+              </div>
+            </div>
+          </div>
+        </details>
+
         <?php if ($isAdmin): ?>
-        <div class="new-recipe-box">
+        <details class="optional-recipe" <?= $addError !== '' ? 'open' : '' ?>>
+          <summary>
+            <span>📋 Thêm công thức</span>
+            <span class="optional-badge">Không bắt buộc</span>
+          </summary>
+          <div class="optional-recipe-body">
           <div class="new-recipe-grid">
-            <div class="form-group">
+            <div class="form-group recipe-name-field">
               <label class="form-label">Tên công thức</label>
               <input
                 type="text"
@@ -651,41 +822,42 @@ if (!$newIngredientRows) {
 
           <div class="flex-b" style="gap:10px;flex-wrap:wrap;margin-top:2px;">
             <div>
-              <div class="section-title" style="margin-bottom:0;">Nguyên liệu và định lượng</div>
+              <div class="section-title" style="margin-bottom:0;">Nguyên liệu và định lượng <span class="text-muted">(không bắt buộc)</span></div>
               <div class="new-recipe-help">
-                Dùng cột Chung nếu định lượng giống nhau; dùng hai cột Nóng/Đá nếu công thức khác nhau.
+                Có thể bỏ trống hoàn toàn. Khi cần, dùng cột Chung hoặc nhập riêng định lượng Nóng/Đá.
               </div>
             </div>
             <button type="button" class="btn btn-secondary btn-sm" onclick="addNewRecipeRow()">＋ Thêm dòng</button>
           </div>
 
-          <div class="tbl-wrap">
-            <table class="new-ingredient-table">
-              <thead>
-                <tr>
-                  <th class="ingredient-col">Nguyên liệu</th>
-                  <th class="amount-col">Chung</th>
-                  <th class="amount-col">Nóng</th>
-                  <th class="amount-col">Đá</th>
-                  <th class="unit-col">Đơn vị</th>
-                  <th class="remove-col"></th>
-                </tr>
-              </thead>
-              <tbody id="newRecipeRows">
-                <?php foreach ($newIngredientRows as $row): ?>
-                <tr>
-                  <td><input type="text" name="new_ingredient_name[]" class="form-input" value="<?= htmlspecialchars($row['name']) ?>" placeholder="Tên nguyên liệu"></td>
-                  <td><input type="text" name="new_amount_common[]" class="form-input" value="<?= htmlspecialchars($row['common']) ?>" placeholder="VD: 25"></td>
-                  <td><input type="text" name="new_amount_hot[]" class="form-input" value="<?= htmlspecialchars($row['hot']) ?>" placeholder="VD: 120"></td>
-                  <td><input type="text" name="new_amount_iced[]" class="form-input" value="<?= htmlspecialchars($row['iced']) ?>" placeholder="VD: 80"></td>
-                  <td><input type="text" name="new_ingredient_unit[]" class="form-input" value="<?= htmlspecialchars($row['unit']) ?>" placeholder="ml, g..."></td>
-                  <td class="remove-col">
-                    <button type="button" class="btn btn-danger btn-sm" onclick="removeNewRecipeRow(this)" title="Xóa dòng">×</button>
-                  </td>
-                </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
+          <div class="new-ingredient-list" id="newRecipeRows">
+            <?php foreach ($newIngredientRows as $row): ?>
+            <div class="new-ingredient-row">
+              <div class="form-group ingredient-main">
+                <label class="form-label">Nguyên liệu</label>
+                <input type="text" name="new_ingredient_name[]" class="form-input" value="<?= htmlspecialchars($row['name']) ?>" placeholder="Tên nguyên liệu">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Chung</label>
+                <input type="text" name="new_amount_common[]" class="form-input" inputmode="decimal" value="<?= htmlspecialchars($row['common']) ?>" placeholder="VD: 25">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nóng</label>
+                <input type="text" name="new_amount_hot[]" class="form-input" inputmode="decimal" value="<?= htmlspecialchars($row['hot']) ?>" placeholder="VD: 120">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Đá</label>
+                <input type="text" name="new_amount_iced[]" class="form-input" inputmode="decimal" value="<?= htmlspecialchars($row['iced']) ?>" placeholder="VD: 80">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Đơn vị</label>
+                <input type="text" name="new_ingredient_unit[]" class="form-input" value="<?= htmlspecialchars($row['unit']) ?>" placeholder="ml, g...">
+              </div>
+              <div class="ingredient-remove">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeNewRecipeRow(this)" title="Xóa dòng">×</button>
+              </div>
+            </div>
+            <?php endforeach; ?>
           </div>
 
           <div class="form-group new-instructions" style="margin-top:12px;">
@@ -697,12 +869,13 @@ if (!$newIngredientRows) {
               placeholder="Nhập từng bước chế biến..."
             ><?= htmlspecialchars($_POST['new_recipe_instructions'] ?? '') ?></textarea>
           </div>
-        </div>
+          </div>
+        </details>
         <?php endif; ?>
 
         <div class="new-save-row">
           <button type="submit" name="add" class="btn btn-primary">
-            <?= $isAdmin ? 'Thêm món và lưu công thức' : 'Thêm món' ?>
+            Thêm món
           </button>
         </div>
       </form>
@@ -735,91 +908,157 @@ if (!$newIngredientRows) {
       <option value="<?= htmlspecialchars($cname) ?>"><?= htmlspecialchars($cname) ?></option>
       <?php endforeach; ?>
     </select>
-    <input type="text" id="searchProd" class="form-input" placeholder="🔍 Tìm món..." style="flex:1;max-width:320px;" oninput="filterProducts()">
+    <input type="search" id="searchProd" class="form-input" placeholder="🔍 Tìm món..." enterkeyhint="search" style="flex:1;max-width:320px;" oninput="filterProducts()">
     <span id="countLabel" class="text-sm text-muted" style="align-self:center;"></span>
   </div>
 
-  <!-- Products table -->
-  <div class="tbl-wrap product-list-width">
-    <table class="tbl" id="productTable">
-      <thead>
-        <tr>
-          <th style="width:160px;">Danh mục</th>
-          <th>Tên món</th>
-          <th style="width:110px;">Giá</th>
-          <th style="width:60px;text-align:center;">Thứ tự</th>
-          <th style="width:<?= $isAdmin ? '145px' : '90px' ?>;">Thao tác</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php $products->data_seek(0); while ($row = $products->fetch_assoc()):
-          $rowRecipeMapping = $productRecipeData
-              ? recipeFindProductMappingInData($productRecipeData, $row['name'])
-              : null;
-          $rowHasRecipe = $rowRecipeMapping
-              && isset($productRecipeData['recipes'][$rowRecipeMapping['recipe_code']]);
-        ?>
-        <tr class="product-row" data-cat="<?= htmlspecialchars($row['category_name']) ?>" data-name="<?= htmlspecialchars(strtolower($row['name'])) ?>">
-          <form method="post">
-            <?= csrf_field() ?>
-            <input type="hidden" name="id" value="<?= $row['id'] ?>">
-            <td>
-              <select name="category_id" class="edit-select">
-                <?php foreach ($catList as $cid => $cname): ?>
-                <option value="<?= $cid ?>" <?= $cid == $row['category_id'] ? 'selected' : '' ?>>
-                  <?= htmlspecialchars($cname) ?>
-                </option>
-                <?php endforeach; ?>
-              </select>
-            </td>
-            <td>
-              <input type="text" name="name" class="edit-input"
-                     value="<?= htmlspecialchars($row['name']) ?>" required>
-            </td>
-            <td>
-              <input type="text" name="price" class="edit-input money-input"
-                     value="<?= number_format($row['price']) ?>">
-            </td>
-            <td>
-              <input type="number" name="sort_order" class="edit-input sort-input"
-                     value="<?= $row['sort_order'] ?>" min="0">
-            </td>
-            <td>
-              <div class="row-btns">
-                <?php if ($isAdmin): ?>
-                <a
-                  href="recipes.php?product_id=<?= $row['id'] ?>"
-                  class="btn btn-sm btn-secondary"
-                  title="<?= $rowHasRecipe ? 'Sửa công thức' : 'Thêm công thức' ?>"
-                ><?= $rowHasRecipe ? '📋' : '＋📋' ?></a>
-                <?php endif; ?>
-                <button type="submit" name="update" class="btn btn-sm btn-success" title="Lưu">💾</button>
-                <button type="submit" name="delete" value="<?= $row['id'] ?>"
-                        class="btn btn-sm btn-danger" title="Ẩn"
-                        onclick="return confirm('Ẩn món «<?= htmlspecialchars($row['name'],ENT_QUOTES) ?>»?')">🗑</button>
-              </div>
-            </td>
-          </form>
-        </tr>
-        <?php endwhile; ?>
-      </tbody>
-    </table>
+  <!-- Product cards: compact on desktop, easy to edit on mobile -->
+  <div class="product-card-list product-list-width" id="productList">
+    <?php $products->data_seek(0); while ($row = $products->fetch_assoc()):
+      $rowRecipeMapping = $productRecipeData
+          ? recipeFindProductMappingInData($productRecipeData, $row['name'])
+          : null;
+      $rowHasRecipe = $rowRecipeMapping
+          && isset($productRecipeData['recipes'][$rowRecipeMapping['recipe_code']]);
+      $rowBakeryRevenue = $row['bakery_revenue_amount'] !== null
+          ? (int)$row['bakery_revenue_amount']
+          : null;
+      $rowCafeRevenue = $rowBakeryRevenue !== null
+          ? (int)$row['price'] - $rowBakeryRevenue
+          : null;
+    ?>
+    <form
+      method="post"
+      class="product-row product-edit-card"
+      data-revenue-split-form
+      data-cat="<?= htmlspecialchars($row['category_name']) ?>"
+      data-name="<?= htmlspecialchars(strtolower($row['name'])) ?>"
+    >
+      <?= csrf_field() ?>
+      <input type="hidden" name="id" value="<?= $row['id'] ?>">
+
+      <div class="product-category-field">
+        <label class="form-label">Danh mục</label>
+        <select name="category_id" class="edit-select">
+          <?php foreach ($catList as $cid => $cname): ?>
+          <option value="<?= $cid ?>" <?= $cid == $row['category_id'] ? 'selected' : '' ?>>
+            <?= htmlspecialchars($cname) ?>
+          </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <div class="product-name-field">
+        <label class="form-label">Tên món</label>
+        <input type="text" name="name" class="edit-input" value="<?= htmlspecialchars($row['name']) ?>" required>
+      </div>
+
+      <div>
+        <label class="form-label">Giá bán (đ)</label>
+        <input type="text" name="price" class="edit-input money-input" inputmode="numeric" data-total-price value="<?= number_format($row['price']) ?>">
+      </div>
+
+      <div>
+        <label class="form-label">Thứ tự</label>
+        <input type="number" name="sort_order" class="edit-input sort-input" value="<?= $row['sort_order'] ?>" min="0">
+      </div>
+
+      <div class="product-actions">
+        <label class="form-label">Thao tác</label>
+        <div class="row-btns">
+          <?php if ($isAdmin): ?>
+          <a
+            href="recipes.php?product_id=<?= $row['id'] ?>"
+            class="btn btn-sm btn-secondary"
+            title="<?= $rowHasRecipe ? 'Sửa công thức' : 'Thêm công thức' ?>"
+          >📋 Công thức</a>
+          <?php endif; ?>
+          <button type="submit" name="update" class="btn btn-sm btn-success" title="Lưu">💾 Lưu</button>
+          <button
+            type="submit"
+            name="delete"
+            value="<?= $row['id'] ?>"
+            class="btn btn-sm btn-danger"
+            title="Ẩn"
+            onclick="return confirm('Ẩn món «<?= htmlspecialchars($row['name'],ENT_QUOTES) ?>»?')"
+          >🗑 Ẩn</button>
+        </div>
+      </div>
+
+      <details class="optional-recipe product-split-details">
+        <summary>
+          <span>☕🥖 Phân bổ doanh thu combo</span>
+          <span class="optional-badge">
+            <?php if ($rowBakeryRevenue === null): ?>
+              Theo danh mục
+            <?php else: ?>
+              Cafe <?= number_format($rowCafeRevenue) ?>đ · Bakery <?= number_format($rowBakeryRevenue) ?>đ
+            <?php endif; ?>
+          </span>
+        </summary>
+        <div class="optional-recipe-body">
+          <p class="revenue-split-help">Để trống cả hai ô nếu món không phải combo. Tổng hai phần phải bằng giá bán.</p>
+          <div class="revenue-split-grid">
+            <div class="form-group">
+              <label class="form-label">Doanh thu Cafe (đ)</label>
+              <input
+                type="text"
+                name="cafe_revenue_amount"
+                class="form-input money-input"
+                inputmode="numeric"
+                data-cafe-amount
+                value="<?= $rowCafeRevenue !== null ? number_format($rowCafeRevenue) : '' ?>"
+                placeholder="VD: 30.000"
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label">Doanh thu Bakery (đ)</label>
+              <input
+                type="text"
+                name="bakery_revenue_amount"
+                class="form-input money-input"
+                inputmode="numeric"
+                data-bakery-amount
+                value="<?= $rowBakeryRevenue !== null ? number_format($rowBakeryRevenue) : '' ?>"
+                placeholder="VD: 65.000"
+              >
+            </div>
+          </div>
+        </div>
+      </details>
+    </form>
+    <?php endwhile; ?>
   </div>
 
 </div>
 
 <?php if ($isAdmin): ?>
 <template id="newRecipeRowTemplate">
-  <tr>
-    <td><input type="text" name="new_ingredient_name[]" class="form-input" placeholder="Tên nguyên liệu"></td>
-    <td><input type="text" name="new_amount_common[]" class="form-input" placeholder="VD: 25"></td>
-    <td><input type="text" name="new_amount_hot[]" class="form-input" placeholder="VD: 120"></td>
-    <td><input type="text" name="new_amount_iced[]" class="form-input" placeholder="VD: 80"></td>
-    <td><input type="text" name="new_ingredient_unit[]" class="form-input" placeholder="ml, g..."></td>
-    <td class="remove-col">
+  <div class="new-ingredient-row">
+    <div class="form-group ingredient-main">
+      <label class="form-label">Nguyên liệu</label>
+      <input type="text" name="new_ingredient_name[]" class="form-input" placeholder="Tên nguyên liệu">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Chung</label>
+      <input type="text" name="new_amount_common[]" class="form-input" inputmode="decimal" placeholder="VD: 25">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nóng</label>
+      <input type="text" name="new_amount_hot[]" class="form-input" inputmode="decimal" placeholder="VD: 120">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Đá</label>
+      <input type="text" name="new_amount_iced[]" class="form-input" inputmode="decimal" placeholder="VD: 80">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Đơn vị</label>
+      <input type="text" name="new_ingredient_unit[]" class="form-input" placeholder="ml, g...">
+    </div>
+    <div class="ingredient-remove">
       <button type="button" class="btn btn-danger btn-sm" onclick="removeNewRecipeRow(this)" title="Xóa dòng">×</button>
-    </td>
-  </tr>
+    </div>
+  </div>
 </template>
 <?php endif; ?>
 
@@ -839,7 +1078,7 @@ function removeNewRecipeRow(button) {
     rows.querySelectorAll('input').forEach(input => input.value = '');
     return;
   }
-  button.closest('tr').remove();
+  button.closest('.new-ingredient-row').remove();
 }
 
 /* Format money inputs */
@@ -847,6 +1086,104 @@ document.querySelectorAll('.money-input').forEach(el => {
   el.addEventListener('input', function() {
     const v = this.value.replace(/\D/g,'');
     this.value = v ? Number(v).toLocaleString('vi-VN') : '';
+  });
+});
+
+/* Tự tính phần doanh thu còn lại của combo theo giá bán. */
+document.querySelectorAll('[data-revenue-split-form]').forEach(form => {
+  const totalInput = form.querySelector('[data-total-price]');
+  const cafeInput = form.querySelector('[data-cafe-amount]');
+  const bakeryInput = form.querySelector('[data-bakery-amount]');
+  if (!totalInput || !cafeInput || !bakeryInput) return;
+
+  const readMoney = input => Number((input.value || '').replace(/\D/g, ''));
+  const formatMoney = value => Number(value).toLocaleString('vi-VN');
+  const syncOtherSide = (source, target) => {
+    if (source.value.trim() === '') {
+      target.value = '';
+      return;
+    }
+    const total = readMoney(totalInput);
+    const sourceAmount = readMoney(source);
+    if (total >= sourceAmount) target.value = formatMoney(total - sourceAmount);
+  };
+
+  cafeInput.addEventListener('input', () => syncOtherSide(cafeInput, bakeryInput));
+  bakeryInput.addEventListener('input', () => syncOtherSide(bakeryInput, cafeInput));
+  totalInput.addEventListener('input', () => {
+    if (bakeryInput.value.trim() !== '') syncOtherSide(bakeryInput, cafeInput);
+    else if (cafeInput.value.trim() !== '') syncOtherSide(cafeInput, bakeryInput);
+  });
+});
+
+/* Lưu/ẩn món tại chỗ để thao tác hàng loạt mà không tải lại trang. */
+const productActionNotice = document.getElementById('productActionNotice');
+let productNoticeTimer = null;
+function showProductNotice(message, type = 'ok') {
+  if (!productActionNotice) return;
+  window.clearTimeout(productNoticeTimer);
+  productActionNotice.textContent = message;
+  productActionNotice.className = 'product-action-notice ' + type + ' show';
+  productNoticeTimer = window.setTimeout(() => {
+    productActionNotice.classList.remove('show');
+  }, 2600);
+}
+
+document.querySelectorAll('.product-edit-card').forEach(form => {
+  form.addEventListener('submit', async event => {
+    const submitter = event.submitter || form.querySelector('button[name="update"]');
+    if (!submitter || !['update', 'delete'].includes(submitter.name)) return;
+    event.preventDefault();
+
+    const buttons = form.querySelectorAll('button[type="submit"]');
+    form.classList.add('is-saving');
+    buttons.forEach(button => button.disabled = true);
+
+    try {
+      const payload = new FormData(form);
+      payload.set(submitter.name, submitter.value || '1');
+      const response = await fetch('products.php', {
+        method: 'POST',
+        body: payload,
+        credentials: 'same-origin',
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+      const responseText = await response.text();
+      let result = null;
+      try { result = JSON.parse(responseText); } catch (error) { result = null; }
+      if (!response.ok || !result || !result.success) {
+        throw new Error(result?.message || 'Không thể lưu thay đổi. Vui lòng thử lại.');
+      }
+
+      if (submitter.name === 'delete') {
+        form.remove();
+        filterProducts();
+      } else {
+        const nameInput = form.querySelector('input[name="name"]');
+        const categoryInput = form.querySelector('select[name="category_id"]');
+        form.dataset.name = (nameInput?.value || '').trim().toLowerCase();
+        form.dataset.cat = categoryInput?.selectedOptions[0]?.textContent.trim() || '';
+
+        const cafeValue = form.querySelector('[data-cafe-amount]')?.value.trim() || '';
+        const bakeryValue = form.querySelector('[data-bakery-amount]')?.value.trim() || '';
+        const splitBadge = form.querySelector('.product-split-details .optional-badge');
+        if (splitBadge) {
+          splitBadge.textContent = cafeValue && bakeryValue
+            ? `Cafe ${cafeValue}đ · Bakery ${bakeryValue}đ`
+            : 'Theo danh mục';
+        }
+        filterProducts();
+      }
+      showProductNotice(result.message || 'Đã lưu thay đổi.');
+    } catch (error) {
+      showProductNotice(error.message || 'Không thể lưu thay đổi.', 'error');
+    } finally {
+      form.classList.remove('is-saving');
+      buttons.forEach(button => button.disabled = false);
+    }
   });
 });
 

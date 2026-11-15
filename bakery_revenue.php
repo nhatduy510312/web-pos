@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/bakery_auth.php';
+require_once __DIR__ . '/revenue_split_helpers.php';
 $db = bakeryDbOrFail();
 $bakeryAccount = requireBakerySession($db);
 
@@ -11,8 +12,14 @@ if ($startDate > $endDate) [$startDate, $endDate] = [$endDate, $startDate];
 $fromDateTime = $startDate . ' 00:00:00';
 $toDateTime = (new DateTimeImmutable($endDate))->modify('+1 day')->format('Y-m-d') . ' 00:00:00';
 
-$category = $db->query("SELECT id,name FROM categories WHERE LOWER(TRIM(name))='bakery' ORDER BY id LIMIT 1")->fetch_assoc();
-$productCount = 0;
+$bakeryGrossSql = revenueSplitBakeryGrossSql('oi', 'p', 'c');
+$hasBakerySql = revenueSplitHasBakerySql('p', 'c');
+$productCount = (int)$db->query(
+    "SELECT COUNT(*) total
+     FROM products p
+     LEFT JOIN categories c ON c.id=p.category_id
+     WHERE $hasBakerySql"
+)->fetch_assoc()['total'];
 $sales = [];
 $products = [];
 $days = [];
@@ -22,35 +29,31 @@ $discountTotal = 0.0;
 $revenueTotal = 0.0;
 $quantityTotal = 0.0;
 
-if ($category) {
-    $categoryId = (int)$category['id'];
-    $stmt = $db->prepare('SELECT COUNT(*) total FROM products WHERE category_id=?');
-    $stmt->bind_param('i', $categoryId); $stmt->execute();
-    $productCount = (int)$stmt->get_result()->fetch_assoc()['total'];
-
-    $stmt = $db->prepare(
+$stmt = $db->prepare(
         "SELECT oi.id AS item_id,oi.order_id,oi.qty,oi.unit_price,
                 p.id AS product_id,p.name AS product_name,
+                ($bakeryGrossSql) AS bakery_gross,
                 COALESCE(o.paid_at,o.created_at) AS sold_at,o.payment_method,
                 COALESCE(o.discount_amount,0) AS order_discount,
                 COALESCE(order_totals.order_gross,0) AS order_gross
          FROM order_items oi
          JOIN products p ON p.id=oi.product_id
+         LEFT JOIN categories c ON c.id=p.category_id
          JOIN orders o ON o.id=oi.order_id
          JOIN (
              SELECT order_id,SUM(qty*unit_price) AS order_gross
              FROM order_items GROUP BY order_id
          ) order_totals ON order_totals.order_id=o.id
-         WHERE o.status='paid' AND p.category_id=?
+         WHERE o.status='paid' AND ($bakeryGrossSql)>0
            AND COALESCE(o.paid_at,o.created_at)>=?
            AND COALESCE(o.paid_at,o.created_at)<?
          ORDER BY sold_at DESC,oi.order_id DESC,oi.id DESC"
-    );
-    $stmt->bind_param('iss', $categoryId, $fromDateTime, $toDateTime);
-    $stmt->execute();
-    foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
+);
+$stmt->bind_param('ss', $fromDateTime, $toDateTime);
+$stmt->execute();
+foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
         $quantity = (float)$row['qty'];
-        $gross = $quantity * (float)$row['unit_price'];
+        $gross = (float)$row['bakery_gross'];
         $orderGross = (float)$row['order_gross'];
         $orderDiscount = max(0.0, (float)$row['order_discount']);
         $discount = $orderGross > 0 ? min($gross, $orderDiscount * $gross / $orderGross) : 0.0;
@@ -78,7 +81,6 @@ if ($category) {
         $grossTotal += $gross;
         $discountTotal += $discount;
         $revenueTotal += $revenue;
-    }
 }
 
 uasort($products, static fn(array $left, array $right): int => $right['revenue'] <=> $left['revenue']);
@@ -89,17 +91,15 @@ $paymentLabels = ['cash'=>'Tiền mặt','bank'=>'Chuyển khoản','mixed'=>'K�
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/svg+xml" href="bakery_favicon.svg"><title>Doanh thu Bakery</title></head><body>
 <?php require __DIR__ . '/bakery_nav.php'; ?>
 <main class="bk-shell">
-<header class="bk-header"><div><h1>Doanh thu Bakery</h1><p>Dữ liệu được lấy trực tiếp từ các hóa đơn đã thanh toán có món thuộc danh mục Bakery trên POS.</p></div></header>
+<header class="bk-header"><div><h1>Doanh thu Bakery</h1><p>Gồm món Bakery và phần doanh thu Bakery được phân bổ từ các combo trên POS.</p></div></header>
 <form class="bk-filter bk-filter-card" method="get">
 <div><label class="bk-label">Từ ngày</label><input class="bk-input" type="date" name="start_date" required value="<?=bakeryH($startDate)?>"></div>
 <div><label class="bk-label">Đến ngày</label><input class="bk-input" type="date" name="end_date" required value="<?=bakeryH($endDate)?>"></div>
 <button class="bk-btn bk-btn-secondary">Xem doanh thu</button>
 </form>
 
-<?php if (!$category): ?>
-<div class="bk-alert bk-alert-error">Không tìm thấy danh mục có tên <strong>Bakery</strong> trên POS. Vui lòng kiểm tra lại đúng tên danh mục.</div>
-<?php elseif ($productCount === 0): ?>
-<div class="bk-alert bk-alert-info">Đã tìm thấy danh mục <strong><?=bakeryH($category['name'])?></strong>, nhưng hiện chưa có món. Khi bạn thêm món vào danh mục này và POS phát sinh hóa đơn đã thanh toán, doanh thu sẽ tự xuất hiện tại đây.</div>
+<?php if ($productCount === 0): ?>
+<div class="bk-alert bk-alert-info">Chưa có món thuộc danh mục Bakery hoặc combo được phân bổ doanh thu Bakery.</div>
 <?php endif; ?>
 
 <section class="bk-stats">

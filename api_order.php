@@ -256,7 +256,7 @@ if ($action == 'add_item') {
             $stmt->bind_param('i', $exist['id']);
             $stmt->execute();
         } else {
-            $stmt = $conn->prepare("SELECT price FROM products WHERE id=? AND status=1 LIMIT 1");
+            $stmt = $conn->prepare("SELECT p.price,p.bakery_revenue_amount,c.name AS category_name FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.id=? AND p.status=1 LIMIT 1");
             $stmt->bind_param('i', $product_id);
             $stmt->execute();
             $product = $stmt->get_result()->fetch_assoc();
@@ -266,11 +266,14 @@ if ($action == 'add_item') {
             }
 
             $price = $product['price'];
+            $bakeryRevenueAmount = $product['bakery_revenue_amount'] !== null
+                ? (float)$product['bakery_revenue_amount']
+                : (strtolower(trim((string)$product['category_name'])) === 'bakery' ? (float)$price : 0.0);
             $stmt = $conn->prepare("
-                INSERT INTO order_items (order_id, product_id, qty, unit_price)
-                VALUES (?, ?, 1, ?)
+                INSERT INTO order_items (order_id, product_id, qty, unit_price, bakery_revenue_amount)
+                VALUES (?, ?, 1, ?, ?)
             ");
-            $stmt->bind_param('iid', $order_id, $product_id, $price);
+            $stmt->bind_param('iidd', $order_id, $product_id, $price, $bakeryRevenueAmount);
             $stmt->execute();
         }
 

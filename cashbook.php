@@ -3,6 +3,7 @@ include 'auth.php';
 include 'config.php';
 requireRole(['admin', 'staff', 'user']);
 requireCsrfForFormPost();
+require_once __DIR__ . '/revenue_split_helpers.php';
 
 $today = $_GET['date'] ?? date('Y-m-d');
 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $today)) $today = date('Y-m-d');
@@ -118,6 +119,57 @@ $deposits        = (float)(cbQuery($conn, "SELECT IFNULL(SUM(amount),0) s FROM c
 $totalRevenue    = $cashRevenue + $transferRevenue;
 $closingCash     = $openingCash + $cashRevenue - $expenses - $deposits;
 
+/* Phân tách doanh thu Bakery/Cafe giống Dashboard để nhân viên đối soát ca. */
+$bakeryGrossSql = revenueSplitBakeryGrossSql('oi', 'p', 'c');
+$bakeryOrderJoin = "LEFT JOIN (
+    SELECT oi.order_id,
+           SUM($bakeryGrossSql) bakery_gross,
+           SUM(oi.qty*oi.unit_price) order_gross
+    FROM order_items oi
+    JOIN products p ON p.id=oi.product_id
+    LEFT JOIN categories c ON c.id=p.category_id
+    GROUP BY oi.order_id
+) bakery_items ON bakery_items.order_id=o.id";
+$bakeryRevenueSql = "CASE WHEN COALESCE(bakery_items.order_gross,0)>0
+    THEN GREATEST(0, bakery_items.bakery_gross - LEAST(bakery_items.bakery_gross,
+         COALESCE(o.discount_amount,0)*bakery_items.bakery_gross/bakery_items.order_gross))
+    ELSE 0 END";
+$bakeryPaymentTotalSql = "(COALESCE(o.cash_amount,0)+COALESCE(o.bank_amount,0))";
+$bakeryCashSql = "CASE WHEN $bakeryPaymentTotalSql>0
+    THEN ($bakeryRevenueSql)*COALESCE(o.cash_amount,0)/$bakeryPaymentTotalSql
+    WHEN o.payment_method='cash' THEN ($bakeryRevenueSql) ELSE 0 END";
+$bakeryBankSql = "CASE WHEN $bakeryPaymentTotalSql>0
+    THEN ($bakeryRevenueSql)*COALESCE(o.bank_amount,0)/$bakeryPaymentTotalSql
+    WHEN o.payment_method='bank' THEN ($bakeryRevenueSql) ELSE 0 END";
+
+$shiftOrderSummary = cbQuery(
+    $conn,
+    "SELECT COUNT(*) total_orders FROM orders WHERE status='paid' AND paid_at>=? AND paid_at<?",
+    'ss',
+    $today,
+    $nextDay
+)->fetch_assoc();
+$totalOrders = (int)($shiftOrderSummary['total_orders'] ?? 0);
+$averageOrder = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
+
+$bakerySummary = cbQuery(
+    $conn,
+    "SELECT IFNULL(SUM($bakeryRevenueSql),0) revenue,
+            IFNULL(SUM($bakeryCashSql),0) cash,
+            IFNULL(SUM($bakeryBankSql),0) bank
+     FROM orders o $bakeryOrderJoin
+     WHERE o.status='paid' AND o.paid_at>=? AND o.paid_at<?",
+    'ss',
+    $today,
+    $nextDay
+)->fetch_assoc();
+$bakeryRevenue = (float)($bakerySummary['revenue'] ?? 0);
+$bakeryCash = (float)($bakerySummary['cash'] ?? 0);
+$bakeryTransfer = (float)($bakerySummary['bank'] ?? 0);
+$cafeRevenue = $totalRevenue - $bakeryRevenue;
+$cafeCash = $cashRevenue - $bakeryCash;
+$cafeTransfer = $transferRevenue - $bakeryTransfer;
+
 if (isset($_POST['close_day']) && !$closed) {
     $stmt = $conn->prepare("UPDATE cashbook_history SET opening_cash=?,cash_revenue=?,transfer_revenue=?,expenses=?,deposits=?,closing_cash=? WHERE report_date=?");
     $stmt->bind_param("dddddds", $openingCash, $cashRevenue, $transferRevenue, $expenses, $deposits, $closingCash, $today);
@@ -148,6 +200,10 @@ $isToday = $today === date('Y-m-d');
 .sum-item { background:var(--s50); border-radius:var(--r-sm); padding:12px 14px; border:1px solid var(--s200); }
 .sum-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--s400); }
 .sum-val { font-size:18px; font-weight:700; margin-top:4px; }
+.cb-section-title {
+  margin:18px 0 10px;color:var(--s400);font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;
+}
 .locked-banner {
   display:flex;align-items:center;gap:10px;
   background:var(--ok-lt);color:var(--ok);
@@ -217,23 +273,12 @@ $isToday = $today === date('Y-m-d');
   </div>
   <?php endif; ?>
 
-  <!-- Summary cards -->
+  <!-- Closing reconciliation -->
+  <div class="cb-section-title">Đối soát cuối ca</div>
   <div class="cb-summary">
     <div class="sum-item">
       <div class="sum-label">TM đầu ca</div>
       <div class="sum-val money"><?= number_format($openingCash) ?>đ</div>
-    </div>
-    <div class="sum-item">
-      <div class="sum-label">DT tiền mặt</div>
-      <div class="sum-val c-green money"><?= number_format($cashRevenue) ?>đ</div>
-    </div>
-    <div class="sum-item">
-      <div class="sum-label">DT chuyển khoản</div>
-      <div class="sum-val c-blue money"><?= number_format($transferRevenue) ?>đ</div>
-    </div>
-    <div class="sum-item">
-      <div class="sum-label">Tổng doanh thu</div>
-      <div class="sum-val c-green money"><?= number_format($totalRevenue) ?>đ</div>
     </div>
     <div class="sum-item">
       <div class="sum-label">Chi tiền</div>
@@ -246,6 +291,63 @@ $isToday = $today === date('Y-m-d');
     <div class="sum-item" style="background:var(--p-lt);border-color:var(--p-bd);">
       <div class="sum-label" style="color:var(--p);">TM cuối ca</div>
       <div class="sum-val c-blue money"><?= number_format($closingCash) ?>đ</div>
+    </div>
+  </div>
+
+  <!-- Revenue details -->
+  <div class="cb-section-title">Tổng doanh thu trong ca</div>
+  <div class="cb-summary">
+    <div class="sum-item">
+      <div class="sum-label">Tổng doanh thu</div>
+      <div class="sum-val c-green money"><?= number_format($totalRevenue) ?>đ</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-label">Tiền mặt</div>
+      <div class="sum-val c-orange money"><?= number_format($cashRevenue) ?>đ</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-label">Chuyển khoản</div>
+      <div class="sum-val c-purple money"><?= number_format($transferRevenue) ?>đ</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-label">Số hóa đơn</div>
+      <div class="sum-val c-blue"><?= number_format($totalOrders) ?></div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-label">Trung bình / đơn</div>
+      <div class="sum-val c-blue money"><?= number_format($averageOrder) ?>đ</div>
+    </div>
+  </div>
+
+  <div class="cb-section-title">Bakery — trong ca</div>
+  <div class="cb-summary">
+    <div class="sum-item">
+      <div class="sum-label">Doanh thu Bakery</div>
+      <div class="sum-val c-green money"><?= number_format($bakeryRevenue) ?>đ</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-label">Tiền mặt Bakery</div>
+      <div class="sum-val c-orange money"><?= number_format($bakeryCash) ?>đ</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-label">Chuyển khoản Bakery</div>
+      <div class="sum-val c-purple money"><?= number_format($bakeryTransfer) ?>đ</div>
+    </div>
+  </div>
+
+  <div class="cb-section-title">Cafe — trong ca</div>
+  <div class="cb-summary">
+    <div class="sum-item">
+      <div class="sum-label">Doanh thu Cafe</div>
+      <div class="sum-val c-green money"><?= number_format($cafeRevenue) ?>đ</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-label">Tiền mặt Cafe</div>
+      <div class="sum-val c-orange money"><?= number_format($cafeCash) ?>đ</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-label">Chuyển khoản Cafe</div>
+      <div class="sum-val c-purple money"><?= number_format($cafeTransfer) ?>đ</div>
     </div>
   </div>
 
