@@ -1826,6 +1826,158 @@
                 }
             ],
             "updated_at": "2026-11-10T19:13:43+07:00"
+        },
+        "product-83": {
+            "name": "8. Chessy Sausage",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Chessy",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-11T08:41:29+07:00"
+        },
+        "product-84": {
+            "name": "9. Marble",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Marble",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-11T12:17:53+07:00"
+        },
+        "product-85": {
+            "name": "10. Madeleine(2pcs)",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Madeleine(2pcs)",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-11T12:18:29+07:00"
+        },
+        "product-86": {
+            "name": "10. Butter teok",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Butter",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-14T15:03:57+07:00"
+        },
+        "product-88": {
+            "name": "11. Miso cinnamon roll",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Miso cinnamon roll",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-15T08:02:47+07:00"
+        },
+        "product-89": {
+            "name": "13. Cinnamon roll",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Cinnamon roll",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-15T08:03:56+07:00"
+        },
+        "product-90": {
+            "name": "14. Cinnamon roll with creamcheese",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Cinnamon roll with creamcheese",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-15T08:04:46+07:00"
+        },
+        "product-91": {
+            "name": "15. Butter & Jam",
+            "type": "food",
+            "category": "Bakery",
+            "instructions": "",
+            "source": {
+                "sheet": "ADMIN",
+                "row": null
+            },
+            "ingredients": [
+                {
+                    "name": "Butter & Jam",
+                    "amount": "",
+                    "unit": "",
+                    "sort_order": 1
+                }
+            ],
+            "updated_at": "2026-11-15T09:08:17+07:00"
         }
     },
     "product_map": [
@@ -2282,7 +2434,63 @@
             ],
             "recipe_code": "product-82",
             "variant": ""
+        },
+        {
+            "product_names": [
+                "8. Hot chessy Sausage"
+            ],
+            "recipe_code": "product-83",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "9. Marble"
+            ],
+            "recipe_code": "product-84",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "10. Madeleine(2pcs)"
+            ],
+            "recipe_code": "product-85",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "11. Butter teok"
+            ],
+            "recipe_code": "product-86",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "12. Miso cinnamon roll"
+            ],
+            "recipe_code": "product-88",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "13. Cinnamon roll"
+            ],
+            "recipe_code": "product-89",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "14. Cinnamon roll with creamcheese"
+            ],
+            "recipe_code": "product-90",
+            "variant": ""
+        },
+        {
+            "product_names": [
+                "15. Butter & Jam"
+            ],
+            "recipe_code": "product-91",
+            "variant": ""
         }
     ],
-    "updated_at": "2026-11-10T19:13:43+07:00"
+    "updated_at": "2026-11-15T09:08:17+07:00"
 }
